@@ -18,4 +18,8 @@ router.get("/:id", getTransaction);
 
 router.delete("/:id", deleteTransaction);
 
+router.get("/:id", getTransaction);
+
+router.delete("/:id", deleteTransaction);
+
 export default router;

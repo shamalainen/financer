@@ -56,6 +56,7 @@ export const deleteTransaction = async (req: Request, res: Response) => {
     });
     return;
   }
+
   if (transaction.fromAccount) {
     const fromAccount = await findAccountsById(transaction.fromAccount);
     if (fromAccount !== null) {
