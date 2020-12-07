@@ -1,38 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
+import { DataOrModifiedFn, useAsyncResource } from "use-async-resource";
 import { getAllTransferTranscations } from "../../services/TransactionService";
 import { formatDate } from "../../utils/formatDate";
 import formatCurrency from "../../utils/formatCurrency";
 import { getAllAccounts } from "./AccountService";
 import StackedList from "../../components/stacked-list/stacked-list";
 import { ICustomStackedListRowProps } from "../../components/stacked-list/stacked-list.row";
+import Loader from "../../components/loader/loader";
 
-interface IProps {
+interface ITransferListContainerProps {
   className?: string;
 }
 
-const TransferList = ({ className = "" }: IProps): JSX.Element => {
-  const [transfersRaw, setTransfersRaw] = useState<ITransaction[] | null>(null);
+interface ITransferListProps {
+  className?: string;
+  transfersReader: DataOrModifiedFn<IApiResponse<ITransaction[]>>;
+  accountsReader: DataOrModifiedFn<IAccount[]>;
+}
+
+const TransferList = ({
+  transfersReader,
+  accountsReader,
+  className = "",
+}: ITransferListProps): JSX.Element => {
   const [transfers, setTransfers] = useState<ICustomStackedListRowProps[]>([]);
-  const [accounts, setAccounts] = useState<IAccount[] | null>(null);
+  const transferRaw = transfersReader().payload;
+  const accounts = accountsReader();
 
   useEffect(() => {
-    const fetchTransfers = async () => {
-      setTransfersRaw((await getAllTransferTranscations()).payload);
-    };
-
-    const fetchAccounts = async () => {
-      setAccounts(await getAllAccounts());
-    };
-
-    fetchTransfers();
-    fetchAccounts();
-  }, []);
-
-  useEffect(() => {
-    if (transfersRaw === null || accounts === null) return;
-
     setTransfers(
-      transfersRaw
+      transferRaw
         .map(
           ({
             date: dateStr,
@@ -68,7 +65,7 @@ const TransferList = ({ className = "" }: IProps): JSX.Element => {
         )
         .sort((a, b) => (a.date > b.date ? -1 : 1))
     );
-  }, [transfersRaw, accounts]);
+  }, [transferRaw, accounts]);
 
   return (
     <div className={className}>
@@ -77,4 +74,21 @@ const TransferList = ({ className = "" }: IProps): JSX.Element => {
   );
 };
 
-export default TransferList;
+const TransferListContainer = ({
+  className,
+}: ITransferListContainerProps): JSX.Element => {
+  const [transfersReader] = useAsyncResource(getAllTransferTranscations, []);
+  const [accountsReader] = useAsyncResource(getAllAccounts, []);
+
+  return (
+    <Suspense fallback={<Loader loaderColor="blue" />}>
+      <TransferList
+        className={className}
+        transfersReader={transfersReader}
+        accountsReader={accountsReader}
+      />
+    </Suspense>
+  );
+};
+
+export default TransferListContainer;

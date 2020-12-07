@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useEffect, useState } from "react";
+import { DataOrModifiedFn, useAsyncResource } from "use-async-resource";
 import Button from "../../components/button/button";
 import ButtonGroup from "../../components/button/button.group";
 import Hero from "../../components/hero/hero";
@@ -11,21 +12,16 @@ import formatCurrency from "../../utils/formatCurrency";
 import { getAllAccounts } from "./AccountService";
 import TransferList from "./TransferList";
 
-const Accounts = (): JSX.Element => {
-  const [accountsRaw, setAccountsRaw] = useState<IAccount[] | null>(null);
+interface IAccountsProps {
+  accountsReader: DataOrModifiedFn<IAccount[]>;
+}
+
+const Accounts = ({ accountsReader }: IAccountsProps): JSX.Element => {
   const [accounts, setAccounts] = useState<IStackedListRowProps[]>([]);
   const [totalBalance, setTotalBalance] = useState<number>(NaN);
+  const accountsRaw = accountsReader();
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      setAccountsRaw(await getAllAccounts());
-    };
-    fetchAccounts();
-  }, []);
-
-  useEffect(() => {
-    if (accountsRaw === null) return;
-
     const total = accountsRaw.reduce(
       (currentTotal, { balance, type }) =>
         currentTotal + (type !== "loan" ? balance : 0),
@@ -48,9 +44,7 @@ const Accounts = (): JSX.Element => {
     accentLabel: "Total",
   });
 
-  return accountsRaw === null ? (
-    <Loader loaderColor="blue" />
-  ) : (
+  return (
     <>
       <SEO title="Accounts" />
       <Hero accent="Overview" accentColor="blue" label="Accounts">
@@ -79,4 +73,14 @@ const Accounts = (): JSX.Element => {
   );
 };
 
-export default Accounts;
+const AccountsContainer = (): JSX.Element => {
+  const [accountsReader] = useAsyncResource(getAllAccounts, []);
+
+  return (
+    <Suspense fallback={<Loader loaderColor="blue" />}>
+      <Accounts accountsReader={accountsReader} />
+    </Suspense>
+  );
+};
+
+export default AccountsContainer;
