@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import { Line, LineChart, ResponsiveContainer } from "recharts";
 import Button from "../../components/button/button";
 import ButtonGroup from "../../components/button/button.group";
 import Container from "../../components/container/container";
@@ -23,6 +24,26 @@ import {
 interface IProps {
   handleDelete(): void;
 }
+
+const data = [
+  { name: "Page A", uv: 400, pv: 2400, amt: 2400 },
+  { name: "Page B", uv: 200, pv: 2400, amt: 2400 },
+  { name: "Page C", uv: 50000, pv: 2400, amt: 2400 },
+];
+
+const SimpleLineChart = (): JSX.Element => {
+  return (
+    <Container>
+      <div style={{ width: "100%", height: "33vh", minHeight: "450px" }}>
+        <ResponsiveContainer>
+          <LineChart width={800} height={400} data={data}>
+            <Line type="monotone" dataKey="uv" stroke="#8884d8" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </Container>
+  );
+};
 
 const AccountDeleteModal = ({ handleDelete }: IProps) => (
   <ModalConfirm
@@ -135,6 +156,7 @@ const Account = (): JSX.Element => {
           {capitalize(account.type)}
         </DescriptionListItem>
       </DescriptionList>
+      <SimpleLineChart />
       {transactions.length > 0 && (
         <Container className="mt-12">
           <StackedList label="Account transactions" rows={transactions} />
