@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { Line, LineChart, ResponsiveContainer } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import Button from "../../components/button/button";
 import ButtonGroup from "../../components/button/button.group";
 import Container from "../../components/container/container";
@@ -25,23 +35,32 @@ interface IProps {
   handleDelete(): void;
 }
 
-const data = [
-  { name: "Page A", uv: 400, pv: 2400, amt: 2400 },
-  { name: "Page B", uv: 200, pv: 2400, amt: 2400 },
-  { name: "Page C", uv: 50000, pv: 2400, amt: 2400 },
-];
+interface IChartData {
+  dateStr: string;
+  date: Date;
+  balance: number;
+}
 
-const SimpleLineChart = (): JSX.Element => {
+interface ISimpleLineChartProps {
+  data: IChartData[];
+}
+
+const SimpleLineChart = ({ data }: ISimpleLineChartProps): JSX.Element => {
   return (
-    <Container>
-      <div style={{ width: "100%", height: "33vh", minHeight: "450px" }}>
-        <ResponsiveContainer>
-          <LineChart width={800} height={400} data={data}>
-            <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </Container>
+    <div style={{ width: "100%", height: "33vh", minHeight: "450px" }}>
+      <ResponsiveContainer>
+        <AreaChart data={data}>
+          <Tooltip />
+          <YAxis
+            domain={["dataMin", "dataMax"]}
+            tickFormatter={formatCurrency}
+          />
+          <XAxis dataKey="dateStr" minTickGap={20} />
+          <Area dataKey="balance" strokeWidth={3} dot={false} />
+          <CartesianGrid vertical={false} stroke="#CCCCCC" />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
@@ -64,6 +83,7 @@ const Account = (): JSX.Element => {
   const [transactions, setTransactions] = useState<
     ICustomStackedListRowProps[]
   >([]);
+  const [chartData, setChartData] = useState<IChartData[]>([]);
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
@@ -120,6 +140,18 @@ const Account = (): JSX.Element => {
           )
           .sort((a, b) => (a.date > b.date ? -1 : 1))
       );
+      setChartData(
+        rawTransactions.map(
+          ({ toAccount, toAccountBalance, fromAccountBalance, date }) => ({
+            dateStr: formatDate(new Date(date)),
+            date: new Date(date),
+            balance:
+              toAccount === id
+                ? toAccountBalance || 0
+                : fromAccountBalance || 0,
+          })
+        )
+      );
     };
 
     fetchAccount();
@@ -156,7 +188,9 @@ const Account = (): JSX.Element => {
           {capitalize(account.type)}
         </DescriptionListItem>
       </DescriptionList>
-      <SimpleLineChart />
+      <Container className="mt-12">
+        <SimpleLineChart data={chartData} />
+      </Container>
       {transactions.length > 0 && (
         <Container className="mt-12">
           <StackedList label="Account transactions" rows={transactions} />
