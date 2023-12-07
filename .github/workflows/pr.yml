@@ -52,13 +52,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        spec: [
-            "chromium",
-            "firefox",
-            # "webkit",
-            "Mobile_Chrome",
-            # "Mobile_Safari"
-          ]
+        spec:
+          ["chromium", "firefox", "webkit", "Mobile_Chrome", "Mobile_Safari"]
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup-node
