@@ -2,7 +2,7 @@ import { TransactionTypeMapping } from '@local/types';
 import { useMemo, useState } from 'react';
 
 import {
-  TransactionTypeEnum,
+  TransactionType,
   useTransactionTemplatesFindAllManualTypeByUserQuery,
 } from '$api/generated/financerApi';
 import { Drawer } from '$blocks/drawer/drawer';
@@ -16,7 +16,7 @@ import { useViewTransitionRouter } from '$hooks/useViewTransitionRouter';
 
 interface TransactionTemplateSwitcherProps {
   selectedTemplate?: string;
-  templateType: Exclude<TransactionTypeEnum, 'ANY'>;
+  templateType: Exclude<TransactionType, 'ANY'>;
 }
 
 export const TransactionTemplateSwitcher = ({
@@ -30,9 +30,9 @@ export const TransactionTemplateSwitcher = ({
   const targetTemplates = useMemo(
     () =>
       transactionTemplates.filter(
-        ({ templateVisibility }) => templateVisibility === templateType
+        ({ templateVisibility }) => templateVisibility === templateType,
       ),
-    [templateType, transactionTemplates]
+    [templateType, transactionTemplates],
   );
 
   const { push } = useViewTransitionRouter();
@@ -43,7 +43,7 @@ export const TransactionTemplateSwitcher = ({
     const { templateSwitcher } = event.target;
     const selectedTemplateId = templateSwitcher.value;
     push(
-      `/statistics/${TransactionTypeMapping[templateType]}/add/${selectedTemplateId}`
+      `/statistics/${TransactionTypeMapping[templateType]}/add/${selectedTemplateId}`,
     );
     setIsOpen(false);
   };

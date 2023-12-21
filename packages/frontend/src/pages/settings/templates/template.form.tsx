@@ -2,12 +2,10 @@ import { useEffect, useMemo } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import {
-  TransactionTemplateTypeEnum,
+  TransactionTemplateType,
   TransactionType,
-  TransactionTypeEnum,
   useAccountsFindAllByUserQuery,
-  VisibilityType2Enum,
-  VisibilityTypeEnum,
+  VisibilityType,
 } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
 import {
@@ -28,7 +26,7 @@ interface TemplateFormProps {
 
 export interface TemplateFormFields {
   templateName: string;
-  templateType: TransactionTemplateTypeEnum;
+  templateType: TransactionTemplateType;
   templateVisibility: TransactionType;
   description: string;
   amount: number;
@@ -42,11 +40,11 @@ export interface TemplateFormFields {
 const TransactionCategoriesFormWrapper = ({
   type,
 }: {
-  type: VisibilityTypeEnum;
+  type: VisibilityType;
 }): JSX.Element | null => {
   const { data: transactionCategoriesRaw } =
     useGetAllTransactionCategoriesWithCategoryTree({
-      visibilityType: type as unknown as VisibilityType2Enum,
+      visibilityType: type as unknown as VisibilityType,
     });
 
   const transactionCategories: Option[] = useMemo(() => {
@@ -83,10 +81,10 @@ export const TemplateForm = ({
   const templateVisibility = watch('templateVisibility');
 
   const initialTemplateType =
-    TransactionTemplateTypeEnum[
+    TransactionTemplateType[
       capitalize(
-        initialValues?.templateType?.[0] ?? 'manual'
-      ) as keyof typeof TransactionTemplateTypeEnum
+        initialValues?.templateType?.[0] ?? 'manual',
+      ) as keyof typeof TransactionTemplateType
     ];
 
   const { data: accounts } = useAccountsFindAllByUserQuery({});
@@ -104,30 +102,30 @@ export const TemplateForm = ({
   };
 
   const selectedTransactionType = useMemo(() => {
-    if (templateVisibility === TransactionTypeEnum.Income)
-      return VisibilityTypeEnum.Income;
-    if (templateVisibility === TransactionTypeEnum.Expense)
-      return VisibilityTypeEnum.Expense;
+    if (templateVisibility === TransactionType.Income)
+      return VisibilityType.Income;
+    if (templateVisibility === TransactionType.Expense)
+      return VisibilityType.Expense;
 
-    return VisibilityTypeEnum.Transfer;
+    return VisibilityType.Transfer;
   }, [templateVisibility]);
 
   const templateTypes = (
     Object.keys(
-      TransactionTemplateTypeEnum
-    ) as (keyof typeof TransactionTemplateTypeEnum)[]
+      TransactionTemplateType,
+    ) as (keyof typeof TransactionTemplateType)[]
   ).map((type) => ({
-    value: TransactionTemplateTypeEnum[type],
-    label: capitalize(TransactionTemplateTypeEnum[type]),
+    value: TransactionTemplateType[type],
+    label: capitalize(TransactionTemplateType[type]),
   }));
 
   const transactionTypes = (
-    Object.keys(TransactionTypeEnum) as (keyof typeof TransactionTypeEnum)[]
+    Object.keys(TransactionType) as (keyof typeof TransactionType)[]
   )
     .filter((type) => type !== 'Any')
     .map((type) => ({
-      value: TransactionTypeEnum[type],
-      label: capitalize(TransactionTypeEnum[type]),
+      value: TransactionType[type],
+      label: capitalize(TransactionType[type]),
     }));
 
   useEffect(() => {
@@ -163,19 +161,19 @@ export const TemplateForm = ({
           <Input id="amount" type="number" min={0.01} step={0.01}>
             Amount
           </Input>
-          {(templateVisibility === TransactionTypeEnum.Expense ||
-            templateVisibility === TransactionTypeEnum.Transfer) && (
+          {(templateVisibility === TransactionType.Expense ||
+            templateVisibility === TransactionType.Transfer) && (
             <Select id="fromAccount" options={accountOptions} isRequired>
               From Account
             </Select>
           )}
-          {(templateVisibility === TransactionTypeEnum.Income ||
-            templateVisibility === TransactionTypeEnum.Transfer) && (
+          {(templateVisibility === TransactionType.Income ||
+            templateVisibility === TransactionType.Transfer) && (
             <Select id="toAccount" options={accountOptions} isRequired>
               To Account
             </Select>
           )}
-          {templateType === TransactionTemplateTypeEnum.Auto && (
+          {templateType === TransactionTemplateType.Auto && (
             <>
               <Input id="dayOfMonth" type="number" min={1} max={31}>
                 Day of month for transaction

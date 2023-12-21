@@ -1,20 +1,20 @@
 import { useCallback } from 'react';
 
 import {
-  UserPreferencePropertyEnum,
+  UserPreferenceProperty,
   useUserPreferencesFindOneQuery,
   useUserPreferencesUpdateMutation,
 } from '$api/generated/financerApi';
 
 const userPreferenceProperty =
-  UserPreferencePropertyEnum.DefaultTransferSourceAccount;
+  UserPreferenceProperty.DefaultTransferSourceAccount;
 
 export const useUserDefaultTransferSourceAccount = ({ skip = false } = {}) => {
   const data = useUserPreferencesFindOneQuery(
     {
       userPreferenceProperty,
     },
-    { skip }
+    { skip },
   );
 
   return {
@@ -25,7 +25,7 @@ export const useUserDefaultTransferSourceAccount = ({ skip = false } = {}) => {
 
 export const useUpdateUserDefaultTransferSourceAccount = (): [
   (newValue: string) => Promise<void>,
-  ReturnType<typeof useUserPreferencesUpdateMutation>[1]
+  ReturnType<typeof useUserPreferencesUpdateMutation>[1],
 ] => {
   const [updateMutation, data] = useUserPreferencesUpdateMutation();
 
@@ -38,7 +38,7 @@ export const useUpdateUserDefaultTransferSourceAccount = (): [
         },
       }).unwrap();
     },
-    [updateMutation]
+    [updateMutation],
   );
 
   return [updateUserPreference, data];

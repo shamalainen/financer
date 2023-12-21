@@ -117,8 +117,8 @@ export class AccountsService {
       const balanceChangeAmount =
         updateAccountDto.balance - accountBeforeChange.balance;
       await this.accountBalanceChangesService.create({
-        accountId: id,
-        userId,
+        accountId: id.toString(),
+        userId: userId.toString(),
         amount: balanceChangeAmount,
         date: new Date(),
       });
@@ -162,8 +162,8 @@ export class AccountsService {
 
     const accountBalanceChanges = (
       await this.accountBalanceChangesService.findAllByUserAndAccount(
-        userId,
-        accountId,
+        userId.toString(),
+        accountId.toString(),
       )
     ).map(({ amount, date }) => ({ amount, date }));
 

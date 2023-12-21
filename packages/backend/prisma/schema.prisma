@@ -54,8 +54,8 @@ model AccountBalanceChange {
   updatedAt DateTime @updatedAt @db.Date
   userId    String   @db.ObjectId
 
-  Account Account @relation(fields: [accountId], references: [id])
-  User    User    @relation(fields: [userId], references: [id])
+  Account Account? @relation(fields: [accountId], references: [id])
+  User    User?    @relation(fields: [userId], references: [id])
 
   @@map("account-balance-changes")
 }

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import {
   CreateIncomeDto,
-  TransactionTypeEnum,
+  TransactionType,
   useIncomesCreateMutation,
   useTransactionTemplatesFindOneQuery,
 } from '$api/generated/financerApi';
@@ -31,7 +31,7 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
 
   const templateData = useTransactionTemplatesFindOneQuery(
     { id: templateId as string },
-    { skip: !templateId }
+    { skip: !templateId },
   );
 
   const { data: transactionTemplate } = templateData;
@@ -49,9 +49,9 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -84,7 +84,7 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
         headerAction={
           <TransactionTemplateSwitcher
             selectedTemplate={templateId}
-            templateType={TransactionTypeEnum.Income}
+            templateType={TransactionType.Income}
           />
         }
       />

@@ -1,19 +1,19 @@
 import { useCallback } from 'react';
 
 import {
-  UserPreferencePropertyEnum,
+  UserPreferenceProperty,
   useUserPreferencesFindOneQuery,
   useUserPreferencesUpdateMutation,
 } from '$api/generated/financerApi';
 
-const userPreferenceProperty = UserPreferencePropertyEnum.DefaultIncomeAccount;
+const userPreferenceProperty = UserPreferenceProperty.DefaultIncomeAccount;
 
 export const useUserDefaultIncomeAccount = ({ skip = false } = {}) => {
   const data = useUserPreferencesFindOneQuery(
     {
       userPreferenceProperty,
     },
-    { skip }
+    { skip },
   );
 
   return {
@@ -24,7 +24,7 @@ export const useUserDefaultIncomeAccount = ({ skip = false } = {}) => {
 
 export const useUpdateUserDefaultIncomeAccount = (): [
   (newValue: string) => Promise<void>,
-  ReturnType<typeof useUserPreferencesUpdateMutation>[1]
+  ReturnType<typeof useUserPreferencesUpdateMutation>[1],
 ] => {
   const [updateMutation, data] = useUserPreferencesUpdateMutation();
 
@@ -37,7 +37,7 @@ export const useUpdateUserDefaultIncomeAccount = (): [
         },
       }).unwrap();
     },
-    [updateMutation]
+    [updateMutation],
   );
 
   return [updateUserPreference, data];

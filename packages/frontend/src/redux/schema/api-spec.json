@@ -1837,13 +1837,23 @@
       "AccountBalanceChangeDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "object" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "date": { "format": "date-time", "type": "string" },
           "amount": { "type": "number" },
-          "userId": { "type": "object" },
-          "accountId": { "type": "object" }
+          "userId": { "type": "string" },
+          "accountId": { "type": "string" }
         },
-        "required": ["_id", "date", "amount", "userId", "accountId"]
+        "required": [
+          "createdAt",
+          "updatedAt",
+          "id",
+          "date",
+          "amount",
+          "userId",
+          "accountId"
+        ]
       },
       "VisibilityType": {
         "type": "string",

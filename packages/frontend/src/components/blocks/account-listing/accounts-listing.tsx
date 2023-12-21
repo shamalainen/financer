@@ -1,11 +1,11 @@
-import { AccountTypeEnum } from '$api/generated/financerApi';
+import { AccountType } from '$api/generated/financerApi';
 import { accountTypeIconMapping } from '$constants/account/accountTypeIconMapping';
 import { LinkList } from '$elements/link-list/link-list';
 import { LinkListLink } from '$elements/link-list/link-list.link';
 
 export interface AccountListingItem {
   accountType: string;
-  type: AccountTypeEnum;
+  type: AccountType;
   balanceAmount: string;
   label: string;
   link?: string;

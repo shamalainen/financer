@@ -1,50 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { AccountBalanceChange } from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
+import { AccountBalanceChangeRepo } from '../../database/repos/account-balance-change.repo';
 
 import { CreateAccountBalanceChangeDto } from './dto/create-account-balance-change.dto';
-import {
-  AccountBalanceChange,
-  AccountBalanceChangeDocument,
-} from './schemas/account-balance-change.schema';
 
 @Injectable()
 export class AccountBalanceChangesService {
   constructor(
-    @InjectModel(AccountBalanceChange.name)
-    private accountBalanceChangeModel: Model<AccountBalanceChangeDocument>,
+    private readonly accountBalanceChangeRepo: AccountBalanceChangeRepo,
   ) {}
 
   async create(
     createAccountBalanceChange: CreateAccountBalanceChangeDto,
-  ): Promise<AccountBalanceChangeDocument> {
-    return this.accountBalanceChangeModel.create(createAccountBalanceChange);
+  ): Promise<AccountBalanceChange> {
+    return this.accountBalanceChangeRepo.create(createAccountBalanceChange);
   }
 
   async createMany(
     createAccountBalanceChanges: CreateAccountBalanceChangeDto[],
-  ): Promise<AccountBalanceChangeDocument[]> {
-    return this.accountBalanceChangeModel.insertMany(
-      createAccountBalanceChanges,
-    );
+  ): Promise<void> {
+    await this.accountBalanceChangeRepo.createMany(createAccountBalanceChanges);
   }
 
-  async findAllByUser(
-    userId: ObjectId,
-  ): Promise<AccountBalanceChangeDocument[]> {
-    return this.accountBalanceChangeModel.find({ userId });
+  async findAllByUser(userId: string): Promise<AccountBalanceChange[]> {
+    return this.accountBalanceChangeRepo.findMany({ where: { userId } });
   }
 
   async findAllByUserAndAccount(
-    userId: ObjectId,
-    accountId: ObjectId,
-  ): Promise<AccountBalanceChangeDocument[]> {
-    return this.accountBalanceChangeModel.find({ userId, accountId });
+    userId: string,
+    accountId: string,
+  ): Promise<AccountBalanceChange[]> {
+    return this.accountBalanceChangeRepo.findMany({
+      where: { userId, accountId },
+    });
   }
 
-  async removeAllByUser(userId: ObjectId): Promise<void> {
-    await this.accountBalanceChangeModel.deleteMany({ userId });
+  async removeAllByUser(userId: string): Promise<void> {
+    await this.accountBalanceChangeRepo.deleteMany({ userId });
   }
 }

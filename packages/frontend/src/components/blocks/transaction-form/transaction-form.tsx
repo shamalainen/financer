@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import {
-  VisibilityType2Enum,
-  VisibilityTypeEnum,
+  VisibilityType,
   useAccountsFindAllByUserQuery,
 } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
@@ -44,7 +43,7 @@ export const TransactionForm = ({
       toAccount: initialValues?.toAccount || '',
       fromAccount: initialValues?.fromAccount || '',
     }),
-    [initialValues]
+    [initialValues],
   );
 
   const methods = useForm<TransactionFormFields>({
@@ -65,20 +64,17 @@ export const TransactionForm = ({
 
   const visibilityType = useMemo(() => {
     if (hasToAccountField && hasFromAccountField) {
-      return VisibilityTypeEnum.Transfer;
+      return VisibilityType.Transfer;
     }
 
     if (hasToAccountField && !hasFromAccountField) {
-      return VisibilityTypeEnum.Income;
+      return VisibilityType.Income;
     }
 
     if (hasFromAccountField && !hasToAccountField) {
-      return VisibilityTypeEnum.Expense;
+      return VisibilityType.Expense;
     }
-  }, [
-    hasFromAccountField,
-    hasToAccountField,
-  ]) as unknown as VisibilityType2Enum;
+  }, [hasFromAccountField, hasToAccountField]) as unknown as VisibilityType;
 
   const { data: transactionCategoriesRaw } =
     useGetAllTransactionCategoriesWithCategoryTree({
@@ -86,7 +82,7 @@ export const TransactionForm = ({
     });
 
   const [transactionCategories, setTransactionCategories] = useState<Option[]>(
-    []
+    [],
   );
 
   useEffect(() => {
@@ -96,7 +92,7 @@ export const TransactionForm = ({
       transactionCategoriesRaw.map(({ _id, categoryTree }) => ({
         value: _id,
         label: categoryTree,
-      }))
+      })),
     );
   }, [transactionCategoriesRaw]);
 

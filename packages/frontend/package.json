@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@local/types": "*",
-    "@reduxjs/toolkit": "^2.0.1",
+    "@reduxjs/toolkit": "^1.9.7",
     "@testing-library/jest-dom": "^6.1.5",
     "chart.js": "^4.4.1",
     "clsx": "^2.0.0",

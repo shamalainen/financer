@@ -1,9 +1,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { AccountBalanceChange, User } from '@prisma/client';
 
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
-import { AccountBalanceChangeDocument } from '../account-balance-changes/schemas/account-balance-change.schema';
 import { AccountsService } from '../accounts/accounts.service';
 import { AccountDocument } from '../accounts/schemas/account.schema';
 import { TransactionCategoryDocument } from '../transaction-categories/schemas/transaction-category.schema';
@@ -21,7 +20,7 @@ import { UsersService } from '../users/users.service';
 export type ImportUserDataDto = {
   transactions: TransactionDocument[];
   accounts: AccountDocument[];
-  accountBalanceChanges: AccountBalanceChangeDocument[];
+  accountBalanceChanges: AccountBalanceChange[];
   transactionCategories: TransactionCategoryDocument[];
   transactionCategoryMappings: TransactionCategoryMappingDocument[];
   userPreferences: UserPreferenceDocument[];
@@ -63,21 +62,18 @@ export class UserDataService {
   ): Promise<{ filename: string; data: ExportUserDataDto }> {
     const parsedUserId = parseObjectId(userId);
     const user = await this.usersService.findOne(userId);
-    const accounts = await this.accountsService.findAllIncludeDeletedByUser(
-      parsedUserId,
-    );
+    const accounts =
+      await this.accountsService.findAllIncludeDeletedByUser(parsedUserId);
     const accountBalanceChanges =
-      await this.accountBalanceChangesService.findAllByUser(parsedUserId);
-    const transactions = await this.transactionService.findAllByUserForExport(
-      parsedUserId,
-    );
+      await this.accountBalanceChangesService.findAllByUser(userId);
+    const transactions =
+      await this.transactionService.findAllByUserForExport(parsedUserId);
     const transactionCategories =
       await this.transactionCategoriesService.findAllByUser(parsedUserId);
     const transactionCategoryMappings =
       await this.transactionCategoryMappingService.findAllByUser(parsedUserId);
-    const userPreferences = await this.userPreferencesService.findAll(
-      parsedUserId,
-    );
+    const userPreferences =
+      await this.userPreferencesService.findAll(parsedUserId);
     const transactionTemplates =
       await this.transactionTemplateService.findAllByUser(parsedUserId);
 
@@ -110,7 +106,7 @@ export class UserDataService {
   ) {
     await Promise.all([
       this.accountsService.removeAllByUser(userId),
-      this.accountBalanceChangesService.removeAllByUser(userId),
+      this.accountBalanceChangesService.removeAllByUser(userId.toString()),
       this.transactionService.removeAllByUser(userId),
       this.transactionCategoriesService.removeAllByUser(userId),
       this.transactionCategoryMappingService.removeAllByUser(userId),
@@ -126,8 +122,8 @@ export class UserDataService {
     const parsedAccountBalanceChanges = accountBalanceChanges.map(
       ({ accountId, ...accountBalanceChange }) => ({
         ...accountBalanceChange,
-        accountId: parseObjectId(accountId),
-        userId: userId,
+        accountId: accountId,
+        userId: userId.toString(),
       }),
     );
 

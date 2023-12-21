@@ -3,7 +3,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { getAllChildCategoryIds } from '../../../services/TransactionCategoriesService';
 
-import { VisibilityType, VisibilityTypeEnum } from '$api/generated/financerApi';
+import { VisibilityType } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
 import { settingsPaths } from '$constants/settings-paths';
 import { Checkbox } from '$elements/checkbox/checkbox';
@@ -57,7 +57,7 @@ export const CategoryForm = ({
     const forbiddenIds = currentCategoryId
       ? getAllChildCategoryIds(
           currentCategoryId,
-          transactionCategoriesRaw
+          transactionCategoriesRaw,
         ).concat(currentCategoryId)
       : [];
 
@@ -99,19 +99,19 @@ export const CategoryForm = ({
             id="incomeVisible"
             name="visibility"
             label="Income"
-            value={VisibilityTypeEnum.Income}
+            value={VisibilityType.Income}
           />
           <Checkbox
             id="expenseVisible"
             name="visibility"
             label="Expense"
-            value={VisibilityTypeEnum.Expense}
+            value={VisibilityType.Expense}
           />
           <Checkbox
             id="transferVisible"
             name="visibility"
             label="Transfer"
-            value={VisibilityTypeEnum.Transfer}
+            value={VisibilityType.Transfer}
           />
         </CheckboxGroup>
         <Select

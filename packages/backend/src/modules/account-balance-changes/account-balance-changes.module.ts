@@ -1,18 +1,11 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+
+import { DatabaseModule } from '../../database/prisma.module';
 
 import { AccountBalanceChangesService } from './account-balance-changes.service';
-import {
-  AccountBalanceChange,
-  AccountBalanceChangeSchema,
-} from './schemas/account-balance-change.schema';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: AccountBalanceChange.name, schema: AccountBalanceChangeSchema },
-    ]),
-  ],
+  imports: [DatabaseModule],
   providers: [AccountBalanceChangesService],
   exports: [AccountBalanceChangesService],
 })
