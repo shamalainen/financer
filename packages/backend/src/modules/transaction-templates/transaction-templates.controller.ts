@@ -18,7 +18,7 @@ import {
 import { ObjectId } from '../../types/objectId';
 import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { CreateTransactionTemplateDto } from './dto/create-transaction-template.dto';
 import { TransactionTemplateDto } from './dto/transaction-template.dto';
@@ -37,7 +37,7 @@ export class TransactionTemplatesController {
   @ApiBody({ type: CreateTransactionTemplateDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   create(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Body() createTransactionTemplateDto: CreateTransactionTemplateDto,
   ) {
     return this.transactionTemplatesService.create(
@@ -51,7 +51,7 @@ export class TransactionTemplatesController {
     type: [TransactionTemplateDto],
     description: 'Return all transaction templates',
   })
-  findAllByUser(@UserId() userId: ObjectId) {
+  findAllByUser(@UserIdOld() userId: ObjectId) {
     return this.transactionTemplatesService.findAllByUser(userId);
   }
 
@@ -60,7 +60,7 @@ export class TransactionTemplatesController {
     type: [TransactionTemplateDto],
     description: 'Return all transaction templates of type manual',
   })
-  findAllManualTypeByUser(@UserId() userId: ObjectId) {
+  findAllManualTypeByUser(@UserIdOld() userId: ObjectId) {
     return this.transactionTemplatesService.findAllByUserAndType(
       userId,
       TransactionTemplateType.MANUAL,
@@ -77,7 +77,7 @@ export class TransactionTemplatesController {
     type: String,
   })
   findOne(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionTemplatesService.findOne(id, userId);
@@ -91,7 +91,7 @@ export class TransactionTemplatesController {
     type: String,
   })
   update(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionTemplateDto: UpdateTransactionTemplateDto,
   ) {
@@ -108,7 +108,7 @@ export class TransactionTemplatesController {
     type: String,
   })
   remove(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionTemplatesService.remove(id, userId);

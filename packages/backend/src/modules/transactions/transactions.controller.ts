@@ -20,7 +20,7 @@ import { ObjectId, parseObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { TransactionMonthSummaryDto } from './dto/transaction-month-summary.dto';
 import { TransactionDto } from './dto/transaction.dto';
@@ -67,7 +67,7 @@ export class TransactionsController {
     type: String,
   })
   async findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query('page') page?: number,
@@ -132,7 +132,7 @@ export class TransactionsController {
     type: String,
   })
   async findMonthlySummariesByUser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query('limit') limit?: number,
@@ -187,7 +187,7 @@ export class TransactionsController {
     required: false,
   })
   async findAllByAccount(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) accountId: ObjectId,
     @Query('month') month: number,
     @Query('year') year: number,
@@ -215,7 +215,7 @@ export class TransactionsController {
     type: String,
   })
   async findOne(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionsService.findOne(userId, id);

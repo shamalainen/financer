@@ -24,7 +24,7 @@ import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { TransferDto } from './dto/transfer.dto';
@@ -61,7 +61,7 @@ export class TransfersController {
     required: false,
   })
   async findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('month') month: number,
     @Query('year') year: number,
     @Query('page') page: number,
@@ -113,7 +113,7 @@ export class TransfersController {
     type: String,
   })
   async findMonthlySummariesByuser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query('limit') limit?: number,
@@ -154,7 +154,7 @@ export class TransfersController {
     type: String,
   })
   async findOne(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transfersService.findOne(userId, id);
@@ -164,7 +164,7 @@ export class TransfersController {
   @ApiBody({ type: CreateTransferDto })
   @ApiOkResponse({ type: TransferDto })
   async create(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Body() createTransfer: CreateTransferDto,
   ) {
     return this.transfersService.create(userId, createTransfer);
@@ -178,7 +178,7 @@ export class TransfersController {
     type: String,
   })
   update(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionDto: UpdateTransferDto,
   ) {
@@ -191,7 +191,7 @@ export class TransfersController {
     type: String,
   })
   remove(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transfersService.remove(userId, id);

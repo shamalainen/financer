@@ -23,7 +23,7 @@ import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { IncomeDto } from './dto/income.dto';
@@ -59,7 +59,7 @@ export class IncomesController {
     required: false,
   })
   async findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('month') month: number,
     @Query('year') year: number,
     @Query('page') page: number,
@@ -111,7 +111,7 @@ export class IncomesController {
     type: String,
   })
   async findMonthlySummariesByuser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query('limit') limit?: number,
@@ -152,7 +152,7 @@ export class IncomesController {
     type: String,
   })
   async findOne(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.incomesService.findOne(userId, id);
@@ -162,7 +162,7 @@ export class IncomesController {
   @ApiBody({ type: CreateIncomeDto })
   @ApiOkResponse({ type: IncomeDto })
   async create(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Body() createIncome: CreateIncomeDto,
   ) {
     return this.incomesService.create(userId, createIncome);
@@ -176,7 +176,7 @@ export class IncomesController {
     type: String,
   })
   update(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionDto: UpdateIncomeDto,
   ) {
@@ -189,7 +189,7 @@ export class IncomesController {
     type: String,
   })
   remove(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.incomesService.remove(userId, id);

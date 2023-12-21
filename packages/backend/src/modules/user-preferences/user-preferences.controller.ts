@@ -9,7 +9,7 @@ import {
 
 import { ObjectId } from '../../types/objectId';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { UpdateUserPreferenceDto } from './dto/update-user-preference.dto';
 import { UserPreferenceDto } from './dto/user-preference.dto';
@@ -25,7 +25,7 @@ export class UserPreferencesController {
 
   @Get()
   @ApiOkResponse({ type: [UserPreferenceDto] })
-  async findAll(@UserId() userId: ObjectId) {
+  async findAll(@UserIdOld() userId: ObjectId) {
     return this.userPreferencesService.findAll(userId);
   }
 
@@ -39,7 +39,7 @@ export class UserPreferencesController {
   async findOne(
     @Param('userPreferenceProperty')
     userPreferenceProperty: UserPreferenceProperty,
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
   ) {
     return (
       (await this.userPreferencesService.findOneByUserAndProperty(
@@ -57,7 +57,7 @@ export class UserPreferencesController {
   @ApiOkResponse({ type: UserPreferenceDto })
   @ApiBody({ type: UpdateUserPreferenceDto })
   async update(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Body() updateUserPreferenceDto: UpdateUserPreferenceDto,
   ) {
     return this.userPreferencesService.update(userId, updateUserPreferenceDto);

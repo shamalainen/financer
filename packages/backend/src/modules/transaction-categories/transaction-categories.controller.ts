@@ -21,7 +21,7 @@ import {
 import { ObjectId } from '../../types/objectId';
 import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { CreateTransactionCategoryDto } from './dto/create-transaction-category.dto';
 import { TransactionCategoryDto } from './dto/transaction-category.dto';
@@ -42,7 +42,7 @@ export class TransactionCategoriesController {
   @ApiBody({ type: CreateTransactionCategoryDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   async create(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Body() createTransactionCategoryDto: CreateTransactionCategoryDto,
   ) {
     return this.transactionCategoriesService.create(
@@ -63,7 +63,7 @@ export class TransactionCategoriesController {
     enumName: 'visibilityType',
   })
   findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Query('visibilityType') visibilityType?: VisibilityType,
   ) {
     return this.transactionCategoriesService.findAllByUser(
@@ -81,7 +81,7 @@ export class TransactionCategoriesController {
     type: String,
   })
   findOne(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionCategoriesService.findOne(userId, id);
@@ -96,7 +96,7 @@ export class TransactionCategoriesController {
     type: String,
   })
   getCategorySummary(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionCategoriesService.findMonthlySummariesByUserAndId(
@@ -113,7 +113,7 @@ export class TransactionCategoriesController {
     type: String,
   })
   update(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionCategoryDto: UpdateTransactionCategoryDto,
   ) {
@@ -130,7 +130,7 @@ export class TransactionCategoriesController {
     type: String,
   })
   remove(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionCategoriesService.remove(userId, id);

@@ -23,7 +23,7 @@ import { ObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserId } from '../users/users.decorators';
+import { UserIdOld } from '../users/users.decorators';
 
 import { AccountsService } from './accounts.service';
 import { AccountBalanceHistoryDto } from './dto/account-balance-history.dto';
@@ -42,7 +42,7 @@ export class AccountsController {
   @ApiBody({ type: CreateAccountDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   async create(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Body() createAccountDto: CreateAccountDto,
   ) {
     return this.accountsService.create(userId, createAccountDto);
@@ -63,7 +63,7 @@ export class AccountsController {
     required: false,
   })
   async findAllByUser(
-    @UserId() userId: string,
+    @UserIdOld() userId: string,
     @Query('limit') limit?: number,
     @Query('page') page?: number,
     @Query(
@@ -90,7 +90,7 @@ export class AccountsController {
     type: String,
   })
   async findOneById(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.accountsService.findOne(userId, id);
@@ -104,7 +104,7 @@ export class AccountsController {
     type: String,
   })
   async update(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateAccountDto: UpdateAccountDto,
   ) {
@@ -116,7 +116,7 @@ export class AccountsController {
     name: 'id',
     type: String,
   })
-  remove(@UserId() userId: ObjectId, @Param('id') id: ObjectId) {
+  remove(@UserIdOld() userId: ObjectId, @Param('id') id: ObjectId) {
     return this.accountsService.remove(id, userId);
   }
 
@@ -131,7 +131,7 @@ export class AccountsController {
     type: String,
   })
   async getAccountBalanceHistory(
-    @UserId() userId: ObjectId,
+    @UserIdOld() userId: ObjectId,
     @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.accountsService.getAccountBalanceHistory(userId, id);
