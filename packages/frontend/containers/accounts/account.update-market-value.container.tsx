@@ -28,12 +28,12 @@ export const AccountUpdateMarketValueContainer = ({
 
   const dispatch = useDispatch();
 
-  const { _id: id, balance } = account;
+  const { id, balance } = account;
 
   const handleUpdate =
     (closeDrawer: () => void) =>
     async (
-      newAccountUpdateMarketValueData: AccountUpdateMarketValueFormFields
+      newAccountUpdateMarketValueData: AccountUpdateMarketValueFormFields,
     ) => {
       if (!id) {
         console.error('Failure to update market value: no id');
@@ -42,7 +42,7 @@ export const AccountUpdateMarketValueContainer = ({
 
       if (!account) {
         console.error(
-          'Failure to update market value: no account data available'
+          'Failure to update market value: no account data available',
         );
         return;
       }
@@ -85,9 +85,10 @@ export const AccountUpdateMarketValueContainer = ({
                 type: ToastMessageTypes.ERROR,
                 message: 'Submission failed',
                 additionalInformation: parseErrorMessagesToArray(
-                  (newIncomeJson as any).message
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (newIncomeJson as any).message,
                 ),
-              })
+              }),
             );
             return;
           }
@@ -117,9 +118,9 @@ export const AccountUpdateMarketValueContainer = ({
                 type: ToastMessageTypes.ERROR,
                 message: 'Submission failed',
                 additionalInformation: parseErrorMessagesToArray(
-                  (newExpenseJson as any).message
+                  (newExpenseJson as any).message,
                 ),
-              })
+              }),
             );
             return;
           }

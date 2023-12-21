@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { DatabaseModule } from '../../database/prisma.module';
+import { DatabaseModule } from '../../database/database.module';
 
 import { AccountBalanceChangesService } from './account-balance-changes.service';
 

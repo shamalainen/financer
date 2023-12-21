@@ -1,10 +1,12 @@
-import { AccountDto } from '@local/types';
 import { ChartData, ChartOptions } from 'chart.js';
 import { isAfter } from 'date-fns';
 import { useMemo } from 'react';
 import { Chart } from 'react-chartjs-2';
 
-import { useAccountsGetAccountBalanceHistoryQuery } from '$api/generated/financerApi';
+import {
+  AccountDto,
+  useAccountsGetAccountBalanceHistoryQuery,
+} from '$api/generated/financerApi';
 import { colorPalette } from '$constants/colorPalette';
 import { baseChartOptions } from '$constants/graph/graph.settings';
 import { monthAgoDate } from '$constants/months';
@@ -19,7 +21,7 @@ interface AccountBalanceHistory {
 }
 
 interface AccountBalanceHistoryChartProps {
-  accountId: AccountDto['_id'];
+  accountId: AccountDto['id'];
 }
 
 export const AccountBalanceHistoryChart = ({
@@ -42,7 +44,7 @@ export const AccountBalanceHistoryChart = ({
 
   const monthAgoIndex = accountBalanceHistory.indexOf(
     accountBalanceHistory.find((tick) => isAfter(tick.date, monthAgoDate)) ||
-      accountBalanceHistory[0]
+      accountBalanceHistory[0],
   );
 
   const startIndex =
@@ -95,8 +97,8 @@ export const AccountBalanceHistoryChart = ({
             tension: 0.25,
           },
         ],
-      } as ChartData),
-    [accountBalanceHistory, labels]
+      }) as ChartData,
+    [accountBalanceHistory, labels],
   );
 
   if (!accountBalanceHistory?.length || accountBalanceHistory.length === 1) {

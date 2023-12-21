@@ -56,8 +56,8 @@ export const TransactionForm = ({
 
   const accountOptions = useMemo(() => {
     if (!accounts) return [];
-    return accounts.data.map(({ _id, name }) => ({
-      value: _id,
+    return accounts.data.map(({ id, name }) => ({
+      value: id,
       label: name,
     }));
   }, [accounts]);

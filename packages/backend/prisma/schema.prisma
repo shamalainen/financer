@@ -65,7 +65,7 @@ model Account {
   v         Int?        @map("__v")
   balance   Float
   createdAt DateTime    @default(now()) @db.Date
-  isDeleted Boolean
+  isDeleted Boolean    @default(false)
   name      String
   userId    String      @map("owner") @db.ObjectId
   type      AccountType

@@ -1,5 +1,6 @@
-import { AccountType, TransactionType } from '@local/types';
+import { TransactionType } from '@local/types';
 import { Injectable } from '@nestjs/common';
+import { AccountType } from '@prisma/client';
 
 import { ObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';

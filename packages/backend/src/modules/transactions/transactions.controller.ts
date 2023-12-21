@@ -1,4 +1,4 @@
-import { AccountType, SortOrder, TransactionType } from '@local/types';
+import { SortOrder, TransactionType } from '@local/types';
 import {
   Controller,
   DefaultValuePipe,
@@ -8,6 +8,7 @@ import {
   ParseEnumPipe,
   Query,
 } from '@nestjs/common';
+import { AccountType } from '@prisma/client';
 import {
   ApiExtraModels,
   ApiOkResponse,

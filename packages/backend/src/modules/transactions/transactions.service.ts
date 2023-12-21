@@ -1,4 +1,4 @@
-import { AccountType, SortOrder, TransactionType } from '@local/types';
+import { SortOrder, TransactionType } from '@local/types';
 import {
   BadRequestException,
   forwardRef,
@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { AccountType } from '@prisma/client';
 import { Model } from 'mongoose';
 
 import { ObjectId } from '../../types/objectId';
@@ -346,15 +347,15 @@ export class TransactionsService {
 
     if (transaction.toAccount) {
       await this.accountService.updateBalance(
-        userId,
-        transaction.toAccount,
+        userId.toString(),
+        transaction.toAccount.toString(),
         amountToApply,
       );
     }
     if (transaction.fromAccount) {
       await this.accountService.updateBalance(
-        userId,
-        transaction.fromAccount,
+        userId.toString(),
+        transaction.fromAccount.toString(),
         -amountToApply,
       );
     }
@@ -365,10 +366,16 @@ export class TransactionsService {
     transaction: Partial<Transaction>,
   ) {
     if (transaction.toAccount) {
-      await this.accountService.findOne(userId, transaction.toAccount);
+      await this.accountService.findOne(
+        userId.toString(),
+        transaction.toAccount.toString(),
+      );
     }
     if (transaction.fromAccount) {
-      await this.accountService.findOne(userId, transaction.fromAccount);
+      await this.accountService.findOne(
+        userId.toString(),
+        transaction.fromAccount.toString(),
+      );
     }
   }
 
@@ -536,7 +543,7 @@ export class TransactionsService {
       accountTypes,
     );
 
-    return accounts.data.map(({ _id }) => _id);
+    return accounts.data.map(({ id }) => id);
   }
 
   private async getAccountTypesFilter(

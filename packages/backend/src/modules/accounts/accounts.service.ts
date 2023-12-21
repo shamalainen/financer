@@ -1,15 +1,13 @@
-import { AccountType, TransactionType } from '@local/types';
 import {
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Account, AccountType } from '@prisma/client';
 
-import { ObjectId, parseObjectId } from '../../types/objectId';
+import { AccountRepo } from '../../database/repos/account.repo';
+import { parseObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';
 import { sumArrayItems } from '../../utils/arrays';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
@@ -19,37 +17,37 @@ import { AccountBalanceHistoryDto } from './dto/account-balance-history.dto';
 import { AccountDto } from './dto/account.dto';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
-import { Account, AccountDocument } from './schemas/account.schema';
 
 @Injectable()
 export class AccountsService {
   constructor(
-    @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
-    private accountBalanceChangesService: AccountBalanceChangesService,
+    private readonly accountRepo: AccountRepo,
     @Inject(forwardRef(() => TransactionsService))
     private transactionsService: TransactionsService,
+    private accountBalanceChangeService: AccountBalanceChangesService,
   ) {}
 
   async create(
-    userId: ObjectId,
+    userId: string,
     createAccountDto: CreateAccountDto,
-  ): Promise<AccountDocument> {
-    return this.accountModel.create({ ...createAccountDto, owner: userId });
+  ): Promise<Account> {
+    return this.accountRepo.create({ ...createAccountDto, userId });
   }
 
   async createMany(
     createAccountDto: CreateAccountDto[],
-  ): Promise<AccountDocument[]> {
-    return this.accountModel.insertMany(createAccountDto);
+    userId: string,
+  ): Promise<void> {
+    await this.accountRepo.createMany(
+      createAccountDto.map((account) => ({ ...account, userId })),
+    );
   }
 
-  async findOne(userId: ObjectId, id: ObjectId): Promise<AccountDocument> {
-    const account = await this.accountModel.findOne({ _id: id });
+  async findOne(userId: string, id: string): Promise<Account> {
+    const account = await this.accountRepo.findOne({ id, userId });
 
     if (!account) {
       throw new NotFoundException('Account not found.');
-    } else if (!account.owner.equals(userId)) {
-      throw new UnauthorizedException('Unauthorized to access this account.');
     }
 
     return account;
@@ -59,32 +57,21 @@ export class AccountsService {
     userId: string,
     accountTypes?: AccountType[],
     limit = 20,
-    page?: number,
-  ): Promise<PaginationDto<AccountDto<ObjectId>[]>> {
-    const query = {
-      owner: parseObjectId(userId),
-      isDeleted: { $ne: true },
-      ...this.getAccountTypeFilter(accountTypes),
-    };
+    page = 1,
+  ): Promise<PaginationDto<AccountDto[]>> {
+    const skip = page * limit - limit;
 
-    const totalCount = await this.accountModel
-      .find(query)
-      .countDocuments()
-      .exec();
+    const accounts = await this.accountRepo.findMany({
+      where: { userId, isDeleted: false, type: { in: accountTypes } },
+      take: limit,
+      skip,
+    });
+
+    const totalCount = await this.accountRepo.getCount({
+      where: { userId, isDeleted: false, type: { in: accountTypes } },
+    });
+
     const lastPage = page ? Math.ceil(totalCount / limit) : 1;
-
-    if (page && (page < 1 || page > lastPage) && page !== 1) {
-      throw new NotFoundException(
-        `Page "${page}" not found. First page is "1" and last page is "${lastPage}"`,
-      );
-    }
-
-    const accounts = await this.accountModel
-      .find(query)
-      .sort({ date: 'desc' })
-      .skip(page ? (page - 1) * limit : 0)
-      .limit(page ? limit : 0)
-      .exec();
 
     return {
       data: accounts,
@@ -97,17 +84,15 @@ export class AccountsService {
     };
   }
 
-  async findAllIncludeDeletedByUser(
-    userId: ObjectId,
-  ): Promise<AccountDocument[]> {
-    return this.accountModel.find({ owner: userId });
+  async findAllIncludeDeletedByUser(userId: string): Promise<Account[]> {
+    return this.accountRepo.findMany({ where: { userId } });
   }
 
   async update(
-    userId: ObjectId,
-    id: ObjectId,
+    userId: string,
+    id: string,
     updateAccountDto: UpdateAccountDto,
-  ): Promise<AccountDocument> {
+  ): Promise<Account> {
     const accountBeforeChange = await this.findOne(userId, id);
 
     if (
@@ -116,7 +101,7 @@ export class AccountsService {
     ) {
       const balanceChangeAmount =
         updateAccountDto.balance - accountBeforeChange.balance;
-      await this.accountBalanceChangesService.create({
+      await this.accountBalanceChangeService.create({
         accountId: id.toString(),
         userId: userId.toString(),
         amount: balanceChangeAmount,
@@ -124,44 +109,45 @@ export class AccountsService {
       });
     }
 
-    return this.accountModel.findByIdAndUpdate(id, updateAccountDto).exec();
+    return this.accountRepo.update({
+      where: { userId, id },
+      data: updateAccountDto,
+    });
   }
 
   async updateBalance(
-    userId: ObjectId,
-    id: ObjectId,
+    userId: string,
+    id: string,
     amount: number,
-  ): Promise<AccountDocument> {
+  ): Promise<Account> {
     await this.findOne(userId, id);
 
-    return this.accountModel
-      .findByIdAndUpdate(
-        id,
-        {
-          $inc: { balance: amount },
-        },
-        { new: true },
-      )
-      .exec();
+    return this.accountRepo.update({
+      where: { userId, id },
+      data: { balance: { increment: amount } },
+    });
   }
 
-  async remove(id: ObjectId, userId: ObjectId) {
+  async remove(id: string, userId: string) {
     await this.findOne(userId, id);
-    await this.accountModel.findByIdAndUpdate(id, { isDeleted: true });
+    await this.accountRepo.update({
+      where: { id, userId },
+      data: { isDeleted: true },
+    });
   }
 
-  async removeAllByUser(userId: ObjectId) {
-    await this.accountModel.deleteMany({ owner: userId }).exec();
+  async removeAllByUser(userId: string) {
+    await this.accountRepo.deleteMany({ userId });
   }
 
   async getAccountBalanceHistory(
-    userId: ObjectId,
-    accountId: ObjectId,
+    userId: string,
+    accountId: string,
   ): Promise<AccountBalanceHistoryDto[]> {
     const account = await this.findOne(userId, accountId);
 
     const accountBalanceChanges = (
-      await this.accountBalanceChangesService.findAllByUserAndAccount(
+      await this.accountBalanceChangeService.findAllByUserAndAccount(
         userId.toString(),
         accountId.toString(),
       )
@@ -169,17 +155,17 @@ export class AccountsService {
 
     const accountTransactions = (
       await this.transactionsService.findAllByUser(
-        userId,
-        TransactionType.ANY,
+        parseObjectId(userId),
+        null,
         undefined,
         undefined,
         undefined,
         undefined,
-        accountId,
+        parseObjectId(accountId),
       )
     ).data.map(({ amount, date, toAccount }) => ({
       date,
-      amount: accountId.equals(toAccount) ? amount : -amount,
+      amount: accountId === toAccount.toString() ? amount : -amount,
     }));
 
     const allBalanceChanges = accountBalanceChanges.concat(accountTransactions);

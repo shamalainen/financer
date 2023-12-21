@@ -1,5 +1,4 @@
 import { forwardRef, INestApplication } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import supertest from 'supertest';
 
@@ -10,7 +9,6 @@ import { TransactionsModule } from '../transactions/transactions.module';
 
 import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
-import { Account, AccountSchema } from './schemas/account.schema';
 
 describe('AccountsController', () => {
   let app: INestApplication;
@@ -21,9 +19,6 @@ describe('AccountsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         rootMongooseTestModule(),
-        MongooseModule.forFeature([
-          { name: Account.name, schema: AccountSchema },
-        ]),
         AccountBalanceChangesModule,
         forwardRef(() => TransactionsModule),
       ],

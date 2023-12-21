@@ -1,5 +1,6 @@
-import { PaginationDto } from '@local/types';
 import { useState } from 'react';
+
+import { PaginationDto } from '$api/generated/financerApi';
 
 export type PagerOptions = {
   nextPage: {
@@ -17,7 +18,7 @@ export type PagerOptions = {
 type UsePageReturn = {
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
-  getPagerOptions(pageData?: PaginationDto<unknown>): PagerOptions;
+  getPagerOptions(pageData?: PaginationDto): PagerOptions;
 };
 
 export const usePager = (initialPage = 1): UsePageReturn => {

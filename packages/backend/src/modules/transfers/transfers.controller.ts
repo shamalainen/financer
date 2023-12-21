@@ -1,4 +1,3 @@
-import { AccountType } from '@local/types';
 import {
   Body,
   Controller,
@@ -10,6 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { AccountType } from '@prisma/client';
 import {
   ApiBody,
   ApiExtraModels,

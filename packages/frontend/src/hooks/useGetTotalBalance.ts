@@ -8,7 +8,7 @@ import {
 export const useGetTotalBalance = (
   filterOptions: Pick<AccountsFindAllByUserApiArg, 'accountTypes'> = {
     accountTypes: [],
-  }
+  },
 ) => {
   const { data: accounts, ...rest } =
     useAccountsFindAllByUserQuery(filterOptions);
@@ -20,7 +20,7 @@ export const useGetTotalBalance = (
 
     return accounts?.data.reduce(
       (currentTotal, { balance }) => currentTotal + balance,
-      0
+      0,
     );
   }, [accounts]);
 

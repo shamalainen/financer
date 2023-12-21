@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
-import { Account } from '../../accounts/schemas/account.schema';
 
 export type TransactionDocument = Transaction & Document<MogooseTypes.ObjectId>;
 
@@ -11,7 +10,6 @@ export class Transaction {
   @Prop({
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: Account.name,
     default: null,
   })
   fromAccount: ObjectId;
@@ -19,7 +17,6 @@ export class Transaction {
   @Prop({
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: Account.name,
     default: null,
   })
   toAccount: ObjectId;

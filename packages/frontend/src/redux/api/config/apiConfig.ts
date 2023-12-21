@@ -22,14 +22,13 @@ financerApi.enhanceEndpoints({
         ApiTag.ACCOUNT,
         { type: ApiTag.ACCOUNT, id: 'LIST' },
         { type: ApiTag.ACCOUNT, id: `PAGE-${res?.currentPage}` },
-        ...(res?.data.map(({ _id }) => ({ type: ApiTag.ACCOUNT, id: _id })) ??
-          []),
+        ...(res?.data.map(({ id }) => ({ type: ApiTag.ACCOUNT, id })) ?? []),
       ],
     },
     accountsFindOneById: {
       providesTags: (res) => [
         ApiTag.ACCOUNT,
-        { type: ApiTag.ACCOUNT, id: res?._id },
+        { type: ApiTag.ACCOUNT, id: res?.id },
       ],
     },
     accountsGetAccountBalanceHistory: {
@@ -44,7 +43,7 @@ financerApi.enhanceEndpoints({
       invalidatesTags: [{ type: ApiTag.ACCOUNT, id: 'LIST' }],
     },
     accountsUpdate: {
-      invalidatesTags: (res) => [{ type: ApiTag.ACCOUNT, id: res?._id }],
+      invalidatesTags: (res) => [{ type: ApiTag.ACCOUNT, id: res?.id }],
     },
     accountsRemove: {
       invalidatesTags: (res, err, args) => [

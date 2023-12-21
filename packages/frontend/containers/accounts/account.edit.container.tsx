@@ -26,20 +26,20 @@ export const AccountEditContainer = ({ id }: AccountEditContainerProps) => {
 
   const handleSubmit = useCallback(
     async (newAccountData: AccountFormFields) => {
-      if (!account?._id) {
+      if (!account?.id) {
         dispatch(
           addToastMessage({
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: 'Account not found',
-          })
+          }),
         );
         return;
       }
 
       try {
         const newAccount = await editAccount({
-          id: account._id,
+          id: account.id,
           updateAccountDto: newAccountData,
         });
 
@@ -49,7 +49,7 @@ export const AccountEditContainer = ({ id }: AccountEditContainerProps) => {
               type: ToastMessageTypes.ERROR,
               message: 'Submission failed',
               additionalInformation: newAccount?.message as string,
-            })
+            }),
           );
           return;
         }
@@ -60,7 +60,7 @@ export const AccountEditContainer = ({ id }: AccountEditContainerProps) => {
         console.error(error);
       }
     },
-    [account?._id, dispatch, editAccount, id, push]
+    [account?.id, dispatch, editAccount, id, push],
   );
 
   return (

@@ -1813,26 +1813,37 @@
       "AccountType": {
         "type": "string",
         "enum": [
-          "cash",
-          "savings",
-          "investment",
-          "credit",
-          "loan",
-          "long-term savings",
-          "pre-assigned cash"
+          "CASH",
+          "SAVINGS",
+          "INVESTMENT",
+          "CREDIT",
+          "LOAN",
+          "LONG_TERM_SAVINGS",
+          "PRE_ASSIGNED_CASH"
         ]
       },
       "AccountDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "name": { "type": "string" },
           "type": { "$ref": "#/components/schemas/AccountType" },
           "balance": { "type": "number" },
-          "owner": { "type": "string" },
+          "userId": { "type": "string" },
           "isDeleted": { "type": "boolean" }
         },
-        "required": ["_id", "name", "type", "balance", "owner", "isDeleted"]
+        "required": [
+          "createdAt",
+          "updatedAt",
+          "id",
+          "name",
+          "type",
+          "balance",
+          "userId",
+          "isDeleted"
+        ]
       },
       "AccountBalanceChangeDto": {
         "type": "object",

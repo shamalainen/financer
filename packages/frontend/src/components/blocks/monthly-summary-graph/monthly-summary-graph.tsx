@@ -62,19 +62,19 @@ export const MonthlySummaryGraph = ({
 
     const allMonths = removeDuplicatesFromArray(
       [...incomeMonthSummaries, ...expenseMonthSummaries].map(({ _id }) =>
-        JSON.stringify(_id)
-      )
+        JSON.stringify(_id),
+      ),
     ).map<TransactionMonthSummaryIdDto>((item) => JSON.parse(item));
 
     const monthlySummaryHistoryStack = allMonths
       .map(({ year: targetYear, month: targetMonth }) => {
         const incomeSummary = incomeMonthSummaries.find(
           ({ _id: { year, month } }) =>
-            year === targetYear && month === targetMonth
+            year === targetYear && month === targetMonth,
         );
         const expenseSummary = expenseMonthSummaries.find(
           ({ _id: { year, month } }) =>
-            year === targetYear && month === targetMonth
+            year === targetYear && month === targetMonth,
         );
 
         const incomes = incomeSummary?.totalAmount ?? 0;
@@ -97,7 +97,7 @@ export const MonthlySummaryGraph = ({
   }, [expenseMonthSummaries, incomeMonthSummaries]);
 
   const labels = monthlySummaryHistory.map(({ date }) =>
-    formatDate(date, DateFormat.monthShort).toUpperCase()
+    formatDate(date, DateFormat.monthShort).toUpperCase(),
   );
 
   const chartOptions = useMemo(() => {
@@ -182,8 +182,8 @@ export const MonthlySummaryGraph = ({
             tension: 0.25,
           },
         ],
-      } as ChartData),
-    [labels, monthlySummaryHistory]
+      }) as ChartData,
+    [labels, monthlySummaryHistory],
   );
 
   if (!monthlySummaryHistory?.length || monthlySummaryHistory.length === 1) {

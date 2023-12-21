@@ -4,6 +4,7 @@ import { AccountBalanceHistoryChart } from './account.balance-history-chart';
 
 import {
   AccountDto,
+  AccountType,
   useTransactionsFindAllByAccountQuery,
 } from '$api/generated/financerApi';
 import { BalanceDisplay } from '$blocks/balance-display/balance-display';
@@ -30,7 +31,7 @@ export const Account = ({ account }: AccountProps): JSX.Element | null => {
         description: capitalize(account.type),
       },
     ],
-    [account.type]
+    [account.type],
   );
 
   return (
@@ -40,7 +41,7 @@ export const Account = ({ account }: AccountProps): JSX.Element | null => {
         backLink="/accounts"
         headerAction={
           <ButtonInternal
-            link={`/accounts/${account._id}/edit`}
+            link={`/accounts/${account.id}/edit`}
             className="inline-flex items-center justify-center -mr-3 h-11 w-11"
             testId="edit-account"
           >
@@ -66,15 +67,15 @@ export const Account = ({ account }: AccountProps): JSX.Element | null => {
           />
         </section>
         <LoaderSuspense>
-          <AccountBalanceHistoryChart accountId={account._id} />
+          <AccountBalanceHistoryChart accountId={account.id} />
         </LoaderSuspense>
         <div className="grid gap-2 my-6">
-          {account.type === 'investment' && (
+          {account.type === AccountType.Investment && (
             <AccountUpdateMarketValueContainer account={account} />
           )}
         </div>
         <TransactionListingWithMonthlyPager
-          additionalFilterOptions={{ id: account._id }}
+          additionalFilterOptions={{ id: account.id }}
           useDataHook={useTransactionsFindAllByAccountQuery}
         />
       </section>

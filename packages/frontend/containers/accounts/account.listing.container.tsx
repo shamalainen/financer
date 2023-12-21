@@ -26,13 +26,13 @@ export const AccountListingContainer = () => {
     }
 
     const formattedAccounts = accountsRaw.data.map(
-      ({ _id, balance, name, type }) => ({
+      ({ id, balance, name, type }) => ({
         label: name,
-        link: `/accounts/${_id}`,
+        link: `/accounts/${id}`,
         balanceAmount: formatCurrency(balance),
         type: type as AccountType,
         accountType: type.charAt(0).toUpperCase() + type.slice(1),
-        id: _id,
+        id,
       }),
     ) as AccountListingItem[];
 
