@@ -7,7 +7,7 @@
     "plugin:prettier/recommended",
     "next"
   ],
-  "plugins": ["react", "@typescript-eslint", "prettier", "import"],
+  "plugins": ["react", "@typescript-eslint", "prettier", "import", "unused-imports"],
   "env": {
     "browser": true,
     "es6": true,
@@ -20,6 +20,8 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": "off",
     "react/require-default-props": "off",
     "linebreak-style": "off",
     "no-underscore-dangle":  ["error", { "allow": ["_id"] }],
