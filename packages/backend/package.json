@@ -22,7 +22,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "npm run test --  --config ./test/jest-e2e.json",
     "types:export": "NEST_ONLY_EXPORT_API_SPEC=TRUE NODE_ENV=development npm run start && prettier --write ./api-spec.json",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "prisma:format": "prisma format"
   },
   "dependencies": {
     "@local/types": "*",

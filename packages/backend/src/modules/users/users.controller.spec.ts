@@ -3,20 +3,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { rootMongooseTestModule } from '../../../test/rootMongooseTest.module';
 import { UserDataModule } from '../user-data/user-data.module';
 
-import { UserController } from './users.controller';
+import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 describe('UsersController', () => {
-  let controller: UserController;
+  let controller: UsersController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
+      controllers: [UsersController],
       providers: [UsersService],
       imports: [rootMongooseTestModule(), UserDataModule],
     }).compile();
 
-    controller = module.get<UserController>(UserController);
+    controller = module.get<UsersController>(UsersController);
   });
 
   it('should be defined', () => {

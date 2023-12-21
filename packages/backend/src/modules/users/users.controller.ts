@@ -34,10 +34,10 @@ import { UserDto } from './dto/user.dto';
 import { UserId } from './users.decorators';
 import { UsersService } from './users.service';
 
-@Controller('api/user')
+@Controller('api/users')
 @LoggedIn()
 @ApiTags('Users')
-export class UserController {
+export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => UserDataService))

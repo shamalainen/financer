@@ -54,8 +54,8 @@ model AccountBalanceChange {
   updatedAt DateTime @updatedAt @db.Date
   userId    String   @db.ObjectId
 
-  account Account @relation(fields: [accountId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  Account Account @relation(fields: [accountId], references: [id])
+  User    User    @relation(fields: [userId], references: [id])
 
   @@map("account-balance-changes")
 }
@@ -71,12 +71,12 @@ model Account {
   type      AccountType
   updatedAt DateTime    @updatedAt @db.Date
 
-  user                 User                   @relation(fields: [userId], references: [id])
+  User                 User                   @relation(fields: [userId], references: [id])
   AccountBalanceChange AccountBalanceChange[]
-  fromTransactions     Transaction[]          @relation("FromAccountTransaction")
-  toTransactions       Transaction[]          @relation("ToAccountTransaction")
-  fromTemplates        TransactionTemplate[]  @relation("FromAccountTemplate")
-  toTemplates          TransactionTemplate[]  @relation("ToAccountTemplate")
+  FromTransactions     Transaction[]          @relation("FromAccountTransaction")
+  ToTransactions       Transaction[]          @relation("ToAccountTransaction")
+  FromTemplates        TransactionTemplate[]  @relation("FromAccountTemplate")
+  ToTemplates          TransactionTemplate[]  @relation("ToAccountTemplate")
 
   @@index([type], map: "type_1")
   @@index([userId], map: "owner_1")
@@ -108,7 +108,7 @@ model TransactionCategory {
   updatedAt        DateTime          @updatedAt @db.Date
   visibility       TransactionType[]
 
-  user                       User                         @relation(fields: [userId], references: [id])
+  User                       User                         @relation(fields: [userId], references: [id])
   // category TransactionCategory @relation((fields: [parentCategoryId], references: [id]))
   TransactionCategoryMapping TransactionCategoryMapping[]
 
@@ -129,9 +129,9 @@ model TransactionCategoryMapping {
   transactionId String   @map("transaction_id") @db.ObjectId
   updatedAt     DateTime @updatedAt @db.Date
 
-  user        User                @relation(fields: [userId], references: [id])
-  category    TransactionCategory @relation(fields: [categoryId], references: [id])
-  transaction Transaction         @relation(fields: [transactionId], references: [id])
+  User        User                @relation(fields: [userId], references: [id])
+  Category    TransactionCategory @relation(fields: [categoryId], references: [id])
+  Transaction Transaction         @relation(fields: [transactionId], references: [id])
 
   @@index([userId], map: "owner_1")
   @@index([transactionId], map: "transaction_id_1")
@@ -146,9 +146,9 @@ model TransactionTemplateLog {
   transactionId String                  @db.ObjectId
   userId        String                  @db.ObjectId
 
-  user        User                @relation(fields: [userId], references: [id])
-  transaction Transaction         @relation(fields: [transactionId], references: [id])
-  template    TransactionTemplate @relation(fields: [templateId], references: [id])
+  User        User                @relation(fields: [userId], references: [id])
+  Transaction Transaction         @relation(fields: [transactionId], references: [id])
+  Template    TransactionTemplate @relation(fields: [templateId], references: [id])
 
   @@index([userId], map: "userId_1")
   @@index([eventType], map: "eventType_1")
@@ -175,9 +175,9 @@ model TransactionTemplate {
   updatedAt          DateTime                  @updatedAt @db.Date
   userId             String                    @db.ObjectId
 
-  user                   User                     @relation(fields: [userId], references: [id])
-  from                   Account?                 @relation("FromAccountTemplate", fields: [fromAccount], references: [id])
-  to                     Account?                 @relation("ToAccountTemplate", fields: [toAccount], references: [id])
+  User                   User                     @relation(fields: [userId], references: [id])
+  From                   Account?                 @relation("FromAccountTemplate", fields: [fromAccount], references: [id])
+  To                     Account?                 @relation("ToAccountTemplate", fields: [toAccount], references: [id])
   TransactionTemplateLog TransactionTemplateLog[]
 
   @@index([userId], map: "userId_1")
@@ -199,9 +199,9 @@ model Transaction {
   updatedAt   DateTime @updatedAt @db.Date
   userId      String   @map("user") @db.ObjectId
 
-  user                       User                         @relation(fields: [userId], references: [id])
-  from                       Account?                     @relation("FromAccountTransaction", fields: [fromAccount], references: [id])
-  to                         Account?                     @relation("ToAccountTransaction", fields: [toAccount], references: [id])
+  User                       User                         @relation(fields: [userId], references: [id])
+  From                       Account?                     @relation("FromAccountTransaction", fields: [fromAccount], references: [id])
+  To                         Account?                     @relation("ToAccountTransaction", fields: [toAccount], references: [id])
   TransactionCategoryMapping TransactionCategoryMapping[]
   TransactionTemplateLog     TransactionTemplateLog[]
 
@@ -221,23 +221,24 @@ model UserPreferences {
   userId    String                 @db.ObjectId
   value     String
 
-  user User @relation(fields: [userId], references: [id])
+  User User @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "userId_1")
   @@map("userpreferences")
 }
 
 model User {
-  id                         String                       @id @default(auto()) @map("_id") @db.ObjectId
-  v                          Int?                         @map("__v")
-  auth0Id                    String?                      @unique
-  createdAt                  DateTime                     @default(now()) @db.Date
-  githubId                   String?                      @unique
-  name                       String
-  nickname                   String
-  profileImageUrl            String
-  roles                      Role[]                       @default([])
-  updatedAt                  DateTime                     @updatedAt @db.Date
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  v               Int?     @map("__v")
+  auth0Id         String?  @unique
+  createdAt       DateTime @default(now()) @db.Date
+  githubId        String?  @unique
+  name            String
+  nickname        String
+  profileImageUrl String
+  roles           Role[]   @default([])
+  updatedAt       DateTime @updatedAt @db.Date
+
   AccountBalanceChange       AccountBalanceChange[]
   Account                    Account[]
   TransactionCategory        TransactionCategory[]

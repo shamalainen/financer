@@ -1712,11 +1712,13 @@
   "servers": [],
   "components": {
     "schemas": {
-      "Role": { "type": "string", "enum": ["admin", "test-user"] },
+      "Role": { "type": "string", "enum": ["ADMIN", "TEST_USER"] },
       "UserDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
           "name": { "type": "string" },
           "nickname": { "type": "string" },
           "githubId": { "type": "string" },
@@ -1728,7 +1730,9 @@
           }
         },
         "required": [
-          "_id",
+          "id",
+          "createdAt",
+          "updatedAt",
           "name",
           "nickname",
           "githubId",

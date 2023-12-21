@@ -1,6 +1,6 @@
-import { Role } from '@local/types';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Role } from '@prisma/client';
 
 import { BaseGuard } from './base.guard';
 
