@@ -1,8 +1,8 @@
 import { TransactionTemplateType } from '@local/types';
 import { Injectable } from '@nestjs/common';
+import { SystemLogLevel } from '@prisma/client';
 
 import { getLastDayOfMonth } from '../../utils/date-utils';
-import { SystemLogLevel } from '../system/dto/system-log-level';
 import { SystemService } from '../system/system.service';
 import { TransactionTemplatesService } from '../transaction-templates/transaction-templates.service';
 import { TransactionsService } from '../transactions/transactions.service';

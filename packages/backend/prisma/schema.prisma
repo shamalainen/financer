@@ -44,6 +44,12 @@ enum UserPreferenceProperty {
   STATISTICS_SETTINGS
 }
 
+enum SystemLogLevel {
+  ERROR
+  INFO
+  DEBUG
+}
+
 model AccountBalanceChange {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   v         Int?     @map("__v")
@@ -65,7 +71,7 @@ model Account {
   v         Int?        @map("__v")
   balance   Float
   createdAt DateTime    @default(now()) @db.Date
-  isDeleted Boolean    @default(false)
+  isDeleted Boolean     @default(false)
   name      String
   userId    String      @map("owner") @db.ObjectId
   type      AccountType
@@ -93,8 +99,16 @@ model sessions {
   @@index([expires], map: "expires_1")
 }
 
-model systemlog {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+model SystemLog {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  module    String
+  service   String
+  message   String
+  level     SystemLogLevel
+  createdAt DateTime       @default(now()) @db.Date
+  updatedAt DateTime       @updatedAt @db.Date
+
+  @@map("systemlogs")
 }
 
 model TransactionCategory {
