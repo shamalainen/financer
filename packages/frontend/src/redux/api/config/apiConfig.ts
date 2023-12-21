@@ -67,7 +67,7 @@ financerApi.enhanceEndpoints({
       providesTags: (res) => [
         ApiTag.USER,
         { type: ApiTag.USER, id: 'own' },
-        { type: ApiTag.USER, id: res?._id },
+        { type: ApiTag.USER, id: res?.id },
       ],
     },
     usersOverrideAllOwnUserData: {

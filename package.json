@@ -21,7 +21,8 @@
     "e2e:test": "npm -w @local/playwright run test --",
     "e2e:open": "npm -w @local/playwright run ui --",
     "types:update": "npm -w backend run types:export && npm run types:copy && npm -w frontend run types:generate",
-    "types:copy": "cp packages/backend/api-spec.json packages/frontend/src/redux/schema/api-spec.json"
+    "types:copy": "cp packages/backend/api-spec.json packages/frontend/src/redux/schema/api-spec.json",
+    "check-types": "npm run -ws check-types"
   },
   "author": "",
   "license": "ISC",

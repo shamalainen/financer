@@ -26,6 +26,16 @@ jobs:
       - uses: ./.github/actions/install-dependencies
       - uses: ./.github/actions/lint-app
 
+  lint-types:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/install-dependencies
+      - name: Run backend lint
+        run: npm run check-types
+
   unit-test:
     runs-on: ubuntu-latest
     needs: install
@@ -70,6 +80,7 @@ jobs:
   build-docker:
     needs:
       - lint
+      - lint-types
       - unit-test
       - run-e2e-test
     uses: ./.github/workflows/build-docker.yml

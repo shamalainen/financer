@@ -42,7 +42,8 @@
     "format": "next lint -- --fix",
     "lint": "next lint",
     "test": "echo 'no frontend unit tests at the moment' && exit 0",
-    "types:generate": "npx @silte/rtk-codegen-openapi openapi-config.js && eslint src/redux/api/generated/*.ts --fix"
+    "types:generate": "npx @silte/rtk-codegen-openapi openapi-config.js && eslint src/redux/api/generated/*.ts --fix",
+    "check-types": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [

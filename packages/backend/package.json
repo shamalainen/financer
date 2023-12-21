@@ -23,7 +23,8 @@
     "test:e2e": "npm run test --  --config ./test/jest-e2e.json",
     "types:export": "NEST_ONLY_EXPORT_API_SPEC=TRUE NODE_ENV=development npm run start && prettier --write ./api-spec.json",
     "prisma:generate": "prisma generate",
-    "prisma:format": "prisma format"
+    "prisma:format": "prisma format",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@local/types": "*",
