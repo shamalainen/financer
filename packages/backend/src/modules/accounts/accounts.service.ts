@@ -9,7 +9,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { ObjectId } from '../../types/objectId';
+import { ObjectId, parseObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';
 import { sumArrayItems } from '../../utils/arrays';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
@@ -62,7 +62,7 @@ export class AccountsService {
     page?: number,
   ): Promise<PaginationDto<AccountDto<ObjectId>[]>> {
     const query = {
-      owner: userId,
+      owner: parseObjectId(userId),
       isDeleted: { $ne: true },
       ...this.getAccountTypeFilter(accountTypes),
     };
