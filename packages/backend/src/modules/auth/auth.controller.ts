@@ -8,11 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { User } from '@prisma/client';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@silte/nestjs-swagger';
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
-
-import { UserDocument } from '../users/schemas/user.schema';
 
 import { AuthService } from './auth.service';
 import { AuthenticationStatusDto } from './dto/authtentication-status.dto';
@@ -34,7 +33,7 @@ export class AuthController {
     type: AuthenticationStatusDto,
   })
   async getAuthenticationStatus(@Req() req: Request) {
-    return this.authService.getAuthenticationStatus(req.user as UserDocument);
+    return this.authService.getAuthenticationStatus(req.user as User);
   }
 
   @Get('github')

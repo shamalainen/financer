@@ -494,7 +494,7 @@ export class TransactionsService {
 
     const transactionIds = (
       await this.transactionCategoryMappingsService.findAllByUserAndCategoryIds(
-        userId,
+        userId.toString(),
         categoryIds,
       )
     ).map(({ transaction_id }) => transaction_id);
@@ -530,7 +530,7 @@ export class TransactionsService {
     if (!accountTypes?.length) return [];
 
     const accounts = await this.accountService.findAllByUser(
-      userId,
+      userId.toString(),
       accountTypes,
     );
 

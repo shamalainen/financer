@@ -43,7 +43,7 @@ export class TransactionCategoryMappingsService {
   }
 
   async findAllByUserAndCategoryIds(
-    userId: ObjectId,
+    userId: string,
     categoryIds: ObjectId[],
   ): Promise<TransactionCategoryMappingDocument[]> {
     return this.transactionCategoryMappingModel

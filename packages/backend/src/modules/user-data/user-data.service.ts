@@ -1,4 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
@@ -15,7 +16,6 @@ import { TransactionDocument } from '../transactions/schemas/transaction.schema'
 import { TransactionsService } from '../transactions/transactions.service';
 import { UserPreferenceDocument } from '../user-preferences/schemas/user-preference.schema';
 import { UserPreferencesService } from '../user-preferences/user-preferences.service';
-import { UserDocument } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 
 export type ImportUserDataDto = {
@@ -29,7 +29,7 @@ export type ImportUserDataDto = {
 };
 
 export type ExportUserDataDto = ImportUserDataDto & {
-  user: UserDocument;
+  user: User;
 };
 
 const getMyDataFilename = (): string => {
@@ -59,24 +59,27 @@ export class UserDataService {
   ) {}
 
   async findAllOneUserData(
-    userId: ObjectId,
+    userId: string,
   ): Promise<{ filename: string; data: ExportUserDataDto }> {
+    const parsedUserId = parseObjectId(userId);
     const user = await this.usersService.findOne(userId);
     const accounts = await this.accountsService.findAllIncludeDeletedByUser(
-      userId,
+      parsedUserId,
     );
     const accountBalanceChanges =
-      await this.accountBalanceChangesService.findAllByUser(userId);
+      await this.accountBalanceChangesService.findAllByUser(parsedUserId);
     const transactions = await this.transactionService.findAllByUserForExport(
-      userId,
+      parsedUserId,
     );
     const transactionCategories =
-      await this.transactionCategoriesService.findAllByUser(userId);
+      await this.transactionCategoriesService.findAllByUser(parsedUserId);
     const transactionCategoryMappings =
-      await this.transactionCategoryMappingService.findAllByUser(userId);
-    const userPreferences = await this.userPreferencesService.findAll(userId);
+      await this.transactionCategoryMappingService.findAllByUser(parsedUserId);
+    const userPreferences = await this.userPreferencesService.findAll(
+      parsedUserId,
+    );
     const transactionTemplates =
-      await this.transactionTemplateService.findAllByUser(userId);
+      await this.transactionTemplateService.findAllByUser(parsedUserId);
 
     const filename = getMyDataFilename();
     const data = {

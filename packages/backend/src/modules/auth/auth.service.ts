@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 
 import { AccountsService } from '../accounts/accounts.service';
-import { UserDocument } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -11,9 +11,9 @@ export class AuthService {
     private accountsService: AccountsService,
   ) {}
 
-  async getAuthenticationStatus(user?: UserDocument) {
+  async getAuthenticationStatus(user?: User) {
     const accounts = user
-      ? await this.accountsService.findAllByUser(user._id)
+      ? await this.accountsService.findAllByUser(user.id)
       : { data: [] };
     return {
       authenticated: Boolean(user),
@@ -22,11 +22,11 @@ export class AuthService {
     };
   }
 
-  async validateUserByGithub(githubId: string): Promise<UserDocument> {
+  async validateUserByGithub(githubId: string): Promise<User> {
     return this.usersService.findOneByGithubId(githubId);
   }
 
-  async validateUserByAuth0(auht0Id: string): Promise<UserDocument> {
+  async validateUserByAuth0(auht0Id: string): Promise<User> {
     return this.usersService.findOneByAuth0Id(auht0Id);
   }
 }

@@ -34,10 +34,10 @@ import { UserDto } from './dto/user.dto';
 import { UserId } from './users.decorators';
 import { UsersService } from './users.service';
 
-@Controller('api/users')
+@Controller('api/user')
 @LoggedIn()
 @ApiTags('Users')
-export class UsersController {
+export class UserController {
   constructor(
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => UserDataService))
@@ -46,13 +46,13 @@ export class UsersController {
 
   @Get('my-user')
   @ApiOkResponse({ type: UserDto })
-  findOwnUser(@UserId() userId: ObjectId) {
+  async findOwnUser(@UserId() userId: string) {
     return this.usersService.findOne(userId);
   }
 
   @Get('my-user/my-data')
   @ApiOkResponse({ type: UserDataExportDto })
-  getAllOwnUserData(@UserId() userId: ObjectId, @Res() res: Response) {
+  getAllOwnUserData(@UserId() userId: string, @Res() res: Response) {
     this.getAllOneUserData(userId, res);
   }
 
@@ -71,7 +71,7 @@ export class UsersController {
   @ApiBody({ type: UpdateUserOwnUserDto })
   @ApiOkResponse({ type: UserDto })
   updateOwnUser(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() updateUserDto: UpdateUserOwnUserDto,
   ) {
     return this.usersService.update(userId, updateUserDto);
@@ -92,7 +92,7 @@ export class UsersController {
     type: String,
     description: 'Entity id from users collection.',
   })
-  findOne(@Param('id', ValidateEntityId) id: ObjectId) {
+  findOne(@Param('id', ValidateEntityId) id: string) {
     return this.usersService.findOne(id);
   }
 
@@ -105,7 +105,7 @@ export class UsersController {
     description: 'Entity id from users collection.',
   })
   async getAllOneUserData(
-    @Param('id', ValidateEntityId) userId: ObjectId,
+    @Param('id', ValidateEntityId) userId: string,
     @Res() res: Response,
   ) {
     const { filename, data } = await this.userDataService.findAllOneUserData(
@@ -130,7 +130,7 @@ export class UsersController {
     description: 'Entity id from users collection.',
   })
   update(
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);

@@ -20,7 +20,7 @@ import {
 
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
-import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
 import { UserId } from '../users/users.decorators';
@@ -128,7 +128,7 @@ export class IncomesController {
       }),
     )
     transactionCategories?: string[],
-    @Query('parentTransactionCategory', ValidateEntityId)
+    @Query('parentTransactionCategory', ValidateEntityIdOld)
     parentTransactionCategory?: ObjectId,
   ) {
     return this.incomesService.findMonthlySummariesByUser(
@@ -153,7 +153,7 @@ export class IncomesController {
   })
   async findOne(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.incomesService.findOne(userId, id);
   }
@@ -177,7 +177,7 @@ export class IncomesController {
   })
   update(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionDto: UpdateIncomeDto,
   ) {
     return this.incomesService.update(userId, id, updateTransactionDto);
@@ -190,7 +190,7 @@ export class IncomesController {
   })
   remove(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.incomesService.remove(userId, id);
   }

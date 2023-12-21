@@ -16,7 +16,7 @@ import {
 } from '@silte/nestjs-swagger';
 
 import { ObjectId } from '../../types/objectId';
-import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { UserId } from '../users/users.decorators';
 
@@ -78,7 +78,7 @@ export class TransactionTemplatesController {
   })
   findOne(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionTemplatesService.findOne(id, userId);
   }
@@ -92,7 +92,7 @@ export class TransactionTemplatesController {
   })
   update(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionTemplateDto: UpdateTransactionTemplateDto,
   ) {
     return this.transactionTemplatesService.update(
@@ -109,7 +109,7 @@ export class TransactionTemplatesController {
   })
   remove(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionTemplatesService.remove(id, userId);
   }

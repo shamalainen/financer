@@ -19,7 +19,7 @@ import {
 } from '@silte/nestjs-swagger';
 
 import { ObjectId } from '../../types/objectId';
-import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { UserId } from '../users/users.decorators';
 
@@ -82,7 +82,7 @@ export class TransactionCategoriesController {
   })
   findOne(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionCategoriesService.findOne(userId, id);
   }
@@ -97,7 +97,7 @@ export class TransactionCategoriesController {
   })
   getCategorySummary(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionCategoriesService.findMonthlySummariesByUserAndId(
       userId,
@@ -114,7 +114,7 @@ export class TransactionCategoriesController {
   })
   update(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionCategoryDto: UpdateTransactionCategoryDto,
   ) {
     return this.transactionCategoriesService.update(
@@ -131,7 +131,7 @@ export class TransactionCategoriesController {
   })
   remove(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transactionCategoriesService.remove(userId, id);
   }

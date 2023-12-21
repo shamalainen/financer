@@ -21,7 +21,7 @@ import {
 
 import { ObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
-import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { UserId } from '../users/users.decorators';
 
@@ -63,7 +63,7 @@ export class AccountsController {
     required: false,
   })
   async findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Query('limit') limit?: number,
     @Query('page') page?: number,
     @Query(
@@ -91,7 +91,7 @@ export class AccountsController {
   })
   async findOneById(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.accountsService.findOne(userId, id);
   }
@@ -105,7 +105,7 @@ export class AccountsController {
   })
   async update(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateAccountDto: UpdateAccountDto,
   ) {
     return this.accountsService.update(userId, id, updateAccountDto);
@@ -132,7 +132,7 @@ export class AccountsController {
   })
   async getAccountBalanceHistory(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.accountsService.getAccountBalanceHistory(userId, id);
   }

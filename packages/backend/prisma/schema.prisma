@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  ADMIN
+  TEST_USER
+}
+
+enum AccountType {
+  CASH
+  SAVINGS
+  INVESTMENT
+  CREDIT
+  LOAN
+  LONG_TERM_SAVINGS
+  PRE_ASSIGNED_CASH
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+
+enum TransactionTemplateType {
+  MANUAL
+  AUTO
+}
+
+enum UserPreferenceProperty {
+  DEFAULT_INCOME_ACCOUNT
+  DEFAULT_EXPENSE_ACCOUNT
+  DEFAULT_TRANSFER_SOURCE_ACCOUNT
+  DEFAULT_TRANSFER_TARGET_ACCOUNT
+  TRANSACTION_LIST_CHUNK_SIZE
+  UPDATE_INVESTMENT_MARKET_VALUE
+  DASHBOARD_SETTINGS
+  STATISTICS_SETTINGS
+}
+
+
+model AccountBalanceChange {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int?      @map("__v")
+  accountId String   @db.ObjectId
+  amount    Float
+  createdAt DateTime @db.Date @default(now())
+  date      DateTime @db.Date
+  updatedAt DateTime @db.Date @updatedAt
+  userId    String   @db.ObjectId
+
+  @@map("account-balance-changes")
+}
+
+model Account {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int?      @map("__v")
+  balance   Float
+  createdAt DateTime @db.Date @default(now())
+  isDeleted Boolean
+  name      String
+  owner     String   @db.ObjectId
+  type      AccountType
+  updatedAt DateTime @db.Date @updatedAt
+
+  @@index([type], map: "type_1")
+  @@index([owner], map: "owner_1")
+  @@index([isDeleted], map: "isDeleted_1")
+  @@map("accounts")
+}
+
+model sessions {
+  id           String   @id @map("_id")
+  expires      DateTime @db.Date
+  lastModified DateTime @db.Date
+  session      String
+
+  @@index([expires], map: "expires_1")
+}
+
+model systemlog {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+model TransactionCategory {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int?      @map("__v")
+  createdAt          DateTime @db.Date @default(now())
+  deleted            Boolean
+  name               String
+  owner              String   @db.ObjectId
+  parent_category_id String?  @db.ObjectId
+  updatedAt          DateTime @db.Date @updatedAt
+  visibility         TransactionType[]
+
+  @@index([owner], map: "owner_1")
+  @@index([visibility], map: "visibility_1")
+  @@index([deleted], map: "deleted_1")
+  @@map("transaction-categories")
+}
+
+model TransactionCategoryMapping {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  v              Int?      @map("__v")
+  amount         Float
+  category_id    String   @db.ObjectId
+  createdAt      DateTime @db.Date @default(now())
+  description    String
+  owner          String   @db.ObjectId
+  transaction_id String   @db.ObjectId
+  updatedAt      DateTime @db.Date @updatedAt
+
+  @@index([owner], map: "owner_1")
+  @@index([transaction_id], map: "transaction_id_1")
+  @@map("transaction-category-mappings")
+}
+
+model TransactionTemplateLog {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  eventType     TransactionTemplateType
+  executed      DateTime @db.Date
+  templateId    String @db.ObjectId
+  transactionId String @db.ObjectId
+  userId        String @db.ObjectId
+
+  @@index([userId], map: "userId_1")
+  @@index([eventType], map: "eventType_1")
+  @@index([transactionId], map: "transactionId_1")
+  @@index([templateId], map: "templateId_1")
+  @@index([executed], map: "executed_1")
+  @@map("transaction-template-logs")
+}
+
+model TransactionTemplate {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int?      @map("__v")
+  amount             Float
+  categories         String[] @default([])
+  createdAt          DateTime @db.Date @default(now())
+  dayOfMonth         Int?
+  dayOfMonthToCreate Int?
+  description        String
+  fromAccount        String?  @db.ObjectId
+  templateName       String
+  templateType       TransactionTemplateType[]
+  templateVisibility TransactionType?
+  toAccount          String?  @db.ObjectId
+  updatedAt          DateTime @db.Date @updatedAt
+  userId             String   @db.ObjectId
+
+  @@index([userId], map: "userId_1")
+  @@index([templateType], map: "templateType_1")
+  @@index([templateVisibility], map: "templateVisibility_1")
+  @@index([dayOfMonthToCreate], map: "dayOfMonthToCreate_1")
+  @@map("transaction-templates")
+}
+
+model Transaction {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  v           Int?      @map("__v")
+  amount      Float
+  createdAt   DateTime @db.Date @default(now())
+  date        DateTime @db.Date
+  description String
+  fromAccount String?  @db.ObjectId
+  toAccount   String?  @db.ObjectId
+  updatedAt   DateTime @db.Date @updatedAt
+  user        String   @db.ObjectId
+
+  @@index([fromAccount], map: "fromAccount_1")
+  @@index([toAccount], map: "toAccount_1")
+  @@index([date], map: "date_1")
+  @@index([user], map: "user_1")
+  @@map("transactions")
+}
+
+model UserPreferences {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int?      @map("__v")
+  createdAt DateTime @db.Date @default(now())
+  key       UserPreferenceProperty
+  updatedAt DateTime @db.Date @updatedAt
+  userId    String   @db.ObjectId
+  value     String
+
+  @@index([userId], map: "userId_1")
+  @@map("userpreferences")
+}
+
+model User {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  v               Int?      @map("__v")
+  auth0Id         String? @unique
+  createdAt       DateTime @db.Date @default(now())
+  githubId        String? @unique
+  name            String
+  nickname        String
+  profileImageUrl String
+  roles           Role[] @default([])
+  updatedAt       DateTime @db.Date @updatedAt
+
+  @@map("users")
+}

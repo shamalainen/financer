@@ -5,15 +5,15 @@ import { rootMongooseTestModule } from '../../../test/rootMongooseTest.module';
 import { UserDataModule } from '../user-data/user-data.module';
 
 import { User, UserSchema } from './schemas/user.schema';
-import { UsersController } from './users.controller';
+import { UserController } from './users.controller';
 import { UsersService } from './users.service';
 
 describe('UsersController', () => {
-  let controller: UsersController;
+  let controller: UserController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
+      controllers: [UserController],
       providers: [UsersService],
       imports: [
         rootMongooseTestModule(),
@@ -22,7 +22,7 @@ describe('UsersController', () => {
       ],
     }).compile();
 
-    controller = module.get<UsersController>(UsersController);
+    controller = module.get<UserController>(UserController);
   });
 
   it('should be defined', () => {

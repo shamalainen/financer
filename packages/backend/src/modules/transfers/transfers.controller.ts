@@ -21,7 +21,7 @@ import {
 
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
-import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
 import { UserId } from '../users/users.decorators';
@@ -130,7 +130,7 @@ export class TransfersController {
       }),
     )
     transactionCategories?: string[],
-    @Query('parentTransactionCategory', ValidateEntityId)
+    @Query('parentTransactionCategory', ValidateEntityIdOld)
     parentTransactionCategory?: ObjectId,
   ) {
     return this.transfersService.findMonthlySummariesByUser(
@@ -155,7 +155,7 @@ export class TransfersController {
   })
   async findOne(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transfersService.findOne(userId, id);
   }
@@ -179,7 +179,7 @@ export class TransfersController {
   })
   update(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
     @Body() updateTransactionDto: UpdateTransferDto,
   ) {
     return this.transfersService.update(userId, id, updateTransactionDto);
@@ -192,7 +192,7 @@ export class TransfersController {
   })
   remove(
     @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityIdOld) id: ObjectId,
   ) {
     return this.transfersService.remove(userId, id);
   }

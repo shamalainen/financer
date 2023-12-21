@@ -56,7 +56,7 @@ export class AccountsService {
   }
 
   async findAllByUser(
-    userId: ObjectId,
+    userId: string,
     accountTypes?: AccountType[],
     limit = 20,
     page?: number,
