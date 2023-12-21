@@ -3,7 +3,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
-import { User } from '../../users/schemas/user.schema';
 
 export type AccountDocument = Account & Document<MogooseTypes.ObjectId>;
 
@@ -22,8 +21,7 @@ export class Account {
     required: true,
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: User.name,
-  })
+  }) // TODO: relation stuff    ref: User.name,
   owner: ObjectId;
 
   @Prop({ default: false, index: true })

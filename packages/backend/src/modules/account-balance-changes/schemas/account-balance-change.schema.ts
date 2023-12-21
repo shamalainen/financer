@@ -3,7 +3,6 @@ import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
 import { Account } from '../../accounts/schemas/account.schema';
-import { User } from '../../users/schemas/user.schema';
 
 export type AccountBalanceChangeDocument = AccountBalanceChange &
   Document<MogooseTypes.ObjectId>;
@@ -16,7 +15,7 @@ export class AccountBalanceChange {
   @Prop({ required: true })
   amount: number;
 
-  @Prop({ required: true, type: MogooseTypes.ObjectId, ref: User.name })
+  @Prop({ required: true, type: MogooseTypes.ObjectId }) // TODO: relation stuff  ref: User.name })
   userId: ObjectId;
 
   @Prop({ required: true, type: MogooseTypes.ObjectId, ref: Account.name })

@@ -3,7 +3,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
-import { User } from '../../users/schemas/user.schema';
 
 export type UserPreferenceDocument = UserPreference &
   Document<MogooseTypes.ObjectId>;
@@ -20,7 +19,7 @@ export class UserPreference {
     required: true,
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: User.name,
+    // TODO: relation stuff  ref: User.name })
   })
   userId: ObjectId;
 }

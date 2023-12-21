@@ -3,7 +3,6 @@ import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
 import { Account } from '../../accounts/schemas/account.schema';
-import { User } from '../../users/schemas/user.schema';
 
 export type TransactionDocument = Transaction & Document<MogooseTypes.ObjectId>;
 
@@ -38,7 +37,7 @@ export class Transaction {
     required: true,
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: User.name,
+    // TODO: relation stuff  ref: User.name })
   })
   user: ObjectId;
 }

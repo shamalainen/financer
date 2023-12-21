@@ -4,7 +4,6 @@ import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
 import { Transaction } from '../../transactions/schemas/transaction.schema';
-import { User } from '../../users/schemas/user.schema';
 
 export type TransactionTemplateDocument = TransactionTemplate &
   Document<MogooseTypes.ObjectId>;
@@ -15,7 +14,7 @@ export class TransactionTemplate {
     required: true,
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: User.name,
+    // TODO: relation stuff  ref: User.name })
   })
   userId: ObjectId;
 

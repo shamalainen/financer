@@ -4,7 +4,6 @@ import { Document, Types as MogooseTypes } from 'mongoose';
 import { ObjectId } from '../../../types/objectId';
 import { TransactionCategory } from '../../transaction-categories/schemas/transaction-category.schema';
 import { Transaction } from '../../transactions/schemas/transaction.schema';
-import { User } from '../../users/schemas/user.schema';
 
 export type TransactionCategoryMappingDocument = TransactionCategoryMapping &
   Document<MogooseTypes.ObjectId>;
@@ -15,7 +14,7 @@ export class TransactionCategoryMapping {
     required: true,
     index: true,
     type: MogooseTypes.ObjectId,
-    ref: User.name,
+    // TODO: relation stuff  ref: User.name })
   })
   owner: ObjectId;
 

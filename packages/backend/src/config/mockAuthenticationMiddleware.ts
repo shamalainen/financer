@@ -1,12 +1,9 @@
-import { Role } from '@local/types';
+import { Role, User } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 
-import { UserDocument } from '../modules/users/schemas/user.schema';
-import { parseObjectId } from '../types/objectId';
-
-export const DUMMY_TEST_USER: Partial<UserDocument> = {
-  roles: [Role.testUser],
-  _id: parseObjectId('61460d7354ea082ad0256749'),
+export const DUMMY_TEST_USER: Partial<User> = {
+  roles: [Role.TEST_USER],
+  id: '61460d7354ea082ad0256749',
   name: 'Dummy Test User',
 };
 
