@@ -1,30 +1,35 @@
-import { TransactionType } from '@local/types';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { TransactionCategoryMapping, TransactionType } from '@prisma/client';
 import { Model } from 'mongoose';
 
+import { TransactionCategoryMappingRepo } from '../../database/repos/transaction-category-mapping.repo';
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { CategoryMonthlySummaryDto } from '../transaction-categories/dto/transaction-month-summary.dto';
 
 import { CreateTransactionCategoryMappingDto } from './dto/create-transaction-category-mapping.dto';
-import { UpdateTransactionCategoryMappingDto } from './dto/update-transaction-category-mapping.dto';
 import {
-  TransactionCategoryMapping,
+  TransactionCategoryMapping as TransactionCategoryMappingOld,
   TransactionCategoryMappingDocument,
 } from './schemas/transaction-category-mapping.schema';
 
 @Injectable()
 export class TransactionCategoryMappingsService {
   constructor(
-    @InjectModel(TransactionCategoryMapping.name)
+    private readonly transactionCategoryMappingRepo: TransactionCategoryMappingRepo,
+    @InjectModel(TransactionCategoryMappingOld.name)
     private transactionCategoryMappingModel: Model<TransactionCategoryMappingDocument>,
   ) {}
 
   async createMany(
+    userId: string,
     createTransactionCategoryMappingDto: CreateTransactionCategoryMappingDto[],
   ) {
-    return this.transactionCategoryMappingModel.insertMany(
-      createTransactionCategoryMappingDto,
+    return this.transactionCategoryMappingRepo.createMany(
+      createTransactionCategoryMappingDto.map((category) => ({
+        ...category,
+        userId,
+      })),
     );
   }
 
@@ -36,40 +41,42 @@ export class TransactionCategoryMappingsService {
     return `This action returns a #${id} transactionCategoryMapping`;
   }
 
-  async findAllByUser(
-    userId: ObjectId,
-  ): Promise<TransactionCategoryMappingDocument[]> {
-    return this.transactionCategoryMappingModel.find({ owner: userId }).exec();
+  async findAllByUser(userId: string): Promise<TransactionCategoryMapping[]> {
+    return this.transactionCategoryMappingRepo.findMany({ where: { userId } });
   }
 
   async findAllByUserAndCategoryIds(
     userId: string,
-    categoryIds: ObjectId[],
-  ): Promise<TransactionCategoryMappingDocument[]> {
-    return this.transactionCategoryMappingModel
-      .find({
-        owner: parseObjectId(userId),
-        category_id: { $in: categoryIds },
-      })
-      .exec();
+    categoryIds: string[],
+  ): Promise<TransactionCategoryMapping[]> {
+    return this.transactionCategoryMappingRepo.findMany({
+      where: {
+        userId,
+        categoryId: {
+          in: categoryIds,
+        },
+      },
+    });
   }
 
   async findAllByUserAndTransaction(
-    userId: ObjectId,
-    transactionId: ObjectId,
-  ): Promise<TransactionCategoryMappingDocument[]> {
-    return this.transactionCategoryMappingModel
-      .find({ owner: userId, transaction_id: transactionId })
-      .exec();
+    userId: string,
+    transactionId: string,
+  ): Promise<TransactionCategoryMapping[]> {
+    return this.transactionCategoryMappingRepo.findMany({
+      where: { userId, transactionId },
+    });
   }
 
   async findMonthlySummariesByUserAndId(
-    userId: ObjectId,
-    categoryIds: ObjectId[],
+    userIdStr: string,
+    categoryIds: string[],
     limit?: number,
     year?: number,
     month?: number,
   ): Promise<CategoryMonthlySummaryDto[]> {
+    const userId = parseObjectId(userIdStr);
+
     return this.transactionCategoryMappingModel
       .aggregate([
         {
@@ -111,11 +118,7 @@ export class TransactionCategoryMappingsService {
               month: { $month: '$date' },
             },
             totalCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.ANY,
-              ),
+              $sum: await this.getMonthlySummaryCondition(userId, 1, null),
             },
             incomeCount: {
               $sum: await this.getMonthlySummaryCondition(
@@ -142,14 +145,14 @@ export class TransactionCategoryMappingsService {
               $sum: await this.getMonthlySummaryCondition(
                 userId,
                 '$amount',
-                TransactionType.ANY,
+                null,
               ),
             },
             totalTransactionAmount: {
               $sum: await this.getMonthlySummaryCondition(
                 userId,
                 '$transactionAmount',
-                TransactionType.ANY,
+                null,
               ),
             },
             incomeAmount: {
@@ -259,10 +262,7 @@ export class TransactionCategoryMappingsService {
     const selectedQuery =
       this.getAggregationTransactionTypeFilter(transactionType);
 
-    if (
-      transactionType !== TransactionType.ANY ||
-      typeof operator !== 'string'
-    ) {
+    if (transactionType !== null || typeof operator !== 'string') {
       return { $cond: [{ $and: selectedQuery }, operator, 0] };
     }
 
@@ -294,7 +294,7 @@ export class TransactionCategoryMappingsService {
         return [isNotEmpty('$fromAccount'), isEmpty('$toAccount')];
       case TransactionType.TRANSFER:
         return [isNotEmpty('$fromAccount'), isNotEmpty('$toAccount')];
-      case TransactionType.ANY:
+      case null:
         return [];
       default:
         throw new Error(`Invalid transaction type: ${transactionType}`);
@@ -309,23 +309,16 @@ export class TransactionCategoryMappingsService {
     return `This action removes a #${id} transactionCategoryMapping`;
   }
 
-  async removeAllByUserAndTransaction(
-    userId: ObjectId,
-    transactionId: ObjectId,
-  ) {
-    await this.transactionCategoryMappingModel
-      .deleteMany({
-        owner: userId,
-        transaction_id: transactionId,
-      })
-      .exec();
+  async removeAllByUserAndTransaction(userId: string, transactionId: string) {
+    await this.transactionCategoryMappingRepo.deleteMany({
+      userId,
+      transactionId,
+    });
   }
 
-  async removeAllByUser(userId: ObjectId) {
-    await this.transactionCategoryMappingModel
-      .deleteMany({
-        owner: userId,
-      })
-      .exec();
+  async removeAllByUser(userId: string) {
+    await this.transactionCategoryMappingRepo.deleteMany({
+      userId,
+    });
   }
 }

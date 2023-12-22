@@ -10,7 +10,7 @@ import {
 import { BalanceDisplay } from '$blocks/balance-display/balance-display';
 import { DetailsList } from '$blocks/details-list/details-list';
 import { TransactionListingWithMonthlyPager } from '$blocks/transaction-listing-with-monthly-pager/transaction-listing.with.monthly-pager';
-import { accountTypeIconMapping } from '$constants/account/accountTypeIconMapping';
+import { accountTypeIconMapping } from '$constants/account/accountTypeMapping';
 import { AccountUpdateMarketValueContainer } from '$container/accounts/account.update-market-value.container';
 import { ButtonInternal } from '$elements/button/button.internal';
 import { Icon, IconName } from '$elements/icon/icon';

@@ -19,7 +19,7 @@ export const TransactionCategoriesItem = ({
   const values = watch(`categories.${index}`);
 
   const transactionCategory = getCategoryNameById(
-    getValues(`categories.${index}.category_id`)
+    getValues(`categories.${index}.categoryId`),
   );
 
   const { description, amount } = getValues(`categories.${index}`);

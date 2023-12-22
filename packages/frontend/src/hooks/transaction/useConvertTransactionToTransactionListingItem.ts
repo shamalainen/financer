@@ -33,19 +33,19 @@ export const useConvertTransactionToTransactionListingItem = () => {
   return useCallback(
     (
       transaction: TransactionDtoForConvert,
-      getCategoryName: (id: string) => string | undefined
+      getCategoryName: (id: string) => string | undefined,
     ): TransactionListingItemProps => {
       const transactionType = getTransactionType(
         transaction.toAccount,
-        transaction.fromAccount
+        transaction.fromAccount,
       );
 
       return {
         transactionCategories: (
           transaction.categories as unknown as TransactionCategoryMappingDto[]
         )
-          .map(({ category_id }) =>
-            getCategoryName(category_id as unknown as string)
+          .map(({ categoryId }) =>
+            getCategoryName(categoryId as unknown as string),
           )
           .join(', '),
         transactionAmount: formatCurrency(transaction.amount),
@@ -56,6 +56,6 @@ export const useConvertTransactionToTransactionListingItem = () => {
         id: transaction._id,
       };
     },
-    []
+    [],
   );
 };

@@ -1,64 +1,57 @@
-import { VisibilityType } from '@local/types';
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { TransactionCategory, TransactionType } from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
+import { TransactionCategoryRepo } from '../../database/repos/transaction-category.repo';
 import { TransactionCategoryMappingsService } from '../transaction-category-mappings/transaction-category-mappings.service';
 
 import { CreateTransactionCategoryDto } from './dto/create-transaction-category.dto';
 import { CategoryMonthlySummaryDto } from './dto/transaction-month-summary.dto';
 import { UpdateTransactionCategoryDto } from './dto/update-transaction-category.dto';
-import {
-  TransactionCategory,
-  TransactionCategoryDocument,
-} from './schemas/transaction-category.schema';
 
 @Injectable()
 export class TransactionCategoriesService {
   constructor(
-    @InjectModel(TransactionCategory.name)
-    private transactionCategoryModel: Model<TransactionCategoryDocument>,
+    private readonly transactionCategoryRepo: TransactionCategoryRepo,
     private readonly transactionCategoryMappingsService: TransactionCategoryMappingsService,
   ) {}
 
   private async isParentIdInChildHierarchy(
-    id: ObjectId,
-    newParentId: ObjectId,
+    categoryId: string,
+    newParentId: string,
   ): Promise<boolean> {
-    const categories = await this.findAllChildrensById([id]);
-    const ids = categories.map((category) => category._id.toString());
+    const categories = await this.findAllChildrensById([categoryId]);
+    const ids = categories.map(({ id }) => id);
 
-    return ids.includes(newParentId.toString());
+    return ids.includes(newParentId);
   }
 
   async create(
-    userId: ObjectId,
+    userId: string,
     createTransactionCategoryDto: CreateTransactionCategoryDto,
-  ): Promise<TransactionCategoryDocument> {
+  ): Promise<TransactionCategory> {
     const newCategory = {
       ...createTransactionCategoryDto,
-      owner: userId,
+      userId,
     };
 
-    if (newCategory.parent_category_id) {
-      await this.findOne(userId, newCategory.parent_category_id);
+    if (newCategory.parentCategoryId) {
+      await this.findOne(userId, newCategory.parentCategoryId);
     }
 
-    return this.transactionCategoryModel.create(newCategory);
+    return this.transactionCategoryRepo.create(newCategory);
   }
 
   async createMany(
+    userId: string,
     createTransactionCategoryDto: CreateTransactionCategoryDto[],
   ) {
-    return this.transactionCategoryModel.insertMany(
-      createTransactionCategoryDto,
+    return this.transactionCategoryRepo.createMany(
+      createTransactionCategoryDto.map((category) => ({ ...category, userId })),
     );
   }
 
@@ -66,57 +59,58 @@ export class TransactionCategoriesService {
     return `This action returns all transactionCategories`;
   }
 
-  async findOne(
-    userId: ObjectId,
-    id: ObjectId,
-  ): Promise<TransactionCategoryDocument> {
-    const category = await this.transactionCategoryModel.findOne({ _id: id });
+  async findOne(userId: string, id: string): Promise<TransactionCategory> {
+    const category = await this.transactionCategoryRepo.findOne({ id, userId });
 
     if (!category) {
       throw new NotFoundException('Category not found.');
-    } else if (!category.owner.equals(userId)) {
-      throw new UnauthorizedException('Unauthorized to access this categry.');
     }
 
     return category;
   }
 
-  async findAllChildrensById(parentIds: ObjectId[], depth = 0) {
+  async findAllChildrensById(parentIds: string[], depth = 0) {
     if (depth > 10) {
       throw new InternalServerErrorException(
         'Too many levels of nesting, probably infite loop on hierarchy?',
       );
     }
-    const categories = await this.transactionCategoryModel.find({
-      parent_category_id: { $in: parentIds },
+
+    const categories = await this.transactionCategoryRepo.findMany({
+      where: {
+        parentCategoryId: { in: parentIds },
+      },
     });
 
-    const ids = categories.map((category) => category._id);
+    const ids = categories.map((category) => category.id);
+
     if (ids.length === 0) {
       return categories;
     }
+
     const childCategories = await this.findAllChildrensById(ids, depth + 1);
 
     return [...categories, ...childCategories];
   }
 
   async findAllByUser(
-    userId: ObjectId,
-    visibilityType?: VisibilityType,
-  ): Promise<TransactionCategoryDocument[]> {
-    const filter = visibilityType ? { visibility: visibilityType } : {};
-    return this.transactionCategoryModel
-      .find({
-        owner: userId,
-        deleted: { $ne: true },
-        ...filter,
-      })
-      .exec();
+    userId: string,
+    visibilityType?: TransactionType,
+  ): Promise<TransactionCategory[]> {
+    return this.transactionCategoryRepo.findMany({
+      where: {
+        userId,
+        deleted: { not: true },
+        visibility: {
+          has: visibilityType,
+        },
+      },
+    });
   }
 
   async findMonthlySummariesByUserAndId(
-    userId: ObjectId,
-    parentCategoryId: ObjectId,
+    userId: string,
+    parentCategoryId: string,
     limit?: number,
     year?: number,
     month?: number,
@@ -134,14 +128,15 @@ export class TransactionCategoriesService {
   }
 
   async update(
-    userId: ObjectId,
-    id: ObjectId,
+    userId: string,
+    id: string,
     updateTransactionCategoryDto: UpdateTransactionCategoryDto,
   ) {
     await this.findOne(userId, id);
 
-    if (updateTransactionCategoryDto.parent_category_id) {
-      const parentId = updateTransactionCategoryDto.parent_category_id;
+    if (updateTransactionCategoryDto.parentCategoryId) {
+      const parentId = updateTransactionCategoryDto.parentCategoryId;
+
       if (await this.isParentIdInChildHierarchy(id, parentId)) {
         throw new BadRequestException(
           'Parent category cannot be child category of current item.',
@@ -149,33 +144,36 @@ export class TransactionCategoriesService {
       }
     }
 
-    return this.transactionCategoryModel.findByIdAndUpdate(
-      id,
-      updateTransactionCategoryDto,
-      { new: true },
-    );
-  }
-
-  async remove(userId: ObjectId, id: ObjectId) {
-    await this.findOne(userId, id);
-    await this.transactionCategoryModel.findByIdAndUpdate(id, {
-      $set: {
-        deleted: true,
-      },
+    return this.transactionCategoryRepo.update({
+      where: { id, userId },
+      data: updateTransactionCategoryDto,
     });
   }
 
-  async removeAllByUser(userId: ObjectId) {
-    await this.transactionCategoryModel.deleteMany({ owner: userId }).exec();
+  async remove(userId: string, id: string) {
+    await this.findOne(userId, id);
+
+    await this.transactionCategoryRepo.update({
+      where: { id, userId },
+      data: { deleted: true },
+    });
   }
 
-  async ensureCategoriesExist(ids: ObjectId[]) {
-    const categories = await this.transactionCategoryModel.find({
-      _id: { $in: ids },
+  async removeAllByUser(userId: string) {
+    await this.transactionCategoryRepo.deleteMany({ userId });
+  }
+
+  async ensureCategoriesExist(ids: string[]) {
+    const categories = await this.transactionCategoryRepo.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
     });
 
     const hasMatchingCategoryIds = ids.every((id) =>
-      categories.some((category) => category._id.equals(id)),
+      categories.some((category) => category.id === id),
     );
 
     if (!hasMatchingCategoryIds) {

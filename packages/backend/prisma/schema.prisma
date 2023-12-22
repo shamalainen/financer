@@ -115,7 +115,7 @@ model TransactionCategory {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   v                Int?              @map("__v")
   createdAt        DateTime          @default(now()) @db.Date
-  deleted          Boolean
+  deleted          Boolean           @default(false)
   name             String
   userId           String            @map("owner") @db.ObjectId
   parentCategoryId String?           @map("parent_category_id") @db.ObjectId
@@ -138,7 +138,7 @@ model TransactionCategoryMapping {
   amount        Float
   categoryId    String   @map("category_id") @db.ObjectId
   createdAt     DateTime @default(now()) @db.Date
-  description   String
+  description   String?
   userId        String   @map("owner") @db.ObjectId
   transactionId String   @map("transaction_id") @db.ObjectId
   updatedAt     DateTime @updatedAt @db.Date

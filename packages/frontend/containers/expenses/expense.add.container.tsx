@@ -70,7 +70,7 @@ export const ExpenseAddContainer = ({
       return { fromAccount: defaultExpenseAccount };
     }
     const categories = transactionTemplate?.categories?.map((categoryId) => ({
-      category_id: categoryId,
+      categoryId,
       amount: NaN,
     }));
 

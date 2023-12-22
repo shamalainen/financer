@@ -81,8 +81,8 @@ export class TransactionsService {
 
     const categories =
       (await this.transactionCategoryMappingsService.findAllByUserAndTransaction(
-        userId,
-        transaction._id,
+        userId.toString(),
+        transaction._id.toString(),
       )) as TransactionCategoryMappingDto[];
 
     return {
@@ -142,8 +142,8 @@ export class TransactionsService {
       transactions.map(async (transaction) => {
         const categories =
           (await this.transactionCategoryMappingsService.findAllByUserAndTransaction(
-            userId,
-            transaction._id,
+            userId.toString(),
+            transaction._id.toString(),
           )) as TransactionCategoryMappingDto[];
         return { ...transaction.toObject(), categories };
       }),
@@ -306,8 +306,8 @@ export class TransactionsService {
       .exec();
 
     await this.transactionCategoryMappingsService.removeAllByUserAndTransaction(
-      userId,
-      id,
+      userId.toString(),
+      id.toString(),
     );
     await this.createCategories(userId, id, rawCategories);
     await this.updateRelatedAccountBalance(
@@ -411,6 +411,7 @@ export class TransactionsService {
     }));
 
     await this.transactionCategoryMappingsService.createMany(
+      userId.toString(),
       categoriesWithAllFields,
     );
   }
@@ -504,9 +505,9 @@ export class TransactionsService {
     const transactionIds = (
       await this.transactionCategoryMappingsService.findAllByUserAndCategoryIds(
         userId.toString(),
-        categoryIds,
+        categoryIds.map((id) => id.toString()),
       )
-    ).map(({ transaction_id }) => transaction_id);
+    ).map(({ transactionId }) => transactionId);
 
     return {
       _id: {
@@ -724,7 +725,9 @@ export class TransactionsService {
     }
 
     const a = (
-      await this.transactionCategoriesService.findAllChildrensById([parentId])
+      await this.transactionCategoriesService.findAllChildrensById([
+        parentId.toString(),
+      ])
     ).map(({ _id }) => _id);
 
     return [parentId, ...a];

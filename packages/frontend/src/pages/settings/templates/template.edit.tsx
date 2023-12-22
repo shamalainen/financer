@@ -33,11 +33,11 @@ export const TemplateEdit = ({
     () => ({
       ...template,
       categories: template?.categories?.map((categoryId) => ({
-        category_id: categoryId,
+        categoryId: categoryId,
         amount: NaN,
       })),
     }),
-    [template]
+    [template],
   );
 
   return (

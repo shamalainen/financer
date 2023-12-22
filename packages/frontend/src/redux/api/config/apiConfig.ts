@@ -359,16 +359,16 @@ financerApi.enhanceEndpoints({
       providesTags: (res) => [
         ApiTag.CATEGORY,
         { type: ApiTag.CATEGORY, id: 'LIST' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.CATEGORY,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
     transactionCategoriesFindOne: {
       providesTags: (res) => [
         ApiTag.CATEGORY,
-        { type: ApiTag.CATEGORY, id: res?._id },
+        { type: ApiTag.CATEGORY, id: res?.id },
       ],
     },
     transactionCategoriesCreate: {
@@ -376,7 +376,7 @@ financerApi.enhanceEndpoints({
     },
     transactionCategoriesUpdate: {
       invalidatesTags: (res) => [
-        { type: ApiTag.CATEGORY, id: res?._id },
+        { type: ApiTag.CATEGORY, id: res?.id },
         { type: ApiTag.CATEGORY, id: 'LIST' },
       ],
     },

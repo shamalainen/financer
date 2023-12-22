@@ -132,9 +132,11 @@ export class TransactionTemplatesService {
     }
 
     const categoryAmount = template.amount / template.categories.length;
+
     const categories = template.categories.map((category) => ({
-      category_id: category,
+      categoryId: category.toString(),
       amount: categoryAmount,
+      description: null,
     }));
 
     return {

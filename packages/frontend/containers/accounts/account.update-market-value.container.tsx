@@ -118,6 +118,7 @@ export const AccountUpdateMarketValueContainer = ({
                 type: ToastMessageTypes.ERROR,
                 message: 'Submission failed',
                 additionalInformation: parseErrorMessagesToArray(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   (newExpenseJson as any).message,
                 ),
               }),

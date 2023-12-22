@@ -4,10 +4,10 @@ import { TransactionCategoryMappingDto } from './transaction-category-mapping.dt
 
 export class CreateTransactionCategoryMappingDto extends OmitType(
   TransactionCategoryMappingDto,
-  ['_id', 'owner'] as const,
+  ['id', 'userId', 'createdAt', 'updatedAt', 'v'] as const,
 ) {}
 
 export class CreateTransactionCategoryMappingWithoutTransactionDto extends OmitType(
   CreateTransactionCategoryMappingDto,
-  ['transaction_id'] as const,
+  ['transactionId'] as const,
 ) {}

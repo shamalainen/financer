@@ -76,7 +76,7 @@ export const TransferAddContainer = ({
       };
     }
     const categories = transactionTemplate?.categories?.map((categoryId) => ({
-      category_id: categoryId,
+      categoryId: categoryId,
       amount: NaN,
     }));
 

@@ -50,8 +50,8 @@ const TransactionCategoriesFormWrapper = ({
   const transactionCategories: Option[] = useMemo(() => {
     if (!transactionCategoriesRaw) return [];
 
-    return transactionCategoriesRaw.map(({ _id, categoryTree }) => ({
-      value: _id,
+    return transactionCategoriesRaw.map(({ id, categoryTree }) => ({
+      value: id,
       label: categoryTree,
     }));
   }, [transactionCategoriesRaw]);
@@ -121,12 +121,10 @@ export const TemplateForm = ({
 
   const transactionTypes = (
     Object.keys(TransactionType) as (keyof typeof TransactionType)[]
-  )
-    .filter((type) => type !== 'Any')
-    .map((type) => ({
-      value: TransactionType[type],
-      label: capitalize(TransactionType[type]),
-    }));
+  ).map((type) => ({
+    value: TransactionType[type],
+    label: capitalize(TransactionType[type]),
+  }));
 
   useEffect(() => {
     if (!initialValues) return;

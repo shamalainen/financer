@@ -18,12 +18,12 @@ export const TemplateAddContainer = () => {
   const dispatch = useDispatch();
 
   const handleSubmit = async (
-    newTransactionTemplateData: CreateTransactionTemplateDtoWithCategory
+    newTransactionTemplateData: CreateTransactionTemplateDtoWithCategory,
   ) => {
     const data = {
       ...newTransactionTemplateData,
       categories: newTransactionTemplateData.categories?.map(
-        ({ category_id }) => category_id
+        ({ categoryId }) => categoryId,
       ),
     };
 
@@ -41,9 +41,9 @@ export const TemplateAddContainer = () => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }

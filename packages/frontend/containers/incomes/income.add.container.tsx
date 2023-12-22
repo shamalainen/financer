@@ -66,7 +66,7 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
       return { toAccount: defaultIncomeAccount };
     }
     const categories = transactionTemplate?.categories?.map((categoryId) => ({
-      category_id: categoryId,
+      categoryId: categoryId,
       amount: NaN,
     }));
 

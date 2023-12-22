@@ -44,7 +44,7 @@ export const TransactionCategoriesForm = ({
       <div className="grid items-start mt-4">
         <div className="grid gap-4">
           <Select
-            id={`${namePrefix}.category_id`}
+            id={`${namePrefix}.categoryId`}
             options={categories}
             isRequired
             testId={`${testId}-select`}

@@ -89,8 +89,8 @@ export const TransactionForm = ({
     if (!transactionCategoriesRaw) return;
 
     setTransactionCategories(
-      transactionCategoriesRaw.map(({ _id, categoryTree }) => ({
-        value: _id,
+      transactionCategoriesRaw.map(({ id, categoryTree }) => ({
+        value: id,
         label: categoryTree,
       })),
     );

@@ -1,4 +1,3 @@
-import { TransactionTypeMapping } from '@local/types';
 import { useMemo, useState } from 'react';
 
 import {
@@ -6,6 +5,7 @@ import {
   useTransactionTemplatesFindAllManualTypeByUserQuery,
 } from '$api/generated/financerApi';
 import { Drawer } from '$blocks/drawer/drawer';
+import { transactionTypeLabelMapping } from '$constants/transaction/transactionTypeMapping';
 import { Button } from '$elements/button/button';
 import { ButtonGroup } from '$elements/button/button.group';
 import { ButtonPlain } from '$elements/button/button.plain';
@@ -16,7 +16,7 @@ import { useViewTransitionRouter } from '$hooks/useViewTransitionRouter';
 
 interface TransactionTemplateSwitcherProps {
   selectedTemplate?: string;
-  templateType: Exclude<TransactionType, 'ANY'>;
+  templateType: TransactionType;
 }
 
 export const TransactionTemplateSwitcher = ({
@@ -43,7 +43,7 @@ export const TransactionTemplateSwitcher = ({
     const { templateSwitcher } = event.target;
     const selectedTemplateId = templateSwitcher.value;
     push(
-      `/statistics/${TransactionTypeMapping[templateType]}/add/${selectedTemplateId}`,
+      `/statistics/${transactionTypeLabelMapping[templateType].plural}/add/${selectedTemplateId}`,
     );
     setIsOpen(false);
   };

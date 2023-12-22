@@ -2,6 +2,8 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   Account,
   AccountBalanceChange,
+  TransactionCategory,
+  TransactionCategoryMapping,
   User,
   UserPreferences,
 } from '@prisma/client';
@@ -9,9 +11,7 @@ import {
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
 import { AccountsService } from '../accounts/accounts.service';
-import { TransactionCategoryDocument } from '../transaction-categories/schemas/transaction-category.schema';
 import { TransactionCategoriesService } from '../transaction-categories/transaction-categories.service';
-import { TransactionCategoryMappingDocument } from '../transaction-category-mappings/schemas/transaction-category-mapping.schema';
 import { TransactionCategoryMappingsService } from '../transaction-category-mappings/transaction-category-mappings.service';
 import { TransactionTemplateDocument } from '../transaction-templates/schemas/transaction-template.schema';
 import { TransactionTemplatesService } from '../transaction-templates/transaction-templates.service';
@@ -24,8 +24,8 @@ export type ImportUserDataDto = {
   transactions: TransactionDocument[];
   accounts: Account[];
   accountBalanceChanges: AccountBalanceChange[];
-  transactionCategories: TransactionCategoryDocument[];
-  transactionCategoryMappings: TransactionCategoryMappingDocument[];
+  transactionCategories: TransactionCategory[];
+  transactionCategoryMappings: TransactionCategoryMapping[];
   userPreferences: UserPreferences[];
   transactionTemplates: TransactionTemplateDocument[];
 };
@@ -72,9 +72,9 @@ export class UserDataService {
     const transactions =
       await this.transactionService.findAllByUserForExport(parsedUserId);
     const transactionCategories =
-      await this.transactionCategoriesService.findAllByUser(parsedUserId);
+      await this.transactionCategoriesService.findAllByUser(userId);
     const transactionCategoryMappings =
-      await this.transactionCategoryMappingService.findAllByUser(parsedUserId);
+      await this.transactionCategoryMappingService.findAllByUser(userId);
     const userPreferences = await this.userPreferencesService.findAll(userId);
     const transactionTemplates =
       await this.transactionTemplateService.findAllByUser(parsedUserId);
@@ -110,8 +110,8 @@ export class UserDataService {
       this.accountsService.removeAllByUser(userId.toString()),
       this.accountBalanceChangesService.removeAllByUser(userId.toString()),
       this.transactionService.removeAllByUser(userId),
-      this.transactionCategoriesService.removeAllByUser(userId),
-      this.transactionCategoryMappingService.removeAllByUser(userId),
+      this.transactionCategoriesService.removeAllByUser(userId.toString()),
+      this.transactionCategoryMappingService.removeAllByUser(userId.toString()),
       this.userPreferencesService.removeAllByUser(userId.toString()),
       this.transactionTemplateService.removeAllByUser(userId),
     ]);
@@ -134,23 +134,6 @@ export class UserDataService {
       }),
     );
 
-    const parsedTransactionCategories = transactionCategories.map(
-      ({ parent_category_id, ...transactionCategory }) => ({
-        ...transactionCategory,
-        parent_category_id: parseObjectId(parent_category_id),
-        owner: userId,
-      }),
-    );
-
-    const parsedTransactionCategoryMappings = transactionCategoryMappings.map(
-      ({ category_id, transaction_id, ...transactionCategoryMapping }) => ({
-        ...transactionCategoryMapping,
-        category_id: parseObjectId(category_id),
-        transaction_id: parseObjectId(transaction_id),
-        owner: userId,
-      }),
-    );
-
     const parsedTransactionTemplates = transactionTemplates.map(
       ({ toAccount, fromAccount, categories = [], ...template }) => ({
         ...template,
@@ -165,9 +148,13 @@ export class UserDataService {
       this.accountsService.createMany(accounts, userId.toString()),
       this.accountBalanceChangesService.createMany(parsedAccountBalanceChanges),
       this.transactionService.createMany(parsedTransactions),
-      this.transactionCategoriesService.createMany(parsedTransactionCategories),
+      this.transactionCategoriesService.createMany(
+        userId.toString(),
+        transactionCategories,
+      ),
       this.transactionCategoryMappingService.createMany(
-        parsedTransactionCategoryMappings,
+        userId.toString(),
+        transactionCategoryMappings,
       ),
       this.userPreferencesService.createMany(
         userPreferences,

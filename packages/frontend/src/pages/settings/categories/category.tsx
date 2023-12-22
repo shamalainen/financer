@@ -68,7 +68,7 @@ export const Category = ({
 
   const monthAgoIndex = categoryHistory.indexOf(
     categoryHistory.find((tick) => isAfter(tick.date, monthAgoDate)) ||
-      categoryHistory[0]
+      categoryHistory[0],
   );
 
   const startIndex =
@@ -105,13 +105,13 @@ export const Category = ({
             tension: 0.25,
           },
         ],
-      } as ChartData),
-    [categoryHistory, labels]
+      }) as ChartData,
+    [categoryHistory, labels],
   );
 
   const categoryDetails = useMemo(() => {
     const categoryVisibilityCapitalized = category.visibility.map((item) =>
-      capitalize(item)
+      capitalize(item),
     );
 
     const formatter = new Intl.ListFormat('en', {
@@ -125,7 +125,7 @@ export const Category = ({
         label: 'Name',
         description: category.name,
       },
-      ...(category.parent_category_id
+      ...(category.parentCategoryId
         ? [
             {
               icon: IconName.viewGrid,
@@ -133,7 +133,7 @@ export const Category = ({
               description:
                 parseParentCategoryPath(
                   categories,
-                  category.parent_category_id
+                  category.parentCategoryId,
                 ) ?? '-',
             },
           ]
@@ -147,7 +147,7 @@ export const Category = ({
   }, [
     categories,
     category.name,
-    category.parent_category_id,
+    category.parentCategoryId,
     category.visibility,
   ]);
 
@@ -158,7 +158,7 @@ export const Category = ({
         backLink={settingsPaths.categories}
         headerAction={
           <ButtonInternal
-            link={`${settingsPaths.categories}/${category._id}/edit`}
+            link={`${settingsPaths.categories}/${category.id}/edit`}
             className="inline-flex items-center justify-center -mr-3 h-11 w-11"
             testId="edit-category"
           >

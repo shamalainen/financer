@@ -7,16 +7,16 @@ export interface ITransactionCategoryWithCategoryTree
 
 export const parseParentCategoryPath = (
   allCategories: TransactionCategoryDto[],
-  categoryId: string
+  categoryId: string,
 ): string => {
-  const targetCategory = allCategories.find(({ _id }) => _id === categoryId);
+  const targetCategory = allCategories.find(({ id }) => id === categoryId);
 
-  if (!targetCategory?.parent_category_id) {
+  if (!targetCategory?.parentCategoryId) {
     return `${targetCategory?.name}`;
   }
   const parentPath = parseParentCategoryPath(
     allCategories,
-    targetCategory.parent_category_id
+    targetCategory.parentCategoryId,
   );
   return `${parentPath} > ${targetCategory?.name}`;
 };
@@ -24,15 +24,15 @@ export const parseParentCategoryPath = (
 export const getAllChildCategoryIds = (
   parentId: string,
   transactionCategories: TransactionCategoryDto[],
-  depth = 0
+  depth = 0,
 ): string[] => {
   if (depth > 10) {
     return [];
   }
 
   const ids = transactionCategories
-    .filter((category) => category.parent_category_id === parentId)
-    .map<string>((category) => category._id);
+    .filter((category) => category.parentCategoryId === parentId)
+    .map<string>((category) => category.id);
 
   const childIds = ids
     .map((id) => getAllChildCategoryIds(id, transactionCategories, depth + 1))

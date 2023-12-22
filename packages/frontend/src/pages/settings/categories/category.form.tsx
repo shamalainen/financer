@@ -3,7 +3,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { getAllChildCategoryIds } from '../../../services/TransactionCategoriesService';
 
-import { VisibilityType } from '$api/generated/financerApi';
+import { TransactionType, VisibilityType } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
 import { settingsPaths } from '$constants/settings-paths';
 import { Checkbox } from '$elements/checkbox/checkbox';
@@ -22,8 +22,8 @@ interface CategoryFormProps {
 
 export interface TransactionCategoryFormFields {
   name: string;
-  visibility: VisibilityType[];
-  parent_category_id: string | null;
+  visibility: TransactionType[];
+  parentCategoryId: string | null;
 }
 
 export const CategoryForm = ({
@@ -36,7 +36,7 @@ export const CategoryForm = ({
   const defaultValues = useMemo(() => {
     return {
       ...initialValues,
-      parent_category_id: initialValues?.parent_category_id ?? '',
+      parentCategoryId: initialValues?.parentCategoryId ?? '',
     };
   }, [initialValues]);
 
@@ -63,9 +63,9 @@ export const CategoryForm = ({
 
     setTransactionCategories([
       ...transactionCategoriesRaw
-        .filter(({ _id }) => !forbiddenIds.includes(_id))
-        .map(({ _id, categoryTree: transactionCategoryName }) => ({
-          value: _id,
+        .filter(({ id }) => !forbiddenIds.includes(id))
+        .map(({ id, categoryTree: transactionCategoryName }) => ({
+          value: id,
           label: transactionCategoryName,
         })),
     ]);
@@ -115,7 +115,7 @@ export const CategoryForm = ({
           />
         </CheckboxGroup>
         <Select
-          id="parent_category_id"
+          id="parentCategoryId"
           options={transactionCategories}
           placeholder="None"
         >

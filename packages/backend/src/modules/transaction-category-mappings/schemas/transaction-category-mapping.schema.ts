@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types as MogooseTypes } from 'mongoose';
 
 import { ObjectId } from '../../../types/objectId';
-import { TransactionCategory } from '../../transaction-categories/schemas/transaction-category.schema';
 import { Transaction } from '../../transactions/schemas/transaction.schema';
 
 export type TransactionCategoryMappingDocument = TransactionCategoryMapping &
@@ -23,7 +22,6 @@ export class TransactionCategoryMapping {
 
   @Prop({
     type: MogooseTypes.ObjectId,
-    ref: TransactionCategory.name,
     required: true,
   })
   category_id: ObjectId;

@@ -24,13 +24,13 @@ export const CategoryEdit = ({
     <Container>
       <UpdatePageInfo
         title={`Edit ${category.name}`}
-        backLink={`${settingsPaths.categories}/${category._id}`}
+        backLink={`${settingsPaths.categories}/${category.id}`}
         headerAction={<CategoryDelete onDelete={onDelete} />}
       />
       <CategoryForm
         onSubmit={onSubmit}
         submitLabel="Update"
-        currentCategoryId={category._id}
+        currentCategoryId={category.id}
         initialValues={category}
       />
     </Container>

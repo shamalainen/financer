@@ -30,9 +30,9 @@ export const Transaction = ({
 
   const getCategoryNameById = useCallback(
     (categoryId: string) =>
-      transactionCategories?.find((category) => category._id === categoryId)
+      transactionCategories?.find((category) => category.id === categoryId)
         ?.categoryTree || categoryId,
-    [transactionCategories]
+    [transactionCategories],
   );
 
   const transactionType = getTransactionType(toAccount, fromAccount);
@@ -88,35 +88,33 @@ export const Transaction = ({
         description: capitalize(transactionDetailsMapping.type ?? '-'),
       },
     ],
-    [fromAccount, toAccount, transaction?.date, transactionDetailsMapping.type]
+    [fromAccount, toAccount, transaction?.date, transactionDetailsMapping.type],
   );
 
   const categoryDetails = useMemo(() => {
-    return transaction.categories.map(
-      ({ amount, category_id, description }) => {
-        return [
-          {
-            icon: IconName.tag,
-            label: 'Category',
-            description: getCategoryNameById(category_id as unknown as string),
-          },
-          {
-            icon: IconName.informationCircle,
-            label: 'Amount',
-            description: formatCurrency(amount),
-          },
-          ...(description
-            ? [
-                {
-                  icon: IconName.annotation,
-                  label: 'Description',
-                  description,
-                },
-              ]
-            : []),
-        ];
-      }
-    );
+    return transaction.categories.map(({ amount, categoryId, description }) => {
+      return [
+        {
+          icon: IconName.tag,
+          label: 'Category',
+          description: getCategoryNameById(categoryId as unknown as string),
+        },
+        {
+          icon: IconName.informationCircle,
+          label: 'Amount',
+          description: formatCurrency(amount),
+        },
+        ...(description
+          ? [
+              {
+                icon: IconName.annotation,
+                label: 'Description',
+                description,
+              },
+            ]
+          : []),
+      ];
+    });
   }, [transaction.categories, getCategoryNameById]);
 
   return (

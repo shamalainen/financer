@@ -4,5 +4,5 @@ import { TransactionCategoryDto } from './transaction-category.dto';
 
 export class CreateTransactionCategoryDto extends OmitType(
   TransactionCategoryDto,
-  ['_id', 'owner', 'deleted'] as const,
+  ['id', 'userId', 'deleted', 'createdAt', 'updatedAt', 'v'] as const,
 ) {}

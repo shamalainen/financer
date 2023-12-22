@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 
 import { AccountType } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
-import { accountTypeLabelMapping } from '$constants/account/accountTypeIconMapping';
+import { accountTypeLabelMapping } from '$constants/account/accountTypeMapping';
 import { settingsPaths } from '$constants/settings-paths';
 import { Checkbox } from '$elements/checkbox/checkbox';
 import { CheckboxGroup } from '$elements/checkbox/checkbox.group';

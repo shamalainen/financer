@@ -1,5 +1,5 @@
 import { AccountType } from '$api/generated/financerApi';
-import { accountTypeIconMapping } from '$constants/account/accountTypeIconMapping';
+import { accountTypeIconMapping } from '$constants/account/accountTypeMapping';
 import { LinkList } from '$elements/link-list/link-list';
 import { LinkListLink } from '$elements/link-list/link-list.link';
 

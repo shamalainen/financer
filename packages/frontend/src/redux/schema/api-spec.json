@@ -1779,10 +1779,10 @@
         "type": "object",
         "properties": {
           "description": { "type": "string" },
-          "category_id": { "type": "string" },
+          "categoryId": { "type": "string" },
           "amount": { "type": "number" }
         },
-        "required": ["category_id", "amount"]
+        "required": ["categoryId", "amount"]
       },
       "TransactionDto": {
         "type": "object",
@@ -1868,51 +1868,61 @@
           "accountId"
         ]
       },
-      "VisibilityType": {
+      "TransactionType": {
         "type": "string",
-        "enum": ["income", "expense", "transfer"]
+        "enum": ["INCOME", "EXPENSE", "TRANSFER"]
       },
       "TransactionCategoryDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
-          "owner": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
           "name": { "type": "string" },
           "visibility": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/VisibilityType" }
+            "items": { "$ref": "#/components/schemas/TransactionType" }
           },
           "deleted": { "type": "boolean" },
-          "parent_category_id": { "type": "string", "nullable": true }
+          "parentCategoryId": { "type": "string", "nullable": true }
         },
         "required": [
-          "_id",
-          "owner",
+          "createdAt",
+          "updatedAt",
+          "id",
+          "userId",
           "name",
           "visibility",
           "deleted",
-          "parent_category_id"
+          "parentCategoryId"
         ]
       },
       "TransactionCategoryMappingDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
-          "owner": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
           "description": { "type": "string" },
-          "category_id": { "type": "string" },
-          "transaction_id": { "type": "string" },
+          "categoryId": { "type": "string" },
+          "transactionId": { "type": "string" },
           "amount": { "type": "number" }
         },
-        "required": ["_id", "owner", "category_id", "transaction_id", "amount"]
+        "required": [
+          "createdAt",
+          "updatedAt",
+          "id",
+          "userId",
+          "categoryId",
+          "transactionId",
+          "amount"
+        ]
       },
       "TransactionTemplateType": {
         "type": "string",
         "enum": ["manual", "auto"]
-      },
-      "TransactionType": {
-        "type": "string",
-        "enum": ["income", "expense", "transfer", "any"]
       },
       "TransactionTemplateDto": {
         "type": "object",
@@ -2134,15 +2144,15 @@
           "name": { "type": "string" },
           "visibility": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/VisibilityType" }
+            "items": { "$ref": "#/components/schemas/TransactionType" }
           },
-          "parent_category_id": { "type": "string", "nullable": true }
+          "parentCategoryId": { "type": "string", "nullable": true }
         },
-        "required": ["name", "visibility", "parent_category_id"]
+        "required": ["name", "visibility", "parentCategoryId"]
       },
       "visibilityType": {
         "type": "string",
-        "enum": ["income", "expense", "transfer"]
+        "enum": ["INCOME", "EXPENSE", "TRANSFER"]
       },
       "UpdateTransactionCategoryDto": {
         "type": "object",
@@ -2150,9 +2160,9 @@
           "name": { "type": "string" },
           "visibility": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/VisibilityType" }
+            "items": { "$ref": "#/components/schemas/TransactionType" }
           },
-          "parent_category_id": { "type": "string", "nullable": true }
+          "parentCategoryId": { "type": "string", "nullable": true }
         }
       },
       "UpdateUserPreferenceDto": {
