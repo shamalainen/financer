@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 
 import { AccountType } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
+import { accountTypeLabelMapping } from '$constants/account/accountTypeIconMapping';
 import { settingsPaths } from '$constants/settings-paths';
 import { Checkbox } from '$elements/checkbox/checkbox';
 import { CheckboxGroup } from '$elements/checkbox/checkbox.group';
@@ -57,7 +58,7 @@ export const UserDashboardSettings = ({
               key={type}
               id={type}
               value={type}
-              label={capitalize(type)}
+              label={capitalize(accountTypeLabelMapping[type])}
               name={'accountTypes'}
             />
           ))}

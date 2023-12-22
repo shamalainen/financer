@@ -1,5 +1,10 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Account, AccountBalanceChange, User } from '@prisma/client';
+import {
+  Account,
+  AccountBalanceChange,
+  User,
+  UserPreferences,
+} from '@prisma/client';
 
 import { ObjectId, parseObjectId } from '../../types/objectId';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
@@ -12,7 +17,6 @@ import { TransactionTemplateDocument } from '../transaction-templates/schemas/tr
 import { TransactionTemplatesService } from '../transaction-templates/transaction-templates.service';
 import { TransactionDocument } from '../transactions/schemas/transaction.schema';
 import { TransactionsService } from '../transactions/transactions.service';
-import { UserPreferenceDocument } from '../user-preferences/schemas/user-preference.schema';
 import { UserPreferencesService } from '../user-preferences/user-preferences.service';
 import { UsersService } from '../users/users.service';
 
@@ -22,7 +26,7 @@ export type ImportUserDataDto = {
   accountBalanceChanges: AccountBalanceChange[];
   transactionCategories: TransactionCategoryDocument[];
   transactionCategoryMappings: TransactionCategoryMappingDocument[];
-  userPreferences: UserPreferenceDocument[];
+  userPreferences: UserPreferences[];
   transactionTemplates: TransactionTemplateDocument[];
 };
 
@@ -71,8 +75,7 @@ export class UserDataService {
       await this.transactionCategoriesService.findAllByUser(parsedUserId);
     const transactionCategoryMappings =
       await this.transactionCategoryMappingService.findAllByUser(parsedUserId);
-    const userPreferences =
-      await this.userPreferencesService.findAll(parsedUserId);
+    const userPreferences = await this.userPreferencesService.findAll(userId);
     const transactionTemplates =
       await this.transactionTemplateService.findAllByUser(parsedUserId);
 
@@ -109,7 +112,7 @@ export class UserDataService {
       this.transactionService.removeAllByUser(userId),
       this.transactionCategoriesService.removeAllByUser(userId),
       this.transactionCategoryMappingService.removeAllByUser(userId),
-      this.userPreferencesService.removeAllByUser(userId),
+      this.userPreferencesService.removeAllByUser(userId.toString()),
       this.transactionTemplateService.removeAllByUser(userId),
     ]);
 
@@ -148,11 +151,6 @@ export class UserDataService {
       }),
     );
 
-    const parsedUserPreferences = userPreferences.map((userPreference) => ({
-      ...userPreference,
-      userId,
-    }));
-
     const parsedTransactionTemplates = transactionTemplates.map(
       ({ toAccount, fromAccount, categories = [], ...template }) => ({
         ...template,
@@ -171,7 +169,10 @@ export class UserDataService {
       this.transactionCategoryMappingService.createMany(
         parsedTransactionCategoryMappings,
       ),
-      this.userPreferencesService.createMany(parsedUserPreferences),
+      this.userPreferencesService.createMany(
+        userPreferences,
+        userId.toString(),
+      ),
       this.transactionTemplateService.createMany(parsedTransactionTemplates),
     ]);
 

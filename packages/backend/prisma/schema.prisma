@@ -237,6 +237,7 @@ model UserPreferences {
 
   User User @relation(fields: [userId], references: [id])
 
+  @@unique([userId, key], name: "userId_key")
   @@index([userId], map: "userId_1")
   @@map("userpreferences")
 }

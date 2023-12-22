@@ -53,7 +53,7 @@ export const UserDefaultMarketUpdateSettings = ({
               ({ name, _id }) => ({
                 label: name,
                 value: _id,
-              })
+              }),
             )}
             isRequired
           >

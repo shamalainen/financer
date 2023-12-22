@@ -1,71 +1,69 @@
-import { UserPreferenceProperty } from '@local/types';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { UserPreferenceProperty, UserPreferences } from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
+import { UserPreferencesRepo } from '../../database/repos/user-preferences.repo';
 
 import { CreateUserPreferenceDto } from './dto/create-user-preference.dto';
 import { UpdateUserPreferenceDto } from './dto/update-user-preference.dto';
-import {
-  UserPreference,
-  UserPreferenceDocument,
-} from './schemas/user-preference.schema';
 
 @Injectable()
 export class UserPreferencesService {
-  constructor(
-    @InjectModel(UserPreference.name)
-    private userPreferenceModel: Model<UserPreferenceDocument>,
-  ) {}
+  constructor(private readonly userPreferencesRepo: UserPreferencesRepo) {}
 
   async create(
+    userId: string,
     createUserPreferenceDto: CreateUserPreferenceDto,
-  ): Promise<UserPreferenceDocument> {
-    return this.userPreferenceModel.create(createUserPreferenceDto);
+  ): Promise<UserPreferences> {
+    return this.userPreferencesRepo.create({
+      ...createUserPreferenceDto,
+      userId,
+    });
   }
 
   async createMany(
     createUserPreferenceDto: CreateUserPreferenceDto[],
-  ): Promise<UserPreferenceDocument[]> {
-    return this.userPreferenceModel.insertMany(createUserPreferenceDto);
+    userId: string,
+  ): Promise<void> {
+    await this.userPreferencesRepo.createMany(
+      createUserPreferenceDto.map((preference) => ({ ...preference, userId })),
+    );
   }
 
-  async findAll(userId: ObjectId): Promise<UserPreferenceDocument[]> {
-    return this.userPreferenceModel.find({ userId });
+  async findAll(userId: string): Promise<UserPreferences[]> {
+    return this.userPreferencesRepo.findMany({ where: { userId } });
   }
 
   async findOneByUserAndProperty(
     userPreferenceProperty: UserPreferenceProperty,
-    userId: ObjectId,
-  ): Promise<UserPreferenceDocument> {
-    return this.userPreferenceModel.findOne({
-      userId,
-      key: userPreferenceProperty,
+    userId: string,
+  ): Promise<UserPreferences> {
+    return this.userPreferencesRepo.findOne({
+      userId_key: { userId, key: userPreferenceProperty },
     });
   }
 
   async update(
-    userId: ObjectId,
+    userId: string,
     updateUserPreferenceDto: UpdateUserPreferenceDto,
-  ): Promise<UserPreferenceDocument> {
+  ): Promise<UserPreferences> {
     const userPreferenceInDb = await this.findOneByUserAndProperty(
       updateUserPreferenceDto.key,
       userId,
     );
+
     if (!userPreferenceInDb) {
-      const createUserPreference = {
-        ...updateUserPreferenceDto,
-        userId,
-      };
-      return this.create(createUserPreference);
+      return this.create(userId, updateUserPreferenceDto);
     }
 
-    userPreferenceInDb.value = updateUserPreferenceDto.value;
-    return userPreferenceInDb.save();
+    return this.userPreferencesRepo.update({
+      where: {
+        userId_key: { userId, key: userPreferenceInDb.key },
+      },
+      data: { value: updateUserPreferenceDto.value },
+    });
   }
 
-  async removeAllByUser(userId: ObjectId): Promise<void> {
-    await this.userPreferenceModel.deleteMany({ userId });
+  async removeAllByUser(userId: string): Promise<void> {
+    await this.userPreferencesRepo.deleteMany({ userId });
   }
 }

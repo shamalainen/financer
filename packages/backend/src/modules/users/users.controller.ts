@@ -1,4 +1,3 @@
-import { Role } from '@local/types';
 import {
   Controller,
   Get,
@@ -10,6 +9,7 @@ import {
   forwardRef,
   Inject,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import {
   ApiBody,
   ApiOkResponse,
@@ -57,7 +57,7 @@ export class UsersController {
   }
 
   @Post('my-user/my-data')
-  @Auth(Role.testUser)
+  @Auth(Role.TEST_USER)
   @ApiBody({ type: UserDataImportDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   overrideAllOwnUserData(
@@ -78,14 +78,14 @@ export class UsersController {
   }
 
   @Get()
-  @Auth(Role.admin)
+  @Auth(Role.ADMIN)
   @ApiOkResponse({ type: [UserDto] })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Auth(Role.admin)
+  @Auth(Role.ADMIN)
   @ApiOkResponse({ type: UserDto })
   @ApiParam({
     name: 'id',
@@ -97,7 +97,7 @@ export class UsersController {
   }
 
   @Get(':id/my-data')
-  @Auth(Role.admin)
+  @Auth(Role.ADMIN)
   @ApiOkResponse({ type: UserDataExportDto })
   @ApiParam({
     name: 'id',
@@ -108,9 +108,8 @@ export class UsersController {
     @Param('id', ValidateEntityId) userId: string,
     @Res() res: Response,
   ) {
-    const { filename, data } = await this.userDataService.findAllOneUserData(
-      userId,
-    );
+    const { filename, data } =
+      await this.userDataService.findAllOneUserData(userId);
 
     res.setHeader('Content-disposition', `attachment; filename= ${filename}`);
     res.setHeader('Content-type', 'application/json');

@@ -1766,12 +1766,14 @@
       "UserPreferenceDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "userId": { "type": "string" },
           "key": { "$ref": "#/components/schemas/UserPreferenceProperty" },
           "value": { "type": "string" }
         },
-        "required": ["_id", "userId", "key", "value"]
+        "required": ["createdAt", "updatedAt", "id", "userId", "key", "value"]
       },
       "CreateTransactionCategoryMappingWithoutTransactionDto": {
         "type": "object",
