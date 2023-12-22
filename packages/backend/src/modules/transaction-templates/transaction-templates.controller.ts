@@ -1,4 +1,3 @@
-import { TransactionTemplateType } from '@local/types';
 import {
   Controller,
   Get,
@@ -8,6 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { TransactionTemplateType } from '@prisma/client';
 import {
   ApiBody,
   ApiOkResponse,
@@ -15,10 +15,9 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId } from '../../types/objectId';
-import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserIdOld } from '../users/users.decorators';
+import { UserId } from '../users/users.decorators';
 
 import { CreateTransactionTemplateDto } from './dto/create-transaction-template.dto';
 import { TransactionTemplateDto } from './dto/transaction-template.dto';
@@ -37,7 +36,7 @@ export class TransactionTemplatesController {
   @ApiBody({ type: CreateTransactionTemplateDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   create(
-    @UserIdOld() userId: ObjectId,
+    @UserId() userId: string,
     @Body() createTransactionTemplateDto: CreateTransactionTemplateDto,
   ) {
     return this.transactionTemplatesService.create(
@@ -51,7 +50,7 @@ export class TransactionTemplatesController {
     type: [TransactionTemplateDto],
     description: 'Return all transaction templates',
   })
-  findAllByUser(@UserIdOld() userId: ObjectId) {
+  findAllByUser(@UserId() userId: string) {
     return this.transactionTemplatesService.findAllByUser(userId);
   }
 
@@ -60,7 +59,7 @@ export class TransactionTemplatesController {
     type: [TransactionTemplateDto],
     description: 'Return all transaction templates of type manual',
   })
-  findAllManualTypeByUser(@UserIdOld() userId: ObjectId) {
+  findAllManualTypeByUser(@UserId() userId: string) {
     return this.transactionTemplatesService.findAllByUserAndType(
       userId,
       TransactionTemplateType.MANUAL,
@@ -76,10 +75,7 @@ export class TransactionTemplatesController {
     name: 'id',
     type: String,
   })
-  findOne(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
-  ) {
+  findOne(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.transactionTemplatesService.findOne(id, userId);
   }
 
@@ -91,8 +87,8 @@ export class TransactionTemplatesController {
     type: String,
   })
   update(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateTransactionTemplateDto: UpdateTransactionTemplateDto,
   ) {
     return this.transactionTemplatesService.update(
@@ -107,10 +103,7 @@ export class TransactionTemplatesController {
     name: 'id',
     type: String,
   })
-  remove(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
-  ) {
+  remove(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.transactionTemplatesService.remove(id, userId);
   }
 }

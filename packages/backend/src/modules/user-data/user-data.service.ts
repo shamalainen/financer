@@ -4,6 +4,7 @@ import {
   AccountBalanceChange,
   TransactionCategory,
   TransactionCategoryMapping,
+  TransactionTemplate,
   User,
   UserPreferences,
 } from '@prisma/client';
@@ -13,7 +14,6 @@ import { AccountBalanceChangesService } from '../account-balance-changes/account
 import { AccountsService } from '../accounts/accounts.service';
 import { TransactionCategoriesService } from '../transaction-categories/transaction-categories.service';
 import { TransactionCategoryMappingsService } from '../transaction-category-mappings/transaction-category-mappings.service';
-import { TransactionTemplateDocument } from '../transaction-templates/schemas/transaction-template.schema';
 import { TransactionTemplatesService } from '../transaction-templates/transaction-templates.service';
 import { TransactionDocument } from '../transactions/schemas/transaction.schema';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -27,7 +27,7 @@ export type ImportUserDataDto = {
   transactionCategories: TransactionCategory[];
   transactionCategoryMappings: TransactionCategoryMapping[];
   userPreferences: UserPreferences[];
-  transactionTemplates: TransactionTemplateDocument[];
+  transactionTemplates: TransactionTemplate[];
 };
 
 export type ExportUserDataDto = ImportUserDataDto & {
@@ -77,7 +77,7 @@ export class UserDataService {
       await this.transactionCategoryMappingService.findAllByUser(userId);
     const userPreferences = await this.userPreferencesService.findAll(userId);
     const transactionTemplates =
-      await this.transactionTemplateService.findAllByUser(parsedUserId);
+      await this.transactionTemplateService.findAllByUser(userId);
 
     const filename = getMyDataFilename();
     const data = {
@@ -113,7 +113,7 @@ export class UserDataService {
       this.transactionCategoriesService.removeAllByUser(userId.toString()),
       this.transactionCategoryMappingService.removeAllByUser(userId.toString()),
       this.userPreferencesService.removeAllByUser(userId.toString()),
-      this.transactionTemplateService.removeAllByUser(userId),
+      this.transactionTemplateService.removeAllByUser(userId.toString()),
     ]);
 
     const parsedAccountBalanceChanges = accountBalanceChanges.map(
@@ -127,20 +127,10 @@ export class UserDataService {
     const parsedTransactions = transactions.map(
       ({ toAccount, fromAccount, ...transaction }) => ({
         ...transaction,
-        toAccount: parseObjectId(toAccount),
-        fromAccount: parseObjectId(fromAccount),
+        toAccount: toAccount.toString(),
+        fromAccount: fromAccount.toString(),
         user: userId,
         categories: [],
-      }),
-    );
-
-    const parsedTransactionTemplates = transactionTemplates.map(
-      ({ toAccount, fromAccount, categories = [], ...template }) => ({
-        ...template,
-        toAccount: parseObjectId(toAccount),
-        fromAccount: parseObjectId(fromAccount),
-        categories: categories.map((category) => parseObjectId(category)),
-        userId,
       }),
     );
 
@@ -160,7 +150,10 @@ export class UserDataService {
         userPreferences,
         userId.toString(),
       ),
-      this.transactionTemplateService.createMany(parsedTransactionTemplates),
+      this.transactionTemplateService.createMany(
+        userId.toString(),
+        transactionTemplates,
+      ),
     ]);
 
     return { payload: 'Successfully overrided data.' };

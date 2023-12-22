@@ -2,7 +2,6 @@ import { ApiProperty } from '@silte/nestjs-swagger';
 import { Transform } from 'class-transformer';
 import { Allow } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
 import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
 import { IsNotEqual } from '../../../utils/is-not-equal.decorator';
 import { objectIdTransformer } from '../../../utils/object-id-transformer';
@@ -15,5 +14,5 @@ export class TransferDto extends TransactionDto {
   })
   @IsInstanceOfObjectId({ message: 'fromAccount must not be empty.' })
   @Transform(objectIdTransformer)
-  fromAccount: ObjectId;
+  fromAccount: string;
 }

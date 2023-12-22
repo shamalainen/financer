@@ -1,13 +1,11 @@
-import { TransactionTemplateType } from '@local/types';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+  TransactionTemplateLog,
+  TransactionTemplateType,
+} from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
+import { TransactionTemplateLogRepo } from '../../database/repos/transaction-template-log.repo';
+import { TransactionTemplateRepo } from '../../database/repos/transaction-template.repo';
 import { getLastDayOfMonth } from '../../utils/date-utils';
 import { CreateTransactionDto } from '../transactions/dto/create-transaction.dto';
 
@@ -15,102 +13,95 @@ import { CreateTransactionTemplateLogDto } from './dto/create-transaction-templa
 import { CreateTransactionTemplateDto } from './dto/create-transaction-template.dto';
 import { TransactionTemplateDto } from './dto/transaction-template.dto';
 import { UpdateTransactionTemplateDto } from './dto/update-transaction-template.dto';
-import {
-  TransactionTemplateLog,
-  TransactionTemplateLogDocument,
-} from './schemas/transaction-template-log.schema';
-import {
-  TransactionTemplate,
-  TransactionTemplateDocument,
-} from './schemas/transaction-template.schema';
 
 @Injectable()
 export class TransactionTemplatesService {
   constructor(
-    @InjectModel(TransactionTemplate.name)
-    private transactionTemplateModel: Model<TransactionTemplateDocument>,
-    @InjectModel(TransactionTemplateLog.name)
-    private transactionTemplateLogModel: Model<TransactionTemplateLogDocument>,
+    private readonly transactionTemplateRepo: TransactionTemplateRepo,
+    private readonly transactionTemplateLogRepo: TransactionTemplateLogRepo,
   ) {}
 
   async create(
     createTransactionTemplateDto: CreateTransactionTemplateDto,
-    userId: ObjectId,
+    userId: string,
   ) {
-    return this.transactionTemplateModel.create({
+    return this.transactionTemplateRepo.create({
       ...createTransactionTemplateDto,
       userId,
     });
   }
 
   async createMany(
+    userId: string,
     createTransactionTemplateDto: CreateTransactionTemplateDto[],
   ) {
-    return this.transactionTemplateModel.insertMany(
-      createTransactionTemplateDto,
+    return this.transactionTemplateRepo.createMany(
+      createTransactionTemplateDto.map((template) => ({ ...template, userId })),
     );
   }
 
-  async findAllByUser(userId: ObjectId) {
-    return this.transactionTemplateModel.find({ userId });
+  async findAllByUser(userId: string) {
+    return this.transactionTemplateRepo.findMany({ where: { userId } });
   }
 
   async findAllByUserAndType(
-    userId: ObjectId,
+    userId: string,
     templateType: TransactionTemplateType,
   ) {
-    return this.transactionTemplateModel.find({
-      userId,
-      templateType,
+    return this.transactionTemplateRepo.findMany({
+      where: {
+        userId,
+        templateType: {
+          has: templateType,
+        },
+      },
     });
   }
 
-  async findOne(id: ObjectId, userId: ObjectId) {
-    const template = await this.transactionTemplateModel.findOne({ _id: id });
+  async findOne(id: string, userId: string) {
+    const template = await this.transactionTemplateRepo.findOne({ id, userId });
 
     if (!template) {
       throw new NotFoundException('Transaction template not found.');
-    } else if (!template.userId.equals(userId)) {
-      throw new UnauthorizedException(
-        'Unauthorized to access this transaction template.',
-      );
     }
 
     return template;
   }
 
   async update(
-    id: ObjectId,
+    id: string,
     updateTransactionTemplateDto: UpdateTransactionTemplateDto,
-    userId: ObjectId,
+    userId: string,
   ) {
     await this.findOne(id, userId);
-    return this.transactionTemplateModel.updateOne(
-      { _id: id },
-      updateTransactionTemplateDto,
-      {
-        new: true,
+    return this.transactionTemplateRepo.update({
+      where: {
+        id,
+        userId,
       },
-    );
+      data: updateTransactionTemplateDto,
+    });
   }
 
   async findAutomatedTemplatesWithCreationDateBefore(
     dayOfMonth: number,
-    dateOperator: '$eq' | '$gte' = '$eq',
+    dateOperator: 'eq' | 'gte' = 'eq',
   ) {
-    return this.transactionTemplateModel.find({
-      templateType: TransactionTemplateType.AUTO,
-      dayOfMonthToCreate: { [dateOperator]: dayOfMonth },
+    return this.transactionTemplateRepo.findMany({
+      where: {
+        templateType: { has: TransactionTemplateType.AUTO },
+        dayOfMonthToCreate: { [dateOperator]: dayOfMonth },
+      },
     });
   }
 
-  async remove(id: ObjectId, userId: ObjectId) {
+  async remove(id: string, userId: string) {
     await this.findOne(id, userId);
-    return this.transactionTemplateModel.deleteOne({ _id: id });
+    return this.transactionTemplateRepo.delete({ id, userId });
   }
 
-  async removeAllByUser(userId: ObjectId) {
-    await this.transactionTemplateModel.deleteMany({ userId }).exec();
+  async removeAllByUser(userId: string) {
+    await this.transactionTemplateRepo.deleteMany({ userId });
   }
 
   getTransactionFromTemplate(
@@ -152,17 +143,19 @@ export class TransactionTemplatesService {
   async createTemplateLogEntry(
     logItem: CreateTransactionTemplateLogDto,
   ): Promise<void> {
-    await this.transactionTemplateLogModel.create(logItem);
+    await this.transactionTemplateLogRepo.create(logItem);
   }
 
   async findTemplateLogEntriesByTemplateIdsAndType(
-    templateIds: ObjectId[],
+    templateIds: string[],
     templateType: TransactionTemplateType,
   ): Promise<TransactionTemplateLog[]> {
-    return this.transactionTemplateLogModel.find({
-      templateId: { $in: templateIds },
-      eventType: templateType,
-      executed: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 60) }, // 2 months
+    return this.transactionTemplateLogRepo.findMany({
+      where: {
+        templateId: { in: templateIds },
+        eventType: templateType,
+        executed: { gt: new Date(Date.now() - 1000 * 60 * 60 * 60) }, // 2 months
+      },
     });
   }
 }

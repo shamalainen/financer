@@ -39,12 +39,12 @@ export class TransactionDto {
   @ApiProperty({ type: String })
   @IsInstanceOfObjectId({ message: 'fromAccount must not be empty.' })
   @Transform(objectIdTransformer)
-  readonly fromAccount: ObjectId;
+  readonly fromAccount: string;
 
   @ApiProperty({ type: String })
   @IsInstanceOfObjectId({ message: 'toAccount must not be empty.' })
   @Transform(objectIdTransformer)
-  readonly toAccount: ObjectId;
+  readonly toAccount: string;
 
   @ApiProperty({
     type: CreateTransactionCategoryMappingWithoutTransactionDto,

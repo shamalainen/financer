@@ -175,7 +175,7 @@ model TransactionTemplateLog {
 model TransactionTemplate {
   id                 String                    @id @default(auto()) @map("_id") @db.ObjectId
   v                  Int?                      @map("__v")
-  amount             Float
+  amount             Float?
   categories         String[]                  @default([])
   createdAt          DateTime                  @default(now()) @db.Date
   dayOfMonth         Int?

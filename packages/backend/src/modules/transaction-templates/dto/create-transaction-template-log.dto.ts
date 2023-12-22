@@ -4,5 +4,5 @@ import { TransactionTemplateLogDto } from './transaction-template-log.dto';
 
 export class CreateTransactionTemplateLogDto extends OmitType(
   TransactionTemplateLogDto,
-  ['_id'] as const,
+  ['id'] as const,
 ) {}

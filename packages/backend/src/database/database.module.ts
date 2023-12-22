@@ -6,6 +6,8 @@ import { AccountRepo } from './repos/account.repo';
 import { SystemLogRepo } from './repos/system-log.repo';
 import { TransactionCategoryMappingRepo } from './repos/transaction-category-mapping.repo';
 import { TransactionCategoryRepo } from './repos/transaction-category.repo';
+import { TransactionTemplateLogRepo } from './repos/transaction-template-log.repo';
+import { TransactionTemplateRepo } from './repos/transaction-template.repo';
 import { UserPreferencesRepo } from './repos/user-preferences.repo';
 import { UserRepo } from './repos/user.repo';
 
@@ -19,6 +21,8 @@ import { UserRepo } from './repos/user.repo';
     UserPreferencesRepo,
     TransactionCategoryRepo,
     TransactionCategoryMappingRepo,
+    TransactionTemplateRepo,
+    TransactionTemplateLogRepo,
   ],
   exports: [
     UserRepo,
@@ -28,6 +32,8 @@ import { UserRepo } from './repos/user.repo';
     UserPreferencesRepo,
     TransactionCategoryRepo,
     TransactionCategoryMappingRepo,
+    TransactionTemplateRepo,
+    TransactionTemplateLogRepo,
   ],
 })
 export class DatabaseModule {}
