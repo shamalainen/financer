@@ -1,16 +1,17 @@
-import { SortOrder, TransactionType } from '@local/types';
 import {
-  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { AccountType } from '@prisma/client';
-import { Model } from 'mongoose';
+import {
+  AccountType,
+  Prisma,
+  Transaction,
+  TransactionType,
+} from '@prisma/client';
 
+import { TransactionRepo } from '../../database/repos/transaction.repo';
 import { ObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';
 import { AccountsService } from '../accounts/accounts.service';
@@ -24,13 +25,11 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionMonthSummaryDto } from './dto/transaction-month-summary.dto';
 import { TransactionDto } from './dto/transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { Transaction, TransactionDocument } from './schemas/transaction.schema';
 
 @Injectable()
 export class TransactionsService {
   constructor(
-    @InjectModel(Transaction.name)
-    private transactionModel: Model<TransactionDocument>,
+    private readonly transactionRepo: TransactionRepo,
     @Inject(forwardRef(() => AccountsService))
     private accountService: AccountsService,
     private transactionCategoriesService: TransactionCategoriesService,
@@ -38,19 +37,19 @@ export class TransactionsService {
   ) {}
 
   async create(
-    userId: ObjectId,
+    userId: string,
     createTransactionDto: CreateTransactionDto,
-  ): Promise<TransactionDocument> {
+  ): Promise<Transaction> {
     const { categories: rawCategories, ...transactionRawData } =
       createTransactionDto;
 
     await this.verifyTransactionAccountOwnership(userId, transactionRawData);
     await this.verifyCategoriesExists(rawCategories);
 
-    const transactionData = { ...transactionRawData, user: userId };
-    const transaction = await this.transactionModel.create(transactionData);
+    const transactionData = { ...transactionRawData, userId };
+    const transaction = await this.transactionRepo.create(transactionData);
 
-    await this.createCategories(userId, transaction._id, rawCategories);
+    await this.createCategories(userId, transaction.id, rawCategories);
     await this.updateRelatedAccountBalance(
       userId,
       transaction,
@@ -62,67 +61,67 @@ export class TransactionsService {
   }
 
   async createMany(
+    userId: string,
     createTransactionDto: CreateTransactionDto[],
-  ): Promise<TransactionDocument[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return this.transactionModel.insertMany(createTransactionDto) as any;
+  ): Promise<void> {
+    await this.transactionRepo.createMany(
+      createTransactionDto.map((transaction) => ({
+        ...transaction,
+        userId,
+        categories: undefined,
+      })),
+    );
   }
 
-  async findOne(userId: ObjectId, id: ObjectId): Promise<TransactionDto> {
-    const transaction = await this.transactionModel.findOne({ _id: id });
+  async findOne(userId: string, id: string): Promise<TransactionDto> {
+    const transaction = await this.transactionRepo.findOne({ id, userId });
 
     if (!transaction) {
       throw new NotFoundException('Transaction not found.');
-    } else if (!transaction.user.equals(userId)) {
-      throw new UnauthorizedException(
-        'Unauthorized to access this transaction.',
-      );
     }
 
     const categories =
       (await this.transactionCategoryMappingsService.findAllByUserAndTransaction(
         userId.toString(),
-        transaction._id.toString(),
+        transaction.id,
       )) as TransactionCategoryMappingDto[];
 
     return {
-      ...transaction.toObject(),
+      ...transaction,
       categories,
     };
   }
 
   async findAllByUser(
-    userId: ObjectId,
+    userId: string,
     transactionType: TransactionType,
     page?: number,
     limit = 10,
     year?: number,
     month?: number,
-    linkedAccount?: ObjectId,
+    linkedAccount?: string,
     accountTypes?: AccountType[],
-    sortOrder: SortOrder = SortOrder.DESC,
+    sortOrder: Prisma.SortOrder = Prisma.SortOrder.desc,
     transactionCategories?: string[],
-    parentTransactionCategory?: ObjectId,
+    parentTransactionCategory?: string,
   ): Promise<PaginationDto<TransactionDto[]>> {
     const targetCategoryIds =
       transactionCategories ||
       (await this.findChildrenCategoryIds(parentTransactionCategory));
 
-    const query = {
-      user: userId,
-      ...this.getTransactionTypeFilter(transactionType),
-      ...this.getYearAndMonthFilter(year, month),
-      ...(await this.getTransactionsByCategoryFilter(
-        userId,
-        targetCategoryIds,
-      )),
-      ...this.getLinkedAccountFilter(linkedAccount),
-      ...(await this.getAccountTypesFilter(userId, accountTypes)),
+    const transactionWhere: Prisma.TransactionWhereInput = {
+      userId,
+      ...TransactionRepo.filterByType(transactionType),
+      ...TransactionRepo.filterByYearAndMonth(year, month),
+      ...TransactionRepo.filterByAccount(linkedAccount),
+      ...(await this.filterTransactionsByCategory(userId, targetCategoryIds)),
+      ...(await this.filterTransactionsByAccountType(userId, accountTypes)),
     };
-    const totalCount = await this.transactionModel
-      .find(query)
-      .countDocuments()
-      .exec();
+
+    const totalCount = await this.transactionRepo.getCount({
+      where: transactionWhere,
+    });
+
     const lastPage = page ? Math.ceil(totalCount / limit) : 1;
 
     if (page && (page < 1 || page > lastPage) && page !== 1) {
@@ -131,27 +130,19 @@ export class TransactionsService {
       );
     }
 
-    const transactions = await this.transactionModel
-      .find(query)
-      .sort({ date: sortOrder })
-      .skip(page ? (page - 1) * limit : 0)
-      .limit(page ? limit : 0)
-      .exec();
-
-    const data = await Promise.all(
-      transactions.map(async (transaction) => {
-        const categories =
-          (await this.transactionCategoryMappingsService.findAllByUserAndTransaction(
-            userId.toString(),
-            transaction._id.toString(),
-          )) as TransactionCategoryMappingDto[];
-        return { ...transaction.toObject(), categories };
-      }),
-    );
+    const transactions = await this.transactionRepo.findMany({
+      where: transactionWhere,
+      orderBy: { date: sortOrder },
+      skip: page ? (page - 1) * limit : 0,
+      take: page ? limit : 0,
+      include: {
+        categories: true,
+      },
+    });
 
     return {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: data as any,
+      data: transactions as any,
       currentPage: page ?? 1,
       limit: page ? limit : totalCount,
       totalPageCount: lastPage,
@@ -161,133 +152,138 @@ export class TransactionsService {
     };
   }
 
-  async findAllByUserForExport(
-    userId: ObjectId,
-  ): Promise<TransactionDocument[]> {
-    return this.transactionModel.find({ user: userId });
+  async findAllByUserForExport(userId: string): Promise<Transaction[]> {
+    return this.transactionRepo.findMany({
+      where: {
+        userId,
+      },
+    });
   }
 
   async findMonthlySummariesByUser(
-    userId: ObjectId,
+    userId: string,
     transactionType: TransactionType,
     limit?: number,
     year?: number,
     month?: number,
     accountTypes?: AccountType[],
-    transactionCategories?: ObjectId[],
-    parentTransactionCategory?: ObjectId,
+    transactionCategories?: string[],
+    parentTransactionCategory?: string,
   ): Promise<TransactionMonthSummaryDto[]> {
     const targetCategoryIds =
       transactionCategories ||
       (await this.findChildrenCategoryIds(parentTransactionCategory));
 
-    return this.transactionModel
-      .aggregate([
-        {
-          $match: {
-            user: userId,
-            ...this.getYearAndMonthFilter(year, month, 'laterThan'),
-            ...(await this.getTransactionsByCategoryFilter(
-              userId,
-              targetCategoryIds,
-            )),
-          },
-        },
-        {
-          $group: {
-            _id: {
-              year: { $year: '$date' },
-              month: { $month: '$date' },
-            },
-            count: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                transactionType,
-                accountTypes,
-              ),
-            },
-            totalCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                transactionType,
-                accountTypes,
-              ),
-            },
-            incomesCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.INCOME,
-                accountTypes,
-              ),
-            },
-            expensesCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.EXPENSE,
-                accountTypes,
-              ),
-            },
-            transferCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.TRANSFER,
-                accountTypes,
-              ),
-            },
-            totalAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                transactionType,
-                accountTypes,
-              ),
-            },
-            incomeAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.INCOME,
-                accountTypes,
-              ),
-            },
-            expenseAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.EXPENSE,
-                accountTypes,
-              ),
-            },
-            transferAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.TRANSFER,
-                accountTypes,
-              ),
-            },
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-      ])
-      .limit(limit || 1000)
-      .exec();
+    return this.transactionRepo.groupBy(
+      {by:
+      }
+    )
+      // .aggregate([
+      //   {
+      //     $match: {
+      //       user: userId,
+      //       ...this.getYearAndMonthFilter(year, month, 'laterThan'),
+      //       ...(await this.filterTransactionsByCategory(
+      //         userId,
+      //         targetCategoryIds,
+      //       )),
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: {
+      //         year: { $year: '$date' },
+      //         month: { $month: '$date' },
+      //       },
+      //       count: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           1,
+      //           transactionType,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       totalCount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           1,
+      //           transactionType,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       incomesCount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           1,
+      //           TransactionType.INCOME,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       expensesCount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           1,
+      //           TransactionType.EXPENSE,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       transferCount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           1,
+      //           TransactionType.TRANSFER,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       totalAmount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           '$amount',
+      //           transactionType,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       incomeAmount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           '$amount',
+      //           TransactionType.INCOME,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       expenseAmount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           '$amount',
+      //           TransactionType.EXPENSE,
+      //           accountTypes,
+      //         ),
+      //       },
+      //       transferAmount: {
+      //         $sum: await this.getMonthlySummaryCondition(
+      //           userId,
+      //           '$amount',
+      //           TransactionType.TRANSFER,
+      //           accountTypes,
+      //         ),
+      //       },
+      //     },
+      //   },
+      //   {
+      //     $sort: {
+      //       _id: -1,
+      //     },
+      //   },
+      // ])
+      // .limit(limit || 1000)
+      // .exec();
   }
 
   async update(
-    userId: ObjectId,
-    id: ObjectId,
+    userId: string,
+    id: string,
     updateTransactionDto: UpdateTransactionDto,
-  ): Promise<TransactionDocument> {
+  ): Promise<Transaction> {
     const { categories: rawCategories, ...transactionData } =
       updateTransactionDto;
 
@@ -301,9 +297,10 @@ export class TransactionsService {
       'remove',
     );
 
-    const transaction = await this.transactionModel
-      .findByIdAndUpdate(id, transactionData, { new: true })
-      .exec();
+    const transaction = await this.transactionRepo.update({
+      where: { id, userId },
+      data: transactionData,
+    });
 
     await this.transactionCategoryMappingsService.removeAllByUserAndTransaction(
       userId.toString(),
@@ -322,7 +319,7 @@ export class TransactionsService {
 
   async remove(
     transaction: Partial<TransactionDto>,
-    userId: ObjectId,
+    userId: string,
   ): Promise<void> {
     await this.updateRelatedAccountBalance(
       userId,
@@ -330,15 +327,16 @@ export class TransactionsService {
       transaction.amount,
       'remove',
     );
-    await this.transactionModel.findByIdAndDelete(transaction._id).exec();
+
+    await this.transactionRepo.delete({ id: transaction.id });
   }
 
-  async removeAllByUser(userId: ObjectId): Promise<void> {
-    await this.transactionModel.deleteMany({ user: userId }).exec();
+  async removeAllByUser(userId: string): Promise<void> {
+    await this.transactionRepo.deleteMany({ userId });
   }
 
   private async updateRelatedAccountBalance(
-    userId: ObjectId,
+    userId: string,
     transaction: Partial<Transaction>,
     amount: number,
     type: 'add' | 'remove',
@@ -362,7 +360,7 @@ export class TransactionsService {
   }
 
   private async verifyTransactionAccountOwnership(
-    userId: ObjectId,
+    userId: string,
     transaction: Partial<Transaction>,
   ) {
     if (transaction.toAccount) {
@@ -394,8 +392,8 @@ export class TransactionsService {
   }
 
   private async createCategories(
-    userId: ObjectId,
-    transactionId: ObjectId,
+    userId: string,
+    transactionId: string,
     categories?:
       | CreateTransactionCategoryMappingDto[]
       | UpdateTransactionCategoryMappingDto[],
@@ -416,37 +414,8 @@ export class TransactionsService {
     );
   }
 
-  private getTransactionTypeFilter(transactionType: TransactionType): {
-    [key: string]: unknown;
-  } {
-    const isEmpty = { $eq: undefined };
-    const isNotEmpty = { $ne: undefined };
-
-    switch (transactionType) {
-      case TransactionType.INCOME:
-        return {
-          toAccount: isNotEmpty,
-          fromAccount: isEmpty,
-        };
-      case TransactionType.EXPENSE:
-        return {
-          fromAccount: isNotEmpty,
-          toAccount: isEmpty,
-        };
-      case TransactionType.TRANSFER:
-        return {
-          fromAccount: isNotEmpty,
-          toAccount: isNotEmpty,
-        };
-      case TransactionType.ANY:
-        return {};
-      default:
-        throw new Error(`Invalid transaction type: ${transactionType}`);
-    }
-  }
-
   private getAggregationTransactionTypeFilter(
-    transactionType: TransactionType,
+    transactionType: TransactionType | null,
   ): { [key in string]: unknown }[] {
     const isEmpty = (fieldName) => ({ $eq: [fieldName, undefined] });
     const isNotEmpty = (fieldName) => ({ $ne: [fieldName, undefined] });
@@ -458,45 +427,16 @@ export class TransactionsService {
         return [isNotEmpty('$fromAccount'), isEmpty('$toAccount')];
       case TransactionType.TRANSFER:
         return [isNotEmpty('$fromAccount'), isNotEmpty('$toAccount')];
-      case TransactionType.ANY:
+      case null:
         return [];
       default:
         throw new Error(`Invalid transaction type: ${transactionType}`);
     }
   }
 
-  private getYearAndMonthFilter(
-    year?: number,
-    month?: number,
-    filterMode: 'targetMonth' | 'laterThan' = 'targetMonth',
-  ) {
-    if (!year && month) {
-      throw new BadRequestException('Year is required when month is provided');
-    }
-
-    if (!year && !month) {
-      return {};
-    }
-
-    if (filterMode === 'laterThan') {
-      return {
-        date: {
-          $gte: new Date(year, month - 1 || 0, 1),
-        },
-      };
-    }
-
-    return {
-      date: {
-        $gte: new Date(year, month - 1 || 0, 1),
-        $lt: new Date(year, month || 12, 1),
-      },
-    };
-  }
-
-  private async getTransactionsByCategoryFilter(
-    userId: ObjectId,
-    categoryIds?: ObjectId[],
+  private async filterTransactionsByCategory(
+    userId: string,
+    categoryIds?: string[],
   ) {
     if (!categoryIds) {
       return {};
@@ -509,32 +449,11 @@ export class TransactionsService {
       )
     ).map(({ transactionId }) => transactionId);
 
-    return {
-      _id: {
-        $in: transactionIds,
-      },
-    };
-  }
-
-  private getLinkedAccountFilter(accountId?: ObjectId) {
-    if (!accountId) {
-      return {};
-    }
-
-    return {
-      $or: [
-        {
-          toAccount: accountId,
-        },
-        {
-          fromAccount: accountId,
-        },
-      ],
-    };
+    return TransactionRepo.filterById(transactionIds);
   }
 
   private async getAccountIdsByType(
-    userId: ObjectId,
+    userId: string,
     accountTypes?: AccountType[],
   ) {
     if (!accountTypes?.length) return [];
@@ -547,24 +466,15 @@ export class TransactionsService {
     return accounts.data.map(({ id }) => id);
   }
 
-  private async getAccountTypesFilter(
-    userId: ObjectId,
+  private async filterTransactionsByAccountType(
+    userId: string,
     accountTypes?: AccountType[],
   ) {
     if (!accountTypes?.length) return {};
 
     const accountIds = await this.getAccountIdsByType(userId, accountTypes);
 
-    return {
-      $or: [
-        {
-          toAccount: { $in: accountIds },
-        },
-        {
-          fromAccount: { $in: accountIds },
-        },
-      ],
-    };
+    return TransactionRepo.filterByAccount(accountIds);
   }
 
   private async getAggregateAccountTypesFilter(
@@ -574,7 +484,10 @@ export class TransactionsService {
   ) {
     if (!accountTypes?.length) return {};
 
-    const accountIds = await this.getAccountIdsByType(userId, accountTypes);
+    const accountIds = await this.getAccountIdsByType(
+      userId.toString(),
+      accountTypes,
+    );
 
     return {
       $or: [
@@ -719,7 +632,7 @@ export class TransactionsService {
     };
   }
 
-  private async findChildrenCategoryIds(parentId: ObjectId) {
+  private async findChildrenCategoryIds(parentId: string) {
     if (!parentId) {
       return null;
     }

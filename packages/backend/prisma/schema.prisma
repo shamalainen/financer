@@ -213,11 +213,11 @@ model Transaction {
   updatedAt   DateTime @updatedAt @db.Date
   userId      String   @map("user") @db.ObjectId
 
-  User                       User                         @relation(fields: [userId], references: [id])
-  From                       Account?                     @relation("FromAccountTransaction", fields: [fromAccount], references: [id])
-  To                         Account?                     @relation("ToAccountTransaction", fields: [toAccount], references: [id])
-  TransactionCategoryMapping TransactionCategoryMapping[]
-  TransactionTemplateLog     TransactionTemplateLog[]
+  User                   User                         @relation(fields: [userId], references: [id])
+  From                   Account?                     @relation("FromAccountTransaction", fields: [fromAccount], references: [id])
+  To                     Account?                     @relation("ToAccountTransaction", fields: [toAccount], references: [id])
+  categories             TransactionCategoryMapping[]
+  TransactionTemplateLog TransactionTemplateLog[]
 
   @@index([fromAccount], map: "fromAccount_1")
   @@index([toAccount], map: "toAccount_1")

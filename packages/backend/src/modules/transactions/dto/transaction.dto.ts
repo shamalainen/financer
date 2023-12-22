@@ -1,3 +1,4 @@
+import { Transaction } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
 import { Transform, Type } from 'class-transformer';
 import {
@@ -9,15 +10,22 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
 import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
 import { objectIdTransformer } from '../../../utils/object-id-transformer';
 import { CreateTransactionCategoryMappingWithoutTransactionDto } from '../../transaction-category-mappings/dto/create-transaction-category-mapping.dto';
 
-export class TransactionDto {
+export class TransactionDto implements Transaction {
+  v: number;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly _id: ObjectId;
+  readonly id: string;
 
   @ApiProperty()
   @Min(0.01, { message: 'Amount must be a positive number.' })
@@ -34,7 +42,7 @@ export class TransactionDto {
 
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly user: ObjectId;
+  readonly userId: string;
 
   @ApiProperty({ type: String })
   @IsInstanceOfObjectId({ message: 'fromAccount must not be empty.' })
