@@ -21,10 +21,8 @@ export class TransactionRepo {
     return this.prisma.transaction.findMany(params);
   }
 
-  async groupBy(params: Prisma.TransactionGroupByArgs) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return this.prisma.transaction.groupBy(params);
+  async aggregateRaw(pipeline: Prisma.InputJsonValue[]) {
+    return this.prisma.transaction.aggregateRaw({ pipeline });
   }
 
   async getCount(params: {

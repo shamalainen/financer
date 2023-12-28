@@ -1,8 +1,6 @@
-import { TransactionType } from '@local/types';
 import { Injectable } from '@nestjs/common';
-import { AccountType } from '@prisma/client';
+import { AccountType, TransactionType } from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -16,7 +14,7 @@ export class ExpensesService {
   constructor(private transactionService: TransactionsService) {}
 
   async findAllByUser(
-    userId: ObjectId,
+    userId: string,
     page: number,
     limit: number,
     year: number,
@@ -36,18 +34,16 @@ export class ExpensesService {
   }
 
   async findMonthlySummariesByUser(
-    userId: ObjectId,
-    limit: number,
+    userId: string,
     year: number,
     month: number,
     accountTypes: AccountType[],
-    transactionCategories?: ObjectId[],
-    parentTransactionCategory?: ObjectId,
+    transactionCategories?: string[],
+    parentTransactionCategory?: string,
   ): Promise<TransactionMonthSummaryDto[]> {
     return this.transactionService.findMonthlySummariesByUser(
       userId,
       TransactionType.EXPENSE,
-      limit || undefined,
       year || undefined,
       month || undefined,
       accountTypes || undefined,
@@ -56,24 +52,24 @@ export class ExpensesService {
     );
   }
 
-  async findOne(userId: ObjectId, id: ObjectId): Promise<ExpenseDto> {
+  async findOne(userId: string, id: string): Promise<ExpenseDto> {
     return this.transactionService.findOne(userId, id);
   }
 
-  async create(userId: ObjectId, createExpense: CreateExpenseDto) {
+  async create(userId: string, createExpense: CreateExpenseDto) {
     return this.transactionService.create(userId, createExpense);
   }
 
   async update(
-    userId: ObjectId,
-    id: ObjectId,
+    userId: string,
+    id: string,
     updateTransactionDto: UpdateExpenseDto,
   ) {
     await this.findOne(userId, id);
     return this.transactionService.update(userId, id, updateTransactionDto);
   }
 
-  async remove(userId: ObjectId, id: ObjectId) {
+  async remove(userId: string, id: string) {
     const transaction = await this.findOne(userId, id);
     await this.transactionService.remove(transaction, userId);
   }

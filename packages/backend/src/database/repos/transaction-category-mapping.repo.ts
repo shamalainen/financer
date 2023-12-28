@@ -49,6 +49,10 @@ export class TransactionCategoryMappingRepo {
     });
   }
 
+  async aggregateRaw(pipeline: Prisma.InputJsonValue[]) {
+    return this.prisma.transactionCategoryMapping.aggregateRaw({ pipeline });
+  }
+
   async create(
     data: Prisma.TransactionCategoryMappingUncheckedCreateInput,
   ): Promise<TransactionCategoryMapping> {

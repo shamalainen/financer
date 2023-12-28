@@ -3,6 +3,9 @@ import { OmitType } from '@silte/nestjs-swagger';
 import { TransferDto } from './transfer.dto';
 
 export class CreateTransferDto extends OmitType(TransferDto, [
-  '_id',
-  'user',
+  'id',
+  'userId',
+  'v',
+  'createdAt',
+  'updatedAt',
 ] as const) {}

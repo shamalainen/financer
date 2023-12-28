@@ -1,4 +1,3 @@
-import { SortOrder, TransactionType } from '@local/types';
 import {
   Controller,
   DefaultValuePipe,
@@ -8,7 +7,7 @@ import {
   ParseEnumPipe,
   Query,
 } from '@nestjs/common';
-import { AccountType } from '@prisma/client';
+import { AccountType, Prisma } from '@prisma/client';
 import {
   ApiExtraModels,
   ApiOkResponse,
@@ -17,11 +16,10 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId, parseObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
-import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserIdOld } from '../users/users.decorators';
+import { UserId } from '../users/users.decorators';
 
 import { TransactionMonthSummaryDto } from './dto/transaction-month-summary.dto';
 import { TransactionDto } from './dto/transaction.dto';
@@ -59,7 +57,7 @@ export class TransactionsController {
   @ApiQuery({
     name: 'sortOrder',
     required: false,
-    enum: SortOrder,
+    enum: Prisma.SortOrder,
     enumName: 'SortOrder',
   })
   @ApiQuery({
@@ -68,7 +66,7 @@ export class TransactionsController {
     type: String,
   })
   async findAllByUser(
-    @UserIdOld() userId: ObjectId,
+    @UserId() userId: string,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query('page') page?: number,
@@ -80,16 +78,16 @@ export class TransactionsController {
     accountTypes?: AccountType[],
     @Query(
       'sortOrder',
-      new DefaultValuePipe(SortOrder.DESC),
-      new ParseEnumPipe(SortOrder),
+      new DefaultValuePipe(Prisma.SortOrder.desc),
+      new ParseEnumPipe(Prisma.SortOrder),
     )
-    sortOrder?: SortOrder,
-    @Query('parentTransactionCategory', ValidateEntityIdOld)
-    parentTransactionCategory?: ObjectId,
+    sortOrder?: Prisma.SortOrder,
+    @Query('parentTransactionCategory', ValidateEntityId)
+    parentTransactionCategory?: string,
   ) {
     return this.transactionsService.findAllByUser(
       userId,
-      TransactionType.ANY,
+      null,
       page || undefined,
       limit || undefined,
       year || undefined,
@@ -133,7 +131,7 @@ export class TransactionsController {
     type: String,
   })
   async findMonthlySummariesByUser(
-    @UserIdOld() userId: ObjectId,
+    @UserId() userId: string,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query('limit') limit?: number,
@@ -150,17 +148,16 @@ export class TransactionsController {
       }),
     )
     transactionCategories?: string[],
-    @Query('parentTransactionCategory', ValidateEntityIdOld)
-    parentTransactionCategory?: ObjectId,
+    @Query('parentTransactionCategory', ValidateEntityId)
+    parentTransactionCategory?: string,
   ) {
     return this.transactionsService.findMonthlySummariesByUser(
       userId,
-      TransactionType.ANY,
-      limit,
+      null,
       year,
       month,
       accountTypes,
-      transactionCategories?.map((id) => parseObjectId(id)),
+      transactionCategories,
       parentTransactionCategory,
     );
   }
@@ -188,8 +185,8 @@ export class TransactionsController {
     required: false,
   })
   async findAllByAccount(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) accountId: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) accountId: string,
     @Query('month') month: number,
     @Query('year') year: number,
     @Query('page') page: number,
@@ -197,7 +194,7 @@ export class TransactionsController {
   ) {
     return this.transactionsService.findAllByUser(
       userId,
-      TransactionType.ANY,
+      null,
       page || undefined,
       limit || undefined,
       year || undefined,
@@ -216,8 +213,8 @@ export class TransactionsController {
     type: String,
   })
   async findOne(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
   ) {
     return this.transactionsService.findOne(userId, id);
   }

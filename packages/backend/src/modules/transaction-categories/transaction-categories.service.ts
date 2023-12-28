@@ -111,7 +111,6 @@ export class TransactionCategoriesService {
   async findMonthlySummariesByUserAndId(
     userId: string,
     parentCategoryId: string,
-    limit?: number,
     year?: number,
     month?: number,
   ): Promise<CategoryMonthlySummaryDto[]> {
@@ -121,7 +120,6 @@ export class TransactionCategoriesService {
     return this.transactionCategoryMappingsService.findMonthlySummariesByUserAndId(
       userId,
       targetIds,
-      limit,
       year,
       month,
     );

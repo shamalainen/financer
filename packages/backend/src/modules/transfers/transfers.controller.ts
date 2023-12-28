@@ -19,12 +19,11 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId, parseObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
-import { ValidateEntityIdOld } from '../../utils/validate-entity-id.pipe';
+import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
-import { UserIdOld } from '../users/users.decorators';
+import { UserId } from '../users/users.decorators';
 
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { TransferDto } from './dto/transfer.dto';
@@ -61,7 +60,7 @@ export class TransfersController {
     required: false,
   })
   async findAllByUser(
-    @UserIdOld() userId: ObjectId,
+    @UserId() userId: string,
     @Query('month') month: number,
     @Query('year') year: number,
     @Query('page') page: number,
@@ -113,10 +112,9 @@ export class TransfersController {
     type: String,
   })
   async findMonthlySummariesByuser(
-    @UserIdOld() userId: ObjectId,
+    @UserId() userId: string,
     @Query('month') month?: number,
     @Query('year') year?: number,
-    @Query('limit') limit?: number,
     @Query(
       'accountTypes',
       new ParseArrayPipe({ separator: '|', optional: true }),
@@ -130,16 +128,15 @@ export class TransfersController {
       }),
     )
     transactionCategories?: string[],
-    @Query('parentTransactionCategory', ValidateEntityIdOld)
-    parentTransactionCategory?: ObjectId,
+    @Query('parentTransactionCategory', ValidateEntityId)
+    parentTransactionCategory?: string,
   ) {
     return this.transfersService.findMonthlySummariesByUser(
       userId,
-      limit,
       year,
       month,
       accountTypes,
-      transactionCategories?.map((id) => parseObjectId(id)),
+      transactionCategories,
       parentTransactionCategory,
     );
   }
@@ -154,8 +151,8 @@ export class TransfersController {
     type: String,
   })
   async findOne(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
   ) {
     return this.transfersService.findOne(userId, id);
   }
@@ -164,7 +161,7 @@ export class TransfersController {
   @ApiBody({ type: CreateTransferDto })
   @ApiOkResponse({ type: TransferDto })
   async create(
-    @UserIdOld() userId: ObjectId,
+    @UserId() userId: string,
     @Body() createTransfer: CreateTransferDto,
   ) {
     return this.transfersService.create(userId, createTransfer);
@@ -178,8 +175,8 @@ export class TransfersController {
     type: String,
   })
   update(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateTransactionDto: UpdateTransferDto,
   ) {
     return this.transfersService.update(userId, id, updateTransactionDto);
@@ -190,10 +187,7 @@ export class TransfersController {
     name: 'id',
     type: String,
   })
-  remove(
-    @UserIdOld() userId: ObjectId,
-    @Param('id', ValidateEntityIdOld) id: ObjectId,
-  ) {
+  remove(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.transfersService.remove(userId, id);
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -12,7 +13,6 @@ import {
 } from '@prisma/client';
 
 import { TransactionRepo } from '../../database/repos/transaction.repo';
-import { ObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';
 import { AccountsService } from '../accounts/accounts.service';
 import { TransactionCategoriesService } from '../transaction-categories/transaction-categories.service';
@@ -163,7 +163,6 @@ export class TransactionsService {
   async findMonthlySummariesByUser(
     userId: string,
     transactionType: TransactionType,
-    limit?: number,
     year?: number,
     month?: number,
     accountTypes?: AccountType[],
@@ -174,109 +173,108 @@ export class TransactionsService {
       transactionCategories ||
       (await this.findChildrenCategoryIds(parentTransactionCategory));
 
-    return this.transactionRepo.groupBy(
-      {by:
-      }
-    )
-      // .aggregate([
-      //   {
-      //     $match: {
-      //       user: userId,
-      //       ...this.getYearAndMonthFilter(year, month, 'laterThan'),
-      //       ...(await this.filterTransactionsByCategory(
-      //         userId,
-      //         targetCategoryIds,
-      //       )),
-      //     },
-      //   },
-      //   {
-      //     $group: {
-      //       _id: {
-      //         year: { $year: '$date' },
-      //         month: { $month: '$date' },
-      //       },
-      //       count: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           1,
-      //           transactionType,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       totalCount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           1,
-      //           transactionType,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       incomesCount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           1,
-      //           TransactionType.INCOME,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       expensesCount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           1,
-      //           TransactionType.EXPENSE,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       transferCount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           1,
-      //           TransactionType.TRANSFER,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       totalAmount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           '$amount',
-      //           transactionType,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       incomeAmount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           '$amount',
-      //           TransactionType.INCOME,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       expenseAmount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           '$amount',
-      //           TransactionType.EXPENSE,
-      //           accountTypes,
-      //         ),
-      //       },
-      //       transferAmount: {
-      //         $sum: await this.getMonthlySummaryCondition(
-      //           userId,
-      //           '$amount',
-      //           TransactionType.TRANSFER,
-      //           accountTypes,
-      //         ),
-      //       },
-      //     },
-      //   },
-      //   {
-      //     $sort: {
-      //       _id: -1,
-      //     },
-      //   },
-      // ])
-      // .limit(limit || 1000)
-      // .exec();
+    return this.transactionRepo.aggregateRaw(
+      [
+        {
+          $match: {
+            user: userId,
+            ...this.filterRawMongoByYearAndMonth(year, month, 'laterThan'),
+            ...(await this.filterRawMongoTransactionsByCategory(
+              userId,
+              targetCategoryIds,
+            )),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$date' },
+              month: { $month: '$date' },
+            },
+            count: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                1,
+                transactionType,
+                accountTypes,
+              ),
+            },
+          },
+        },
+        {
+          totalCount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              transactionType,
+              accountTypes,
+            ),
+          },
+          incomesCount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              TransactionType.INCOME,
+              accountTypes,
+            ),
+          },
+          expensesCount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              TransactionType.EXPENSE,
+              accountTypes,
+            ),
+          },
+          transferCount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              TransactionType.TRANSFER,
+              accountTypes,
+            ),
+          },
+          totalAmount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              transactionType,
+              accountTypes,
+            ),
+          },
+          incomeAmount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              TransactionType.INCOME,
+              accountTypes,
+            ),
+          },
+          expenseAmount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              TransactionType.EXPENSE,
+              accountTypes,
+            ),
+          },
+          transferAmount: {
+            $sum: await this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              TransactionType.TRANSFER,
+              accountTypes,
+            ),
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) as any;
   }
 
   async update(
@@ -416,7 +414,7 @@ export class TransactionsService {
 
   private getAggregationTransactionTypeFilter(
     transactionType: TransactionType | null,
-  ): { [key in string]: unknown }[] {
+  ): Prisma.InputJsonObject[] {
     const isEmpty = (fieldName) => ({ $eq: [fieldName, undefined] });
     const isNotEmpty = (fieldName) => ({ $ne: [fieldName, undefined] });
 
@@ -478,10 +476,10 @@ export class TransactionsService {
   }
 
   private async getAggregateAccountTypesFilter(
-    userId: ObjectId,
+    userId: string,
     accountTypes?: AccountType[],
     operator: '$in' | '$nin' = '$in',
-  ) {
+  ): Promise<Prisma.InputJsonObject> {
     if (!accountTypes?.length) return {};
 
     const accountIds = await this.getAccountIdsByType(
@@ -501,12 +499,77 @@ export class TransactionsService {
     };
   }
 
-  private async getMonthlySummaryCondition(
-    userId: ObjectId,
+  private async findChildrenCategoryIds(parentId: string) {
+    if (!parentId) {
+      return null;
+    }
+
+    const a = (
+      await this.transactionCategoriesService.findAllChildrensById([
+        parentId.toString(),
+      ])
+    ).map(({ _id }) => _id);
+
+    return [parentId, ...a];
+  }
+
+  private filterRawMongoByYearAndMonth(
+    year?: number,
+    month?: number,
+    filterMode: 'targetMonth' | 'laterThan' = 'targetMonth',
+  ): Prisma.InputJsonObject {
+    if (!year && month) {
+      throw new BadRequestException('Year is required when month is provided');
+    }
+
+    if (!year && !month) {
+      return {};
+    }
+
+    if (filterMode === 'laterThan') {
+      return {
+        date: {
+          $gte: new Date(year, month - 1 || 0, 1),
+        },
+      };
+    }
+
+    return {
+      date: {
+        $gte: new Date(year, month - 1 || 0, 1),
+        $lt: new Date(year, month || 12, 1),
+      },
+    };
+  }
+
+  private async filterRawMongoTransactionsByCategory(
+    userId: string,
+    categoryIds?: string[],
+  ): Promise<Prisma.InputJsonObject> {
+    if (!categoryIds) {
+      return {};
+    }
+
+    const transactionIds = (
+      await this.transactionCategoryMappingsService.findAllByUserAndCategoryIds(
+        userId.toString(),
+        categoryIds.map((id) => id.toString()),
+      )
+    ).map(({ transactionId }) => transactionId);
+
+    return {
+      _id: {
+        $in: transactionIds,
+      },
+    };
+  }
+
+  private async filterRawMongoMonthlySummaryCondition(
+    userId: string,
     operator: '$amount' | 1 | 0,
-    transactionType: TransactionType,
+    transactionType: TransactionType | null,
     accountTypes?: AccountType[],
-  ) {
+  ): Promise<Prisma.InputJsonValue> {
     const accountIds = await this.getAccountIdsByType(userId, accountTypes);
 
     const accountTypeFilter = accountIds.length
@@ -520,7 +583,7 @@ export class TransactionsService {
 
     if (
       !accountIds?.length &&
-      (transactionType !== TransactionType.ANY || typeof operator !== 'string')
+      (transactionType !== null || typeof operator !== 'string')
     ) {
       return { $cond: [{ $and: selectedQuery }, operator, 0] };
     }
@@ -561,7 +624,7 @@ export class TransactionsService {
       };
     }
 
-    if (transactionType === TransactionType.ANY) {
+    if (transactionType === null) {
       return {
         $cond: [
           {
@@ -630,19 +693,5 @@ export class TransactionsService {
         0,
       ],
     };
-  }
-
-  private async findChildrenCategoryIds(parentId: string) {
-    if (!parentId) {
-      return null;
-    }
-
-    const a = (
-      await this.transactionCategoriesService.findAllChildrensById([
-        parentId.toString(),
-      ])
-    ).map(({ _id }) => _id);
-
-    return [parentId, ...a];
   }
 }
