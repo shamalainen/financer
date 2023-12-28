@@ -48,7 +48,7 @@ export const Category = ({
 
     const transactionCategoryTransactionHistoryStack =
       transactionsMonthlySummaries
-        .map(({ totalAmount, _id: { year, month } }) => ({
+        .map(({ totalAmount, id: { year, month } }) => ({
           date: generateDateFromYearAndMonth(year, month),
           amount: totalAmount,
         }))

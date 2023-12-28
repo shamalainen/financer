@@ -40,7 +40,7 @@ export const IncomeEditContainer = ({ id }: IncomeEditContainerProps) => {
         id,
       }).unwrap();
 
-      push(`/statistics/incomes/${income?._id}`);
+      push(`/statistics/incomes/${income?.id}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === 400 || error.status === 404) {
@@ -49,9 +49,9 @@ export const IncomeEditContainer = ({ id }: IncomeEditContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -83,7 +83,7 @@ export const IncomeEditContainer = ({ id }: IncomeEditContainerProps) => {
       <DataHandler {...incomeData} />
       <UpdatePageInfo
         title={`Edit ${income?.description}`}
-        backLink={`/statistics/incomes/${income?._id}`}
+        backLink={`/statistics/incomes/${income?.id}`}
         headerAction={<TransactionDelete onDelete={handleDelete} />}
       />
       {income && (

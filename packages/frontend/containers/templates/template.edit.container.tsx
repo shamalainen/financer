@@ -32,7 +32,7 @@ export const TemplateEditContainer = ({ id }: TemplateEditContainerProps) => {
   const handleSubmit = async (
     newTransactionTemplateData: UpdateTransactionTemplateDtoWithCategory,
   ) => {
-    if (!template?._id) {
+    if (!template?.id) {
       console.error('transactionTemplate is not defined');
       return;
     }
@@ -46,7 +46,7 @@ export const TemplateEditContainer = ({ id }: TemplateEditContainerProps) => {
 
     try {
       await editTransactionTemplate({
-        id: template._id,
+        id: template.id,
         updateTransactionTemplateDto: data,
       }).unwrap();
 

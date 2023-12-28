@@ -43,7 +43,7 @@ export const TransferAddContainer = ({
 
   const handleSubmit = async (createTransferDto: CreateTransferDto) => {
     try {
-      const { _id: id } = await addTransfer({
+      const { id } = await addTransfer({
         createTransferDto,
       }).unwrap();
 

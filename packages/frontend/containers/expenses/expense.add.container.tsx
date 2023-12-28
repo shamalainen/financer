@@ -40,7 +40,7 @@ export const ExpenseAddContainer = ({
 
   const handleSubmit = async (createExpenseDto: CreateExpenseDto) => {
     try {
-      const { _id: id } = await addExpense({
+      const { id } = await addExpense({
         createExpenseDto,
       }).unwrap();
 

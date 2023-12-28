@@ -51,9 +51,9 @@ export const useConvertTransactionToTransactionListingItem = () => {
         transactionAmount: formatCurrency(transaction.amount),
         date: formatDate(new Date(transaction.date)),
         label: transaction.description,
-        link: `/statistics/${mapTransactionTypeToUrlPrefix[transactionType]}/${transaction._id}`,
+        link: `/statistics/${mapTransactionTypeToUrlPrefix[transactionType]}/${transaction.id}`,
         transactionType,
-        id: transaction._id,
+        id: transaction.id,
       };
     },
     [],

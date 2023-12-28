@@ -114,10 +114,6 @@ export class TransactionsController {
     required: false,
   })
   @ApiQuery({
-    name: 'limit',
-    required: false,
-  })
-  @ApiQuery({
     name: 'accountTypes',
     required: false,
   })
@@ -134,7 +130,6 @@ export class TransactionsController {
     @UserId() userId: string,
     @Query('month') month?: number,
     @Query('year') year?: number,
-    @Query('limit') limit?: number,
     @Query(
       'accountTypes',
       new ParseArrayPipe({ separator: '|', optional: true }),
@@ -178,10 +173,6 @@ export class TransactionsController {
   })
   @ApiQuery({
     name: 'page',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'limit',
     required: false,
   })
   async findAllByAccount(

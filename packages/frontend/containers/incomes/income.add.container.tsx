@@ -38,7 +38,7 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
 
   const handleSubmit = async (createIncomeDto: CreateIncomeDto) => {
     try {
-      const { _id: id } = await addIncome({ createIncomeDto }).unwrap();
+      const { id } = await addIncome({ createIncomeDto }).unwrap();
 
       push(`/statistics/incomes/${id}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

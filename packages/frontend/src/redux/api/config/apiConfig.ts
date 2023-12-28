@@ -104,9 +104,9 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION_TEMPLATE,
         { type: ApiTag.TRANSACTION_TEMPLATE, id: 'LIST' },
         { type: ApiTag.TRANSACTION_TEMPLATE, id: 'LIST' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.TRANSACTION_TEMPLATE,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
@@ -115,16 +115,16 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION_TEMPLATE,
         { type: ApiTag.TRANSACTION_TEMPLATE, id: 'LIST' },
         { type: ApiTag.TRANSACTION_TEMPLATE, id: 'LIST-MANUAL' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.TRANSACTION_TEMPLATE,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
     transactionTemplatesFindOne: {
       providesTags: (res) => [
         ApiTag.TRANSACTION_TEMPLATE,
-        { type: ApiTag.TRANSACTION_TEMPLATE, id: res?._id },
+        { type: ApiTag.TRANSACTION_TEMPLATE, id: res?.id },
       ],
     },
     transactionTemplatesCreate: {
@@ -132,7 +132,7 @@ financerApi.enhanceEndpoints({
     },
     transactionTemplatesUpdate: {
       invalidatesTags: (res) => [
-        { type: ApiTag.TRANSACTION_TEMPLATE, id: res?._id },
+        { type: ApiTag.TRANSACTION_TEMPLATE, id: res?.id },
       ],
     },
     transactionTemplatesRemove: {
@@ -151,9 +151,9 @@ financerApi.enhanceEndpoints({
         { type: ApiTag.TRANSACTION, id: 'LIST' },
         { type: ApiTag.TRANSACTION, id: 'EXPENSE-LIST' },
         { type: ApiTag.TRANSACTION, id: `PAGE-${res?.currentPage}` },
-        ...(res?.data.map(({ _id }) => ({
+        ...(res?.data.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
@@ -162,16 +162,16 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION,
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
         { type: ApiTag.TRANSACTION, id: 'EXPENSE-SUMMARY' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: JSON.stringify(_id),
+          id: JSON.stringify(id),
         })) ?? []),
       ],
     },
     expensesFindOne: {
       providesTags: (res) => [
         ApiTag.TRANSACTION,
-        { type: ApiTag.TRANSACTION, id: res?._id },
+        { type: ApiTag.TRANSACTION, id: res?.id },
       ],
     },
     expensesCreate: {
@@ -183,7 +183,7 @@ financerApi.enhanceEndpoints({
     },
     expensesUpdate: {
       invalidatesTags: (res, err, args) => [
-        { type: ApiTag.TRANSACTION, id: res?._id },
+        { type: ApiTag.TRANSACTION, id: res?.id },
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
         { type: ApiTag.TRANSACTION, id: 'EXPENSE-LIST' },
         { type: ApiTag.ACCOUNT, id: args.updateExpenseDto.fromAccount },
@@ -208,9 +208,9 @@ financerApi.enhanceEndpoints({
         { type: ApiTag.TRANSACTION, id: 'LIST' },
         { type: ApiTag.TRANSACTION, id: 'INCOME-LIST' },
         { type: ApiTag.TRANSACTION, id: `PAGE-${res?.currentPage}` },
-        ...(res?.data.map(({ _id }) => ({
+        ...(res?.data.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
@@ -219,16 +219,16 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION,
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
         { type: ApiTag.TRANSACTION, id: 'INCOME-SUMMARY' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: JSON.stringify(_id),
+          id: JSON.stringify(id),
         })) ?? []),
       ],
     },
     incomesFindOne: {
       providesTags: (res) => [
         ApiTag.TRANSACTION,
-        { type: ApiTag.TRANSACTION, id: res?._id },
+        { type: ApiTag.TRANSACTION, id: res?.id },
       ],
     },
     incomesCreate: {
@@ -240,7 +240,7 @@ financerApi.enhanceEndpoints({
     },
     incomesUpdate: {
       invalidatesTags: (res, err, args) => [
-        { type: ApiTag.TRANSACTION, id: res?._id },
+        { type: ApiTag.TRANSACTION, id: res?.id },
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
         { type: ApiTag.TRANSACTION, id: 'INCOME-LIST' },
         { type: ApiTag.ACCOUNT, id: args.updateIncomeDto.toAccount },
@@ -265,9 +265,9 @@ financerApi.enhanceEndpoints({
         { type: ApiTag.TRANSACTION, id: 'LIST' },
         { type: ApiTag.TRANSACTION, id: 'TRANSFER-LIST' },
         { type: ApiTag.TRANSACTION, id: `PAGE-${res?.currentPage}` },
-        ...(res?.data.map(({ _id }) => ({
+        ...(res?.data.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
@@ -276,16 +276,16 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION,
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
         { type: ApiTag.TRANSACTION, id: 'TRANSFER-SUMMARY' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: JSON.stringify(_id),
+          id: JSON.stringify(id),
         })) ?? []),
       ],
     },
     transfersFindOne: {
       providesTags: (res) => [
         ApiTag.TRANSACTION,
-        { type: ApiTag.TRANSACTION, id: res?._id },
+        { type: ApiTag.TRANSACTION, id: res?.id },
       ],
     },
     transfersCreate: {
@@ -298,7 +298,7 @@ financerApi.enhanceEndpoints({
     },
     transfersUpdate: {
       invalidatesTags: (res, err, args) => [
-        { type: ApiTag.TRANSACTION, id: res?._id },
+        { type: ApiTag.TRANSACTION, id: res?.id },
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
         { type: ApiTag.TRANSACTION, id: 'TRANSFER-LIST' },
         { type: ApiTag.ACCOUNT, id: args.updateTransferDto.fromAccount },
@@ -324,9 +324,9 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION,
         { type: ApiTag.TRANSACTION, id: 'LIST' },
         { type: ApiTag.TRANSACTION, id: `PAGE-${res?.currentPage}` },
-        ...(res?.data.map(({ _id }) => ({
+        ...(res?.data.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },
@@ -334,9 +334,9 @@ financerApi.enhanceEndpoints({
       providesTags: (res) => [
         ApiTag.TRANSACTION,
         { type: ApiTag.TRANSACTION, id: 'SUMMARY' },
-        ...(res?.map(({ _id }) => ({
+        ...(res?.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: JSON.stringify(_id),
+          id: JSON.stringify(id),
         })) ?? []),
       ],
     },
@@ -345,9 +345,9 @@ financerApi.enhanceEndpoints({
         ApiTag.TRANSACTION,
         { type: ApiTag.TRANSACTION, id: 'LIST' },
         { type: ApiTag.TRANSACTION, id: `PAGE-${res?.currentPage}` },
-        ...(res?.data.map(({ _id }) => ({
+        ...(res?.data.map(({ id }) => ({
           type: ApiTag.TRANSACTION,
-          id: _id,
+          id,
         })) ?? []),
       ],
     },

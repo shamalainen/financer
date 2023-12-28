@@ -529,12 +529,6 @@
             "schema": { "type": "number" }
           },
           {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": { "type": "number" }
-          },
-          {
             "name": "accountTypes",
             "required": false,
             "in": "query",
@@ -576,6 +570,12 @@
         "operationId": "Transactions_findAllByAccount",
         "parameters": [
           {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
             "name": "month",
             "required": false,
             "in": "query",
@@ -595,15 +595,9 @@
           },
           {
             "name": "limit",
-            "required": false,
+            "required": true,
             "in": "query",
             "schema": { "type": "number" }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -1126,12 +1120,6 @@
             "schema": { "type": "number" }
           },
           {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": { "type": "number" }
-          },
-          {
             "name": "accountTypes",
             "required": false,
             "in": "query",
@@ -1331,12 +1319,6 @@
           },
           {
             "name": "year",
-            "required": false,
-            "in": "query",
-            "schema": { "type": "number" }
-          },
-          {
-            "name": "limit",
             "required": false,
             "in": "query",
             "schema": { "type": "number" }
@@ -1543,12 +1525,6 @@
           },
           {
             "name": "year",
-            "required": false,
-            "in": "query",
-            "schema": { "type": "number" }
-          },
-          {
-            "name": "limit",
             "required": false,
             "in": "query",
             "schema": { "type": "number" }
@@ -1787,11 +1763,13 @@
       "TransactionDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "amount": { "type": "number" },
           "description": { "type": "string" },
           "date": { "format": "date-time", "type": "string" },
-          "user": { "type": "string" },
+          "userId": { "type": "string" },
           "fromAccount": { "type": "string" },
           "toAccount": { "type": "string" },
           "categories": {
@@ -1802,11 +1780,13 @@
           }
         },
         "required": [
-          "_id",
+          "createdAt",
+          "updatedAt",
+          "id",
           "amount",
           "description",
           "date",
-          "user",
+          "userId",
           "fromAccount",
           "toAccount",
           "categories"
@@ -1922,12 +1902,14 @@
       },
       "TransactionTemplateType": {
         "type": "string",
-        "enum": ["manual", "auto"]
+        "enum": ["MANUAL", "AUTO"]
       },
       "TransactionTemplateDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "templateName": { "type": "string" },
           "templateType": {
             "$ref": "#/components/schemas/TransactionTemplateType"
@@ -1945,7 +1927,9 @@
           "categories": { "type": "array", "items": { "type": "string" } }
         },
         "required": [
-          "_id",
+          "createdAt",
+          "updatedAt",
+          "id",
           "templateName",
           "templateType",
           "templateVisibility",
@@ -2120,13 +2104,11 @@
       "TransactionMonthSummaryDto": {
         "type": "object",
         "properties": {
-          "_id": {
-            "$ref": "#/components/schemas/TransactionMonthSummaryIdDto"
-          },
+          "id": { "$ref": "#/components/schemas/TransactionMonthSummaryIdDto" },
           "count": { "type": "number" },
           "totalAmount": { "type": "number" }
         },
-        "required": ["_id", "count", "totalAmount"]
+        "required": ["id", "count", "totalAmount"]
       },
       "SortOrder": { "type": "string", "enum": ["asc", "desc"] },
       "CategoryMonthlySummaryDto": {
@@ -2215,11 +2197,13 @@
       "ExpenseDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "amount": { "type": "number" },
           "description": { "type": "string" },
           "date": { "format": "date-time", "type": "string" },
-          "user": { "type": "string" },
+          "userId": { "type": "string" },
           "fromAccount": { "type": "string" },
           "categories": {
             "type": "array",
@@ -2229,11 +2213,13 @@
           }
         },
         "required": [
-          "_id",
+          "createdAt",
+          "updatedAt",
+          "id",
           "amount",
           "description",
           "date",
-          "user",
+          "userId",
           "fromAccount",
           "categories"
         ]
@@ -2278,11 +2264,13 @@
       "IncomeDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "amount": { "type": "number" },
           "description": { "type": "string" },
           "date": { "format": "date-time", "type": "string" },
-          "user": { "type": "string" },
+          "userId": { "type": "string" },
           "toAccount": { "type": "string" },
           "categories": {
             "type": "array",
@@ -2292,11 +2280,13 @@
           }
         },
         "required": [
-          "_id",
+          "createdAt",
+          "updatedAt",
+          "id",
           "amount",
           "description",
           "date",
-          "user",
+          "userId",
           "toAccount",
           "categories"
         ]
@@ -2335,11 +2325,13 @@
       "TransferDto": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string" },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" },
+          "id": { "type": "string" },
           "amount": { "type": "number" },
           "description": { "type": "string" },
           "date": { "format": "date-time", "type": "string" },
-          "user": { "type": "string" },
+          "userId": { "type": "string" },
           "fromAccount": { "type": "string" },
           "toAccount": { "type": "string" },
           "categories": {
@@ -2350,11 +2342,13 @@
           }
         },
         "required": [
-          "_id",
+          "createdAt",
+          "updatedAt",
+          "id",
           "amount",
           "description",
           "date",
-          "user",
+          "userId",
           "fromAccount",
           "toAccount",
           "categories"

@@ -124,7 +124,7 @@ export const Transaction = ({
         backLink="/statistics"
         headerAction={
           <ButtonInternal
-            link={`/statistics/${transactionDetailsMapping.url}/${transaction._id}/edit`}
+            link={`/statistics/${transactionDetailsMapping.url}/${transaction.id}/edit`}
             testId={`edit-${transactionDetailsMapping.type}-button`}
             transition="open-from-right"
             className="inline-flex items-center justify-center -mr-3 h-11 w-11"

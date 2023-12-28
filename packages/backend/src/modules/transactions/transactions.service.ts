@@ -187,7 +187,7 @@ export class TransactionsService {
         },
         {
           $group: {
-            _id: {
+            id: {
               year: { $year: '$date' },
               month: { $month: '$date' },
             },

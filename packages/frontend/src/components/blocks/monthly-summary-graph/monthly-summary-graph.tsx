@@ -61,19 +61,19 @@ export const MonthlySummaryGraph = ({
     if (!incomeMonthSummaries || !expenseMonthSummaries) return [];
 
     const allMonths = removeDuplicatesFromArray(
-      [...incomeMonthSummaries, ...expenseMonthSummaries].map(({ _id }) =>
-        JSON.stringify(_id),
+      [...incomeMonthSummaries, ...expenseMonthSummaries].map(({ id }) =>
+        JSON.stringify(id),
       ),
     ).map<TransactionMonthSummaryIdDto>((item) => JSON.parse(item));
 
     const monthlySummaryHistoryStack = allMonths
       .map(({ year: targetYear, month: targetMonth }) => {
         const incomeSummary = incomeMonthSummaries.find(
-          ({ _id: { year, month } }) =>
+          ({ id: { year, month } }) =>
             year === targetYear && month === targetMonth,
         );
         const expenseSummary = expenseMonthSummaries.find(
-          ({ _id: { year, month } }) =>
+          ({ id: { year, month } }) =>
             year === targetYear && month === targetMonth,
         );
 

@@ -95,10 +95,6 @@ export class TransfersController {
     required: false,
   })
   @ApiQuery({
-    name: 'limit',
-    required: false,
-  })
-  @ApiQuery({
     name: 'accountTypes',
     required: false,
   })

@@ -78,7 +78,7 @@ export const TransactionTemplateSwitcher = ({
               >
                 Empty
               </Radio>
-              {targetTemplates.map(({ _id: id, templateName }) => (
+              {targetTemplates.map(({ id, templateName }) => (
                 <Radio
                   name="templateSwitcher"
                   value={id}

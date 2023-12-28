@@ -40,7 +40,7 @@ export const EditExpenseContainer = ({ id }: EditExpenseContainerProps) => {
         id,
       }).unwrap();
 
-      push(`/statistics/expenses/${expense?._id}`);
+      push(`/statistics/expenses/${expense?.id}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === 400 || error.status === 404) {
@@ -49,9 +49,9 @@ export const EditExpenseContainer = ({ id }: EditExpenseContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -84,7 +84,7 @@ export const EditExpenseContainer = ({ id }: EditExpenseContainerProps) => {
       <DataHandler {...expenseData} />
       <UpdatePageInfo
         title={`Edit ${expense?.description}`}
-        backLink={`/statistics/expenses/${expense?._id}`}
+        backLink={`/statistics/expenses/${expense?.id}`}
         headerAction={<TransactionDelete onDelete={handleDelete} />}
       />
       {expense && (
