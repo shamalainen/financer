@@ -18,7 +18,6 @@ import {
 } from '@silte/nestjs-swagger';
 import { Response } from 'express';
 
-import { ObjectId } from '../../types/objectId';
 import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { Auth } from '../auth/decorators/auht.decorator';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
@@ -61,7 +60,7 @@ export class UsersController {
   @ApiBody({ type: UserDataImportDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   overrideAllOwnUserData(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() userData: ImportUserDataDto,
   ) {
     return this.userDataService.overrideUserData(userId, userData);

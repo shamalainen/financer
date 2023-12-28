@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SystemLogLevel, TransactionTemplateType } from '@prisma/client';
 
-import { parseObjectId } from '../../types/objectId';
 import { getLastDayOfMonth } from '../../utils/date-utils';
 import { SystemService } from '../system/system.service';
 import { TransactionTemplatesService } from '../transaction-templates/transaction-templates.service';
@@ -54,13 +53,13 @@ export class TasksService {
         const userId = template.userId;
 
         const transaction = await this.transactionsService.create(
-          parseObjectId(userId),
+          userId,
           transactionData,
         );
 
         await this.templateService.createTemplateLogEntry({
           templateId: template.id,
-          transactionId: transaction._id.toString(),
+          transactionId: transaction.id.toString(),
           executed: now,
           userId,
           eventType: TransactionTemplateType.AUTO,

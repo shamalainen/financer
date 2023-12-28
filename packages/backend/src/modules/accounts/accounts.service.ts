@@ -7,7 +7,6 @@ import {
 import { Account, AccountType } from '@prisma/client';
 
 import { AccountRepo } from '../../database/repos/account.repo';
-import { parseObjectId } from '../../types/objectId';
 import { PaginationDto } from '../../types/pagination.dto';
 import { sumArrayItems } from '../../utils/arrays';
 import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
@@ -155,13 +154,13 @@ export class AccountsService {
 
     const accountTransactions = (
       await this.transactionsService.findAllByUser(
-        parseObjectId(userId),
+        userId,
         null,
         undefined,
         undefined,
         undefined,
         undefined,
-        parseObjectId(accountId),
+        accountId,
       )
     ).data.map(({ amount, date, toAccount }) => ({
       date,
