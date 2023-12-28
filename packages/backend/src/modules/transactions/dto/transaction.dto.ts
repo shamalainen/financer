@@ -1,6 +1,6 @@
 import { Transaction } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsMongoId,
@@ -10,8 +10,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
-import { objectIdTransformer } from '../../../utils/object-id-transformer';
 import { CreateTransactionCategoryMappingWithoutTransactionDto } from '../../transaction-category-mappings/dto/create-transaction-category-mapping.dto';
 
 export class TransactionDto implements Transaction {
@@ -45,13 +43,11 @@ export class TransactionDto implements Transaction {
   readonly userId: string;
 
   @ApiProperty({ type: String })
-  @IsInstanceOfObjectId({ message: 'fromAccount must not be empty.' })
-  @Transform(objectIdTransformer)
+  @IsMongoId({ message: 'fromAccount must not be empty.' })
   readonly fromAccount: string;
 
   @ApiProperty({ type: String })
-  @IsInstanceOfObjectId({ message: 'toAccount must not be empty.' })
-  @Transform(objectIdTransformer)
+  @IsMongoId({ message: 'toAccount must not be empty.' })
   readonly toAccount: string;
 
   @ApiProperty({

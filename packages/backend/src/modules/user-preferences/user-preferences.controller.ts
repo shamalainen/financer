@@ -8,7 +8,7 @@ import {
 } from '@silte/nestjs-swagger';
 
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
-import { UserIdOld as UserId } from '../users/users.decorators';
+import { UserId } from '../users/users.decorators';
 
 import { UpdateUserPreferenceDto } from './dto/update-user-preference.dto';
 import { UserPreferenceDto } from './dto/user-preference.dto';

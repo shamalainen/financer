@@ -22,7 +22,7 @@ import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { TransactionMonthSummaryDto } from '../transactions/dto/transaction-month-summary.dto';
-import { UserIdOld } from '../users/users.decorators';
+import { UserId } from '../users/users.decorators';
 
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { ExpenseDto } from './dto/expense.dto';
@@ -58,7 +58,7 @@ export class ExpensesController {
     required: false,
   })
   async findAllByUser(
-    @UserIdOld() userId: string,
+    @UserId() userId: string,
     @Query('month') month: number,
     @Query('year') year: number,
     @Query('page') page: number,
@@ -110,7 +110,7 @@ export class ExpensesController {
     type: String,
   })
   async findMonthlySummariesByuser(
-    @UserIdOld() userId: string,
+    @UserId() userId: string,
     @Query('month') month?: number,
     @Query('year') year?: number,
     @Query(
@@ -149,7 +149,7 @@ export class ExpensesController {
     type: String,
   })
   async findOne(
-    @UserIdOld() userId: string,
+    @UserId() userId: string,
     @Param('id', ValidateEntityId) id: string,
   ) {
     return this.expensesService.findOne(userId, id);
@@ -159,7 +159,7 @@ export class ExpensesController {
   @ApiBody({ type: CreateExpenseDto })
   @ApiOkResponse({ type: ExpenseDto })
   async create(
-    @UserIdOld() userId: string,
+    @UserId() userId: string,
     @Body() createExpense: CreateExpenseDto,
   ) {
     return this.expensesService.create(userId, createExpense);
@@ -173,7 +173,7 @@ export class ExpensesController {
     type: String,
   })
   update(
-    @UserIdOld() userId: string,
+    @UserId() userId: string,
     @Param('id', ValidateEntityId) id: string,
     @Body() updateTransactionDto: UpdateExpenseDto,
   ) {
@@ -185,10 +185,7 @@ export class ExpensesController {
     name: 'id',
     type: String,
   })
-  remove(
-    @UserIdOld() userId: string,
-    @Param('id', ValidateEntityId) id: string,
-  ) {
+  remove(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.expensesService.remove(userId, id);
   }
 }

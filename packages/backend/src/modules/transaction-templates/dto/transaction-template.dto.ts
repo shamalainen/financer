@@ -4,7 +4,6 @@ import {
   TransactionType,
 } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@silte/nestjs-swagger';
-import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsMongoId,
@@ -13,14 +12,7 @@ import {
   IsString,
   Max,
   Min,
-  ValidateNested,
 } from 'class-validator';
-
-import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
-import {
-  objectIdArrayTransformer,
-  objectIdTransformer,
-} from '../../../utils/object-id-transformer';
 
 export class TransactionTemplateDto implements TransactionTemplate {
   v: number;
@@ -92,21 +84,21 @@ export class TransactionTemplateDto implements TransactionTemplate {
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @IsInstanceOfObjectId({
+  @IsMongoId({
     message: 'fromAccount must be formatted as objectId.',
   })
-  @Transform(objectIdTransformer)
   readonly fromAccount: string = null;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @IsInstanceOfObjectId({ message: 'toAccount must be formatted as objectId.' })
-  @Transform(objectIdTransformer)
+  @IsMongoId({ message: 'toAccount must be formatted as objectId.' })
   readonly toAccount: string = null;
 
   @ApiPropertyOptional({ type: String, isArray: true })
   @IsOptional()
-  @Transform(objectIdArrayTransformer)
-  @ValidateNested({ each: true })
+  @IsMongoId({
+    message: 'Categories must be formatted as objectId array.',
+    each: true,
+  })
   categories: string[] = null;
 }

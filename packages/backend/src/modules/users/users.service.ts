@@ -4,7 +4,6 @@ import { User } from '@prisma/client';
 import { isNodeEnvInTest } from '../../config/configuration';
 import { DUMMY_TEST_USER } from '../../config/mockAuthenticationMiddleware';
 import { UserRepo } from '../../database/repos/user.repo';
-import { ObjectId } from '../../types/objectId';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,7 +41,7 @@ export class UsersService {
     });
   }
 
-  remove(id: ObjectId) {
+  remove(id: string) {
     return `This action removes a #${id} user`;
   }
 }

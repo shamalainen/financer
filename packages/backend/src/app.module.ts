@@ -1,10 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
 import MongoStore from 'connect-mongo';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import mongoose from 'mongoose';
 import passport from 'passport';
 
 import { configuration } from './config/configuration';
@@ -33,13 +31,6 @@ import { ServeStaticPagesModule } from './serve-static-pages.module';
       isGlobal: true,
     }),
     ServeStaticPagesModule,
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('mongodbConnectionString'),
-      }),
-    }),
     AuthModule.register(),
     UsersModule,
     AccountsModule,
@@ -58,10 +49,7 @@ import { ServeStaticPagesModule } from './serve-static-pages.module';
   ],
 })
 export class AppModule implements NestModule {
-  constructor(
-    @InjectConnection() private mongooseConnection: mongoose.Connection,
-    private configService: ConfigService,
-  ) {}
+  constructor(private configService: ConfigService) {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer
@@ -74,8 +62,7 @@ export class AppModule implements NestModule {
           saveUninitialized: false,
           resave: false,
           store: MongoStore.create({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            client: this.mongooseConnection.getClient() as any,
+            mongoUrl: this.configService.get('mongodbConnectionString'),
             touchAfter: 60 * 60 * 24,
           }),
         }),

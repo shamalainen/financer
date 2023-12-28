@@ -1,6 +1,5 @@
 import { TransactionCategory, TransactionType } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -8,9 +7,6 @@ import {
   IsNotEmpty,
   IsOptional,
 } from 'class-validator';
-
-import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
-import { objectIdTransformer } from '../../../utils/object-id-transformer';
 
 export class TransactionCategoryDto implements TransactionCategory {
   v: number;
@@ -54,7 +50,6 @@ export class TransactionCategoryDto implements TransactionCategory {
 
   @ApiProperty({ type: String, nullable: true })
   @IsOptional()
-  @IsInstanceOfObjectId({ message: 'parentCategoryId must not be empty.' })
-  @Transform(objectIdTransformer)
+  @IsMongoId({ message: 'parentCategoryId must not be empty.' })
   parentCategoryId: string | null;
 }
