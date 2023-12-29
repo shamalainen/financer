@@ -42,7 +42,7 @@ export function transitionHelper({
   const transition = document.startViewTransition(updateDOM);
 
   transition.finished.finally(() =>
-    document.documentElement.classList.remove(...classnameArray)
+    document.documentElement.classList.remove(...classnameArray),
   );
 
   return transition;

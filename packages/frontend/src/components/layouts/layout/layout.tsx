@@ -30,7 +30,7 @@ type LayoutProps = {
 
 export const Layout = ({ children }: LayoutProps): JSX.Element => {
   const [currentWindowWidth, setCurrentWindowWidth] = useState(
-    window.outerWidth
+    window.outerWidth,
   );
 
   const isLoading = useIsQueryLoading();

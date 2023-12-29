@@ -16,7 +16,7 @@ export class CreateTransactionCategoryMappingDto<ObjectIdType = string> {
 }
 
 export class CreateTransactionCategoryMappingDtoWithoutTransaction<
-  ObjectIdType = string
+  ObjectIdType = string,
 > {
   @IsOptional()
   @IsString({ message: 'Description must not be empty.' })

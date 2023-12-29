@@ -13,7 +13,7 @@ export type PageInfoData = {
 
 type PageInfoContextType = [
   PageInfoData,
-  React.Dispatch<React.SetStateAction<PageInfoData>>
+  React.Dispatch<React.SetStateAction<PageInfoData>>,
 ];
 
 export const PageInfoContext = createContext<PageInfoContextType>([

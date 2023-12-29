@@ -66,7 +66,7 @@ export const Drawer = ({
         setIsClosedDelay(!isOpen);
         updateHeaderActionState();
       },
-      isOpen ? 0 : 200
+      isOpen ? 0 : 200,
     );
 
     return () => {
@@ -149,7 +149,7 @@ export const Drawer = ({
             {
               ['z-[102] opacity-100']: isOpen,
               ['-z-10 opacity-0']: !isOpen || !isOpenDelayed,
-            }
+            },
           )}
         />
       )}

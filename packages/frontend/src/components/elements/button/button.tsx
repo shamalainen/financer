@@ -47,7 +47,7 @@ export const Button = ({
       ['bg-gray text-black focus:ring-charcoal hover:bg-gray-dark border border-gray-dark focus:opacity-100 hover:opacity-100']:
         accentColor === 'plain',
       [className]: true,
-    }
+    },
   );
 
   if (typeof link === 'string' && link.length > 0 && !isDisabled) {

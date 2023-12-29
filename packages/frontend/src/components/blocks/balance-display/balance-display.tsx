@@ -58,19 +58,19 @@ export const BalanceDisplay = ({
         'flex flex-col items-center justify-center text-center gap-4',
         {
           [className]: true,
-        }
+        },
       )}
     >
       {icon && (
         <span
           className={clsx(
-            'inline-flex items-center justify-center bg-gray rounded-full h-11 w-11'
+            'inline-flex items-center justify-center bg-gray rounded-full h-11 w-11',
           )}
         >
           <Icon
             type={icon}
             className={clsx(
-              'flex-shrink-0 pointer-events-none stroke-black/75'
+              'flex-shrink-0 pointer-events-none stroke-black/75',
             )}
           />
         </span>

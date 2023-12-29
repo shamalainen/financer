@@ -7,7 +7,7 @@ import {
   formatDate,
   getAccountFromTransactions,
   roundToTwoDecimal,
-  getAllIncomes
+  getAllIncomes,
 } from '$utils/api-helper';
 import { test, expect } from '$utils/financer-page';
 import { applyFixture } from '$utils/load-fixtures';

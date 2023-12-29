@@ -16,7 +16,7 @@ const getGradientColorByLabel = (label: string) => {
 };
 
 export const setGradientLineGraphBackground = (
-  context: ScriptableContext<'line'>
+  context: ScriptableContext<'line'>,
 ) => {
   const { ctx, chartArea } = context.chart;
 

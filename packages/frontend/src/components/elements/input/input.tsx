@@ -54,7 +54,7 @@ export const Input = ({
           max={max}
           step={step}
           className={clsx(
-            'appearance-none block w-full px-3 py-3 border border-transparent text-black bg-gray rounded-md focus:ring-black focus:border-black tracking-normal'
+            'appearance-none block w-full px-3 py-3 border border-transparent text-black bg-gray rounded-md focus:ring-black focus:border-black tracking-normal',
           )}
           aria-describedby={help && `${id}-description`}
           required={isRequired}

@@ -22,14 +22,14 @@ export const DialogText = ({
       {iconName && (
         <span
           className={clsx(
-            'inline-flex items-center justify-center bg-charcoal rounded-full h-11 w-11 mb-6'
+            'inline-flex items-center justify-center bg-charcoal rounded-full h-11 w-11 mb-6',
           )}
         >
           <Icon
             type={iconName}
             className={clsx(
               'flex-shrink-0 pointer-events-none stroke-white',
-              {}
+              {},
             )}
           />
         </span>

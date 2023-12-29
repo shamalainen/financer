@@ -26,7 +26,7 @@ export const LinkListLink = ({
     'relative flex gap-4 items-center focus-within:bg-gray-dark hover:bg-gray-dark overflow-hidden pl-4 lg:rounded-md',
     {
       [className]: true,
-    }
+    },
   );
 
   const linkContent = (

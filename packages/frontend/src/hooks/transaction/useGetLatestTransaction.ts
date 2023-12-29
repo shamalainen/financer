@@ -4,7 +4,7 @@ import {
 } from '$api/generated/financerApi';
 
 export const useGetLatestTransaction = (
-  args: Omit<TransfersFindAllByUserApiArg, 'limit' | 'page' | 'sortOrder'> = {}
+  args: Omit<TransfersFindAllByUserApiArg, 'limit' | 'page' | 'sortOrder'> = {},
 ) => {
   const transactionData = useTransfersFindAllByUserQuery({
     ...args,

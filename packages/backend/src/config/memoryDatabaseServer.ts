@@ -1,4 +1,5 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import Mongoose, { connect } from 'mongoose';
 
 // Extend the default timeout so MongoDB binaries can download

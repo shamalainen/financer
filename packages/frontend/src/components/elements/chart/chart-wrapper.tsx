@@ -29,7 +29,7 @@ const ChartWrapper = ({ children }: ChartWrapperProps) => {
           Filler,
           Tooltip,
           CategoryScale,
-          LinearScale
+          LinearScale,
         );
         setIsInitialized(true);
       }

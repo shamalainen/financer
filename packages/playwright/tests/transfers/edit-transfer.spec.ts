@@ -5,7 +5,7 @@ import {
   getAccount,
   getTransactionById,
   ITransactionWithDateObject,
-  roundToTwoDecimal
+  roundToTwoDecimal,
 } from '$utils/api-helper';
 import { test, expect } from '$utils/financer-page';
 import { applyFixture } from '$utils/load-fixtures';

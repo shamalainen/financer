@@ -5,8 +5,8 @@
   "main": "src/index.ts",
   "exports": "./dist/index.js",
   "scripts": {
-    "format": "eslint src/**/*.ts{,x} --fix",
-    "lint": "eslint src/**/*.ts{,x}",
+    "format": "eslint src/**/*.ts --fix",
+    "lint": "eslint src/**/*.ts",
     "compile": "tsc",
     "compile:watch": "npm run compile -- --watch",
     "postinstall": "npm run compile",

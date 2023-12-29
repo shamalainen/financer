@@ -5,7 +5,7 @@ const formatter = new Intl.NumberFormat('fi-FI', {
 
 export const formatCurrency = (
   number: number,
-  hasAbbreviation?: boolean
+  hasAbbreviation?: boolean,
 ): string => {
   if (hasAbbreviation) {
     const isNumberPositive = number > 0 ? '+' : '';

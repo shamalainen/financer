@@ -53,7 +53,7 @@ export const TransactionListing = ({
               transactionType={transactionType}
               id={id}
             />
-          )
+          ),
         )}
       </ul>
       {pagerOptions.pageCount &&

@@ -27,7 +27,7 @@ export const NavigationDesktopItem = ({
     'flex items-center p-4 hover:bg-gray-dark rounded-md tracking-tight font-medium',
     {
       ['bg-gray-dark']: isActive,
-    }
+    },
   );
 
   const linkContent = (

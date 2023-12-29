@@ -21,7 +21,7 @@ const notificationsSlice = createSlice({
   reducers: {
     addToastMessage(
       state,
-      { payload }: PayloadAction<SetToastMessageArgs | SetToastMessageArgs[]>
+      { payload }: PayloadAction<SetToastMessageArgs | SetToastMessageArgs[]>,
     ) {
       const newToastMessages = (
         Array.isArray(payload) ? payload : [payload]
@@ -32,7 +32,7 @@ const notificationsSlice = createSlice({
 
       const updatedToastMessages = [...state.toastMessages]
         .filter(
-          (tm) => newToastMessages.findIndex(({ id }) => tm.id === id) === -1
+          (tm) => newToastMessages.findIndex(({ id }) => tm.id === id) === -1,
         )
         .concat(newToastMessages);
 

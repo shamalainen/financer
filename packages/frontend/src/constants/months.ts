@@ -35,5 +35,5 @@ export const monthNamesAbbreviation = [
 export const monthAgoDate = subMonths(new Date(), 1);
 export const currentMonthAndYearInLongFormat = formatDate(
   new Date(),
-  DateFormat.monthLong
+  DateFormat.monthLong,
 );

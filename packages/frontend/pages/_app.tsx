@@ -47,7 +47,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         message: 'Welcome to Financer!',
         additionalInformation:
           'You must add your first account before you start tracking finances with Financer',
-      })
+      }),
     );
   }, [push, authenticationStatus, dispatch]);
 
@@ -64,7 +64,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         type: ToastMessageTypes.ERROR,
         message: 'Something went wrong!',
         additionalInformation: errors,
-      })
+      }),
     );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

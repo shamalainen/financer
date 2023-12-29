@@ -30,7 +30,7 @@ const PagerButton = ({
         'h-11 w-11 inline-flex justify-center items-center group disabled:hover:cursor-not-allowed',
         {
           [className]: true,
-        }
+        },
       )}
       onClick={handleClick}
       disabled={isDisabled}
