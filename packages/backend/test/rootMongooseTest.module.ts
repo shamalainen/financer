@@ -1,4 +1,5 @@
-export const rootMongooseTestModule = () =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const rootMongooseTestModule = (): any =>
   // options: MongooseModuleOptions = {},
   {};
 // MongooseModule.forRootAsync({
