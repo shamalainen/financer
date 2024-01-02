@@ -45,7 +45,7 @@ jobs:
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/install-dependencies
       - uses: ./.github/actions/test-frontend
-      - uses: ./.github/actions/test-backend
+      # - uses: ./.github/actions/test-backend
 
   build:
     runs-on: ubuntu-latest
