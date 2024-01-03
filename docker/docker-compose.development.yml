@@ -9,6 +9,8 @@ version: "3.6"
 services:
   mongodb:
     image: mongo:4.2.10-bionic
+    hostname: mongodb
+    restart: always
     container_name: financer_dev-mongodb
     ports:
       - 27017:27017
@@ -16,10 +18,17 @@ services:
       - MONGO_INITDB_DATABASE=financer_dev
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=change-me
+      - MONGO_REPLICA_SET_NAME=rs0
     volumes:
       - ./mongo-entrypoint:/docker-entrypoint-initdb.d
       - mongo_data:/data/db
       - mongo_config:/data/configdb
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo -u admin -p change-me --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
   mongodbclient:
     image: mongo-express:latest
     container_name: financer_dev-mongoclient

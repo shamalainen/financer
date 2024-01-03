@@ -47,6 +47,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
         roles: [],
       });
     } catch (error) {
+      console.error('Error validating user by github', error);
       throw new InternalServerErrorException();
     }
   }

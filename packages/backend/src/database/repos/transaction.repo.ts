@@ -171,9 +171,10 @@ export class TransactionRepo {
   }
 
   static filterById(ids?: string[]): Prisma.TransactionWhereInput {
+    const objectIds = ids?.map((id) => id);
     return {
       id: {
-        in: ids,
+        in: objectIds,
       },
     };
   }

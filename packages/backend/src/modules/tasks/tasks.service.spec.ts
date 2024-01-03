@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { rootMongooseTestModule } from '../../../test/rootMongooseTest.module';
-import { getMongoConnection } from '../../config/memoryDatabaseServer';
 import { SystemModule } from '../system/system.module';
 import { TransactionTemplateModule } from '../transaction-templates/transaction-templates.module';
 import { TransactionsModule } from '../transactions/transactions.module';
@@ -59,12 +58,13 @@ describe('TasksService', () => {
   });
 
   afterEach(async () => {
-    const connection = await getMongoConnection();
-    const collections = await connection.db.collections();
-    await Promise.all(
-      collections.map((collection) => collection.deleteMany({})),
-    );
-    await connection.close();
+    // @TODO: Clear database with prisma
+    // const connection = await getMongoConnection();
+    // const collections = await connection.db.collections();
+    // await Promise.all(
+    //   collections.map((collection) => collection.deleteMany({})),
+    // );
+    // await connection.close();
 
     global.Date = RealDate;
   });

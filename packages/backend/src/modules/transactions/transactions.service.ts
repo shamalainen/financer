@@ -134,7 +134,7 @@ export class TransactionsService {
       where: transactionWhere,
       orderBy: { date: sortOrder },
       skip: page ? (page - 1) * limit : 0,
-      take: page ? limit : 0,
+      take: page ? limit : totalCount,
       include: {
         categories: true,
       },
@@ -177,7 +177,7 @@ export class TransactionsService {
       [
         {
           $match: {
-            user: userId,
+            user: { $oid: userId },
             ...this.filterRawMongoByYearAndMonth(year, month, 'laterThan'),
             ...(await this.filterRawMongoTransactionsByCategory(
               userId,
@@ -187,7 +187,7 @@ export class TransactionsService {
         },
         {
           $group: {
-            id: {
+            _id: {
               year: { $year: '$date' },
               month: { $month: '$date' },
             },
@@ -199,77 +199,90 @@ export class TransactionsService {
                 accountTypes,
               ),
             },
-          },
-        },
-        {
-          totalCount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              1,
-              transactionType,
-              accountTypes,
-            ),
-          },
-          incomesCount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              1,
-              TransactionType.INCOME,
-              accountTypes,
-            ),
-          },
-          expensesCount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              1,
-              TransactionType.EXPENSE,
-              accountTypes,
-            ),
-          },
-          transferCount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              1,
-              TransactionType.TRANSFER,
-              accountTypes,
-            ),
-          },
-          totalAmount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              '$amount',
-              transactionType,
-              accountTypes,
-            ),
-          },
-          incomeAmount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              '$amount',
-              TransactionType.INCOME,
-              accountTypes,
-            ),
-          },
-          expenseAmount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              '$amount',
-              TransactionType.EXPENSE,
-              accountTypes,
-            ),
-          },
-          transferAmount: {
-            $sum: await this.filterRawMongoMonthlySummaryCondition(
-              userId,
-              '$amount',
-              TransactionType.TRANSFER,
-              accountTypes,
-            ),
+            totalCount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                1,
+                transactionType,
+                accountTypes,
+              ),
+            },
+            incomesCount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                1,
+                TransactionType.INCOME,
+                accountTypes,
+              ),
+            },
+            expensesCount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                1,
+                TransactionType.EXPENSE,
+                accountTypes,
+              ),
+            },
+            transferCount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                1,
+                TransactionType.TRANSFER,
+                accountTypes,
+              ),
+            },
+            totalAmount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                '$amount',
+                transactionType,
+                accountTypes,
+              ),
+            },
+            incomeAmount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                '$amount',
+                TransactionType.INCOME,
+                accountTypes,
+              ),
+            },
+            expenseAmount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                '$amount',
+                TransactionType.EXPENSE,
+                accountTypes,
+              ),
+            },
+            transferAmount: {
+              $sum: await this.filterRawMongoMonthlySummaryCondition(
+                userId,
+                '$amount',
+                TransactionType.TRANSFER,
+                accountTypes,
+              ),
+            },
           },
         },
         {
           $sort: {
             _id: -1,
+          },
+        },
+        {
+          $project: {
+            id: '$_id',
+            _id: 0,
+            count: 1,
+            totalCount: 1,
+            incomesCount: 1,
+            expensesCount: 1,
+            transferCount: 1,
+            totalAmount: 1,
+            incomeAmount: 1,
+            expenseAmount: 1,
+            transferAmount: 1,
           },
         },
       ],
@@ -412,11 +425,11 @@ export class TransactionsService {
     );
   }
 
-  private getAggregationTransactionTypeFilter(
+  private getRawAggregationTransactionTypeFilter(
     transactionType: TransactionType | null,
   ): Prisma.InputJsonObject[] {
-    const isEmpty = (fieldName) => ({ $eq: [fieldName, null] });
-    const isNotEmpty = (fieldName) => ({ $ne: [fieldName, null] });
+    const isEmpty = (fieldName: string) => ({ $eq: [fieldName, null] });
+    const isNotEmpty = (fieldName: string) => ({ $ne: [fieldName, null] });
 
     switch (transactionType) {
       case TransactionType.INCOME:
@@ -475,7 +488,7 @@ export class TransactionsService {
     return TransactionRepo.filterByAccount(accountIds);
   }
 
-  private async getAggregateAccountTypesFilter(
+  private async getRawAggregateAccountTypesFilter(
     userId: string,
     accountTypes?: AccountType[],
     operator: '$in' | '$nin' = '$in',
@@ -483,14 +496,15 @@ export class TransactionsService {
     if (!accountTypes?.length) return {};
 
     const accountIds = await this.getAccountIdsByType(userId, accountTypes);
+    const objectIds = accountIds.map((id) => ({ $oid: id }));
 
     return {
       $or: [
         {
-          [operator]: ['$toAccount', accountIds],
+          [operator]: ['$toAccount', objectIds],
         },
         {
-          [operator]: ['$fromAccount', accountIds],
+          [operator]: ['$fromAccount', objectIds],
         },
       ],
     };
@@ -523,18 +537,20 @@ export class TransactionsService {
       return {};
     }
 
+    const monthIndex = month ? month - 1 : 0;
+
     if (filterMode === 'laterThan') {
       return {
         date: {
-          $gte: new Date(year, month - 1 || 0, 1),
+          $gte: { $date: new Date(Date.UTC(year, monthIndex || 0, 1)) },
         },
       };
     }
 
     return {
       date: {
-        $gte: new Date(year, month - 1 || 0, 1),
-        $lt: new Date(year, month || 12, 1),
+        $gte: { $date: new Date(Date.UTC(year, monthIndex || 0, 1)) },
+        $lt: { $date: new Date(Date.UTC(year, monthIndex + 1 || 12, 1)) },
       },
     };
   }
@@ -552,11 +568,12 @@ export class TransactionsService {
         userId.toString(),
         categoryIds.map((id) => id.toString()),
       )
-    ).map(({ transactionId }) => transactionId);
+    ).map(({ transactionId }) => ({ $oid: transactionId }));
+    const objectIds = transactionIds.map((id) => ({ $oid: id }));
 
     return {
       _id: {
-        $in: transactionIds,
+        $in: objectIds,
       },
     };
   }
@@ -570,11 +587,11 @@ export class TransactionsService {
     const accountIds = await this.getAccountIdsByType(userId, accountTypes);
 
     const accountTypeFilter = accountIds.length
-      ? await this.getAggregateAccountTypesFilter(userId, accountTypes)
+      ? await this.getRawAggregateAccountTypesFilter(userId, accountTypes)
       : {};
 
     const selectedQuery = [
-      ...this.getAggregationTransactionTypeFilter(transactionType),
+      ...this.getRawAggregationTransactionTypeFilter(transactionType),
       accountTypeFilter,
     ];
 

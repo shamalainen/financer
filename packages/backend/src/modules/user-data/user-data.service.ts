@@ -105,11 +105,13 @@ export class UserDataService {
     }: ImportUserDataDto,
   ) {
     await Promise.all([
-      this.accountsService.removeAllByUser(userId),
       this.accountBalanceChangesService.removeAllByUser(userId),
+      this.transactionCategoryMappingService.removeAllByUser(userId),
+    ]);
+    await Promise.all([
+      this.accountsService.removeAllByUser(userId),
       this.transactionService.removeAllByUser(userId),
       this.transactionCategoriesService.removeAllByUser(userId),
-      this.transactionCategoryMappingService.removeAllByUser(userId),
       this.userPreferencesService.removeAllByUser(userId),
       this.transactionTemplateService.removeAllByUser(userId),
     ]);
@@ -123,18 +125,21 @@ export class UserDataService {
 
     await Promise.all([
       this.accountsService.createMany(accounts, userId),
-      this.accountBalanceChangesService.createMany(parsedAccountBalanceChanges),
       this.transactionService.createMany(userId, transactions),
       this.transactionCategoriesService.createMany(
         userId,
         transactionCategories,
       ),
+      this.userPreferencesService.createMany(userPreferences, userId),
+      this.transactionTemplateService.createMany(userId, transactionTemplates),
+    ]);
+
+    await Promise.all([
+      this.accountBalanceChangesService.createMany(parsedAccountBalanceChanges),
       this.transactionCategoryMappingService.createMany(
         userId,
         transactionCategoryMappings,
       ),
-      this.userPreferencesService.createMany(userPreferences, userId),
-      this.transactionTemplateService.createMany(userId, transactionTemplates),
     ]);
 
     return { payload: 'Successfully overrided data.' };

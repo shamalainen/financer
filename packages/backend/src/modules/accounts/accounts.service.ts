@@ -164,7 +164,7 @@ export class AccountsService {
       )
     ).data.map(({ amount, date, toAccount }) => ({
       date,
-      amount: accountId === toAccount.toString() ? amount : -amount,
+      amount: accountId === toAccount ? amount : -amount,
     }));
 
     const allBalanceChanges = accountBalanceChanges.concat(accountTransactions);

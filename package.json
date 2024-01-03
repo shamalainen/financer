@@ -7,8 +7,8 @@
   ],
   "scripts": {
     "start": "run-p start:types start:backend start:frontend",
-    "start:ci": "NODE_ENV=test PORT=3000 node build/server/main.js",
-    "start:test-internal": "NODE_ENV=test node build/server/main.js",
+    "start:ci": "NODE_ENV=test SCHEMA=packages/backend/prisma/schema.prisma PORT=3000 node build/server/main.js",
+    "start:test-internal": "NODE_ENV=test SCHEMA=packages/backend/prisma/schema.prisma node build/server/main.js",
     "start:test": "run-p start:types start:backend:test start:frontend",
     "start:backend": "npm -w backend run start:dev",
     "start:backend:test": "npm -w backend run start:test",

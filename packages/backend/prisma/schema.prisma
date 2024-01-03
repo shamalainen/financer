@@ -95,8 +95,6 @@ model sessions {
   expires      DateTime @db.Date
   lastModified DateTime @db.Date
   session      String
-
-  @@index([expires], map: "expires_1")
 }
 
 model SystemLog {

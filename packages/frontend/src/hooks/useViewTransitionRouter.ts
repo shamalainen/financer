@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useRouter as useNextRouter } from 'next/router';
-import { useLayoutEffect, useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 
 import { transitionHelper } from '$utils/transitionHelper';
 
@@ -17,7 +17,7 @@ export const useViewTransitionRouter = (transition?: ViewTransition) => {
     (value: unknown) => void
   > | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     return () => {
       if (promiseCallbacks.current) {
         promiseCallbacks.current.resolve(undefined);

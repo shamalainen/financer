@@ -2106,9 +2106,27 @@
         "properties": {
           "id": { "$ref": "#/components/schemas/TransactionMonthSummaryIdDto" },
           "count": { "type": "number" },
-          "totalAmount": { "type": "number" }
+          "totalCount": { "type": "number" },
+          "incomesCount": { "type": "number" },
+          "expensesCount": { "type": "number" },
+          "transferCount": { "type": "number" },
+          "totalAmount": { "type": "number" },
+          "incomeAmount": { "type": "number" },
+          "expenseAmount": { "type": "number" },
+          "transferAmount": { "type": "number" }
         },
-        "required": ["id", "count", "totalAmount"]
+        "required": [
+          "id",
+          "count",
+          "totalCount",
+          "incomesCount",
+          "expensesCount",
+          "transferCount",
+          "totalAmount",
+          "incomeAmount",
+          "expenseAmount",
+          "transferAmount"
+        ]
       },
       "SortOrder": { "type": "string", "enum": ["asc", "desc"] },
       "CategoryMonthlySummaryDto": {
