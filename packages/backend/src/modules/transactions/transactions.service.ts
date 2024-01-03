@@ -94,7 +94,7 @@ export class TransactionsService {
 
   async findAllByUser(
     userId: string,
-    transactionType: TransactionType,
+    transactionType: TransactionType | null,
     page?: number,
     limit = 10,
     year?: number,
@@ -162,7 +162,7 @@ export class TransactionsService {
 
   async findMonthlySummariesByUser(
     userId: string,
-    transactionType: TransactionType,
+    transactionType: TransactionType | null = null,
     year?: number,
     month?: number,
     accountTypes?: AccountType[],
@@ -415,8 +415,8 @@ export class TransactionsService {
   private getAggregationTransactionTypeFilter(
     transactionType: TransactionType | null,
   ): Prisma.InputJsonObject[] {
-    const isEmpty = (fieldName) => ({ $eq: [fieldName, undefined] });
-    const isNotEmpty = (fieldName) => ({ $ne: [fieldName, undefined] });
+    const isEmpty = (fieldName) => ({ $eq: [fieldName, null] });
+    const isNotEmpty = (fieldName) => ({ $ne: [fieldName, null] });
 
     switch (transactionType) {
       case TransactionType.INCOME:
@@ -482,10 +482,7 @@ export class TransactionsService {
   ): Promise<Prisma.InputJsonObject> {
     if (!accountTypes?.length) return {};
 
-    const accountIds = await this.getAccountIdsByType(
-      userId.toString(),
-      accountTypes,
-    );
+    const accountIds = await this.getAccountIdsByType(userId, accountTypes);
 
     return {
       $or: [

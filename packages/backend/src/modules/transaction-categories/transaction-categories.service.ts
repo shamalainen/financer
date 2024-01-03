@@ -95,7 +95,7 @@ export class TransactionCategoriesService {
 
   async findAllByUser(
     userId: string,
-    visibilityType?: TransactionType,
+    visibilityType: TransactionType | null = null,
   ): Promise<TransactionCategory[]> {
     return this.transactionCategoryRepo.findMany({
       where: {
