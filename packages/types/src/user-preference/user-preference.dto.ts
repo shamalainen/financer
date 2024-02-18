@@ -11,7 +11,7 @@ export class UserPreferenceDto<ObjectIdType = string> {
 
   @IsEnum(UserPreferenceProperty, {
     message: `User preference property must be one of following: ${Object.values(
-      UserPreferenceProperty
+      UserPreferenceProperty,
     ).join(', ')}.`,
   })
   readonly key: UserPreferenceProperty;

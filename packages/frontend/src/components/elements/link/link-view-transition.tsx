@@ -28,7 +28,7 @@ export const LinkViewTransition: React.FC<LinkViewTransitionProps> = ({
 
       router.push(props.href.toString());
     },
-    [props.href, router]
+    [props.href, router],
   );
 
   return <NextLink {...props} onClick={handleLinkClick} />;

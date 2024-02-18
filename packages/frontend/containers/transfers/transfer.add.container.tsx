@@ -5,7 +5,7 @@ import {
   CreateTransferDto,
   useTransfersCreateMutation,
   useTransactionTemplatesFindOneQuery,
-  TransactionTypeEnum,
+  TransactionType,
 } from '$api/generated/financerApi';
 import { DataHandler } from '$blocks/data-handler/data-handler';
 import { ToastMessageTypes } from '$blocks/toast/toast';
@@ -36,14 +36,14 @@ export const TransferAddContainer = ({
 
   const templateData = useTransactionTemplatesFindOneQuery(
     { id: templateId as string },
-    { skip: !templateId }
+    { skip: !templateId },
   );
 
   const { data: transactionTemplate } = templateData;
 
   const handleSubmit = async (createTransferDto: CreateTransferDto) => {
     try {
-      const { _id: id } = await addTransfer({
+      const { id } = await addTransfer({
         createTransferDto,
       }).unwrap();
 
@@ -56,9 +56,9 @@ export const TransferAddContainer = ({
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -76,7 +76,7 @@ export const TransferAddContainer = ({
       };
     }
     const categories = transactionTemplate?.categories?.map((categoryId) => ({
-      category_id: categoryId,
+      categoryId: categoryId,
       amount: NaN,
     }));
 
@@ -98,7 +98,7 @@ export const TransferAddContainer = ({
         headerAction={
           <TransactionTemplateSwitcher
             selectedTemplate={templateId}
-            templateType={TransactionTypeEnum.Transfer}
+            templateType={TransactionType.Transfer}
           />
         }
       />

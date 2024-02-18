@@ -1,12 +1,9 @@
+import { SystemLog, SystemLogLevel } from '@prisma/client';
 import { Allow, IsEnum, IsMongoId, IsString } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
-
-import { SystemLogLevel } from './system-log-level';
-
-export class SystemLogDto {
+export class SystemLogDto implements SystemLog {
   @IsMongoId()
-  readonly _id: ObjectId;
+  readonly id: string;
 
   @IsString()
   readonly module: string;

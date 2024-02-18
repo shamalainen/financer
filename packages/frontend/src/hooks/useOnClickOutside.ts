@@ -4,7 +4,7 @@ type EventType = TouchEvent | MouseEvent;
 
 export const useOnClickOutside = (
   ref: RefObject<HTMLElement> | RefObject<HTMLElement>[],
-  handler: (event: EventType) => void
+  handler: (event: EventType) => void,
 ) => {
   const refArray = useMemo(() => (Array.isArray(ref) ? ref : [ref]), [ref]);
 
@@ -14,7 +14,7 @@ export const useOnClickOutside = (
         refArray.some(
           (currentRef) =>
             !currentRef.current ||
-            currentRef.current?.contains(event.target as Node)
+            currentRef.current?.contains(event.target as Node),
         )
       ) {
         return;

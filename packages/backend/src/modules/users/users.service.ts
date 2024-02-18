@@ -1,45 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { User } from '@prisma/client';
 
 import { isNodeEnvInTest } from '../../config/configuration';
 import { DUMMY_TEST_USER } from '../../config/mockAuthenticationMiddleware';
-import { ObjectId } from '../../types/objectId';
+import { UserRepo } from '../../database/repos/user.repo';
 
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(private readonly userRepo: UserRepo) {}
 
-  async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
+  async findAll(): Promise<User[]> {
+    return this.userRepo.findMany({});
   }
 
-  async findOne(id: ObjectId): Promise<UserDocument> {
+  async findOne(id: string): Promise<User> {
     return !isNodeEnvInTest()
-      ? this.userModel.findById(id).exec()
-      : (DUMMY_TEST_USER as UserDocument);
+      ? this.userRepo.findOne({ id })
+      : (DUMMY_TEST_USER as User);
   }
 
-  async findOneByGithubId(githubId: string): Promise<UserDocument> {
-    return this.userModel.findOne({ githubId }).exec();
+  async findOneByGithubId(githubId: string): Promise<User> {
+    return this.userRepo.findOne({ githubId });
   }
 
-  async findOneByAuth0Id(auth0Id: string): Promise<UserDocument> {
-    return this.userModel.findOne({ auth0Id }).exec();
+  async findOneByAuth0Id(auth0Id: string): Promise<User> {
+    return this.userRepo.findOne({ auth0Id });
   }
 
-  async create(createUserDto: User) {
-    return this.userModel.create(createUserDto);
+  async create(createUserDto: CreateUserDto) {
+    return this.userRepo.create(createUserDto);
   }
 
-  update(id: ObjectId, updateUserDto: UpdateUserDto) {
-    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.userRepo.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: ObjectId) {
+  remove(id: string) {
     return `This action removes a #${id} user`;
   }
 }

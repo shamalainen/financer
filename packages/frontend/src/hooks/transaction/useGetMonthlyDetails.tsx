@@ -60,7 +60,7 @@ export const useGetMonthlyDetails = (filterOptions: any) => {
         description: formatCurrency(totalIncomes - totalExpenses) ?? '-',
       },
     ],
-    [totalExpenses, totalIncomes]
+    [totalExpenses, totalIncomes],
   );
 
   return monthlyDetails;

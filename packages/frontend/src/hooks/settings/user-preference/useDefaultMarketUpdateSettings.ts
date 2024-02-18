@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import {
-  UserPreferencePropertyEnum,
+  UserPreferenceProperty,
   useUserPreferencesFindOneQuery,
   useUserPreferencesUpdateMutation,
 } from '$api/generated/financerApi';
@@ -12,7 +12,7 @@ export type UserDefaultMarketUpdateSettings = {
 };
 
 const userPreferenceProperty =
-  UserPreferencePropertyEnum.UpdateInvestmentMarketValue;
+  UserPreferenceProperty.UpdateInvestmentMarketValue;
 
 export const useUserDefaultMarketUpdateSettings = () => {
   const data = useUserPreferencesFindOneQuery({
@@ -24,7 +24,7 @@ export const useUserDefaultMarketUpdateSettings = () => {
       data.data?.value
         ? (JSON.parse(data.data.value) as UserDefaultMarketUpdateSettings)
         : undefined,
-    [data?.data?.value]
+    [data?.data?.value],
   );
 
   return {
@@ -35,7 +35,7 @@ export const useUserDefaultMarketUpdateSettings = () => {
 
 export const useUpdateUserDefaultMarketUpdateSettings = (): [
   (newValue: UserDefaultMarketUpdateSettings) => Promise<void>,
-  ReturnType<typeof useUserPreferencesUpdateMutation>[1]
+  ReturnType<typeof useUserPreferencesUpdateMutation>[1],
 ] => {
   const [updateMutation, data] = useUserPreferencesUpdateMutation();
 
@@ -48,7 +48,7 @@ export const useUpdateUserDefaultMarketUpdateSettings = (): [
         },
       }).unwrap();
     },
-    [updateMutation]
+    [updateMutation],
   );
 
   return [updateUserPreference, data];

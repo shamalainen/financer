@@ -4,7 +4,7 @@
     "project": "tsconfig.json",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "prettier", "import"],
+  "plugins": ["@typescript-eslint", "prettier", "import", "unused-imports"],
   "extends": [
     "airbnb-typescript/base",
     "plugin:@typescript-eslint/recommended",
@@ -17,6 +17,8 @@
     "jest": true
   },
   "rules": {
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "linebreak-style": "off",
     "no-underscore-dangle":  ["error", { "allow": ["_id"] }],

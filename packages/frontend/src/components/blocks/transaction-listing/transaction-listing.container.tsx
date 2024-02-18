@@ -62,7 +62,10 @@ export const TransactionListingContainer = ({
   const rows = useMemo(() => {
     return (
       data?.data.map((transaction) =>
-        convertTransactionToTransactionListingItem(transaction, getCategoryName)
+        convertTransactionToTransactionListingItem(
+          transaction,
+          getCategoryName,
+        ),
       ) || []
     );
   }, [convertTransactionToTransactionListingItem, data?.data, getCategoryName]);

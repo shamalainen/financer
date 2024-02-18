@@ -28,20 +28,19 @@ export const CategoryEditContainer = ({ id }: CategoryEditContainerProps) => {
   const dispatch = useDispatch();
 
   const handleSubmit = async (
-    newTransactionCategoryData: UpdateTransactionCategoryDto
+    newTransactionCategoryData: UpdateTransactionCategoryDto,
   ) => {
-    if (!category?._id) {
+    if (!category?.id) {
       console.error('transactionCategory is not defined');
       return;
     }
     try {
       await editTransactionCategory({
-        id: category._id,
+        id: category.id,
         updateTransactionCategoryDto: {
           ...newTransactionCategoryData,
           visibility: newTransactionCategoryData.visibility || [],
-          parent_category_id:
-            newTransactionCategoryData.parent_category_id || null,
+          parentCategoryId: newTransactionCategoryData.parentCategoryId || null,
         },
       }).unwrap();
 
@@ -55,9 +54,9 @@ export const CategoryEditContainer = ({ id }: CategoryEditContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }

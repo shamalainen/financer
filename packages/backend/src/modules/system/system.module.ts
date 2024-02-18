@@ -1,16 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 
-import { SystemLog, SystemLogSchema } from './schemas/system-log.schema';
+import { DatabaseModule } from '../../database/database.module';
+
 import { SystemController } from './system.controller';
 import { SystemService } from './system.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: SystemLog.name, schema: SystemLogSchema },
-    ]),
-  ],
+  imports: [DatabaseModule],
   controllers: [SystemController],
   providers: [SystemService],
   exports: [SystemService],

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import {
   CreateExpenseDto,
-  TransactionTypeEnum,
+  TransactionType,
   useExpensesCreateMutation,
   useTransactionTemplatesFindOneQuery,
 } from '$api/generated/financerApi';
@@ -33,14 +33,14 @@ export const ExpenseAddContainer = ({
 
   const templateData = useTransactionTemplatesFindOneQuery(
     { id: templateId as string },
-    { skip: !templateId }
+    { skip: !templateId },
   );
 
   const { currentData: transactionTemplate } = templateData;
 
   const handleSubmit = async (createExpenseDto: CreateExpenseDto) => {
     try {
-      const { _id: id } = await addExpense({
+      const { id } = await addExpense({
         createExpenseDto,
       }).unwrap();
 
@@ -53,9 +53,9 @@ export const ExpenseAddContainer = ({
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -70,7 +70,7 @@ export const ExpenseAddContainer = ({
       return { fromAccount: defaultExpenseAccount };
     }
     const categories = transactionTemplate?.categories?.map((categoryId) => ({
-      category_id: categoryId,
+      categoryId,
       amount: NaN,
     }));
 
@@ -88,7 +88,7 @@ export const ExpenseAddContainer = ({
         headerAction={
           <TransactionTemplateSwitcher
             selectedTemplate={templateId}
-            templateType={TransactionTypeEnum.Expense}
+            templateType={TransactionType.Expense}
           />
         }
       />

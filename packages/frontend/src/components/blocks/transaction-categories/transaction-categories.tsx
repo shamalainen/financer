@@ -18,7 +18,7 @@ interface TransactionCategoriesProps {
 
 export interface TransactionCategoriesFormFields {
   description?: string;
-  category_id: string;
+  categoryId: string;
   amount: number;
 }
 
@@ -41,9 +41,9 @@ export const TransactionCategories = ({
 
   const getCategoryNameById = useCallback(
     (categoryId: string) =>
-      transactionCategoriesRaw?.find((category) => category._id === categoryId)
+      transactionCategoriesRaw?.find((category) => category.id === categoryId)
         ?.categoryTree || categoryId,
-    [transactionCategoriesRaw]
+    [transactionCategoriesRaw],
   );
 
   const { getValues, setValue, reset } = useFormContext<FieldArrayFields>();

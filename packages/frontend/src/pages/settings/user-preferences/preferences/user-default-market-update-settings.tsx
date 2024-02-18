@@ -49,11 +49,11 @@ export const UserDefaultMarketUpdateSettings = ({
           </Input>
           <Select
             id="category"
-            options={[{ name: 'None', _id: '' }, ...categories].map(
-              ({ name, _id }) => ({
+            options={[{ name: 'None', id: '' }, ...categories].map(
+              ({ name, id }) => ({
                 label: name,
-                value: _id,
-              })
+                value: id,
+              }),
             )}
             isRequired
           >

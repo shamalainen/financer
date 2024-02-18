@@ -34,7 +34,7 @@ export const UserDefaultAccountSettings = ({
   const methods = useForm<UserDefaultAccountSettingsFormFields>();
 
   useEffect(() => {
-    const firstAccountId = accounts?.at(0)?._id;
+    const firstAccountId = accounts?.at(0)?.id;
 
     methods.reset({
       fromAccountExpense: defaultExpenseAccount || firstAccountId,
@@ -67,9 +67,9 @@ export const UserDefaultAccountSettings = ({
           <Select
             id="toAccountIncome"
             options={
-              accounts?.map(({ name, _id }) => ({
+              accounts?.map(({ name, id }) => ({
                 label: name,
-                value: _id,
+                value: id,
               })) ?? []
             }
             isRequired
@@ -79,9 +79,9 @@ export const UserDefaultAccountSettings = ({
           <Select
             id="fromAccountExpense"
             options={
-              accounts?.map(({ name, _id }) => ({
+              accounts?.map(({ name, id }) => ({
                 label: name,
-                value: _id,
+                value: id,
               })) ?? []
             }
             isRequired
@@ -91,9 +91,9 @@ export const UserDefaultAccountSettings = ({
           <Select
             id="fromAccountTransfer"
             options={
-              accounts?.map(({ name, _id }) => ({
+              accounts?.map(({ name, id }) => ({
                 label: name,
-                value: _id,
+                value: id,
               })) ?? []
             }
             isRequired
@@ -103,9 +103,9 @@ export const UserDefaultAccountSettings = ({
           <Select
             id="toAccountTransfer"
             options={
-              accounts?.map(({ name, _id }) => ({
+              accounts?.map(({ name, id }) => ({
                 label: name,
-                value: _id,
+                value: id,
               })) ?? []
             }
             isRequired

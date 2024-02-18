@@ -1,6 +1,9 @@
-import { TransactionTemplateType, TransactionType } from '@local/types';
+import {
+  TransactionTemplate,
+  TransactionTemplateType,
+  TransactionType,
+} from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@silte/nestjs-swagger';
-import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsMongoId,
@@ -9,20 +12,20 @@ import {
   IsString,
   Max,
   Min,
-  ValidateNested,
 } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
-import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
-import {
-  objectIdArrayTransformer,
-  objectIdTransformer,
-} from '../../../utils/object-id-transformer';
+export class TransactionTemplateDto implements TransactionTemplate {
+  v: number;
 
-export class TransactionTemplateDto {
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly _id: ObjectId;
+  readonly id: string;
 
   @ApiProperty()
   @IsNotEmpty({ message: 'Template name must not be empty.' })
@@ -53,17 +56,17 @@ export class TransactionTemplateDto {
   @ApiPropertyOptional()
   @Min(0.01, { message: 'Amount must be a positive number.' })
   @IsOptional()
-  readonly amount?: number;
+  readonly amount: number = null;
 
   @ApiPropertyOptional()
   @IsString()
-  readonly description?: string;
+  readonly description: string = null;
 
   @ApiPropertyOptional()
   @IsOptional()
   @Min(1, { message: 'Day of month must be a positive number.' })
   @Max(31, { message: 'Day of month must not be greater than 31.' })
-  readonly dayOfMonth?: number;
+  readonly dayOfMonth: number = null;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -73,29 +76,29 @@ export class TransactionTemplateDto {
   @Max(31, {
     message: 'Day of month to create transaction must not be greater than 31.',
   })
-  readonly dayOfMonthToCreate?: number;
+  readonly dayOfMonthToCreate: number = null;
 
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly userId: ObjectId;
+  readonly userId: string;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @IsInstanceOfObjectId({
+  @IsMongoId({
     message: 'fromAccount must be formatted as objectId.',
   })
-  @Transform(objectIdTransformer)
-  readonly fromAccount?: ObjectId | null;
+  readonly fromAccount: string = null;
 
   @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @IsInstanceOfObjectId({ message: 'toAccount must be formatted as objectId.' })
-  @Transform(objectIdTransformer)
-  readonly toAccount?: ObjectId | null;
+  @IsMongoId({ message: 'toAccount must be formatted as objectId.' })
+  readonly toAccount: string = null;
 
   @ApiPropertyOptional({ type: String, isArray: true })
   @IsOptional()
-  @Transform(objectIdArrayTransformer)
-  @ValidateNested({ each: true })
-  categories?: ObjectId[] | null;
+  @IsMongoId({
+    message: 'Categories must be formatted as objectId array.',
+    each: true,
+  })
+  categories: string[] = null;
 }

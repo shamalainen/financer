@@ -1,16 +1,16 @@
 import { useCallback, useMemo } from 'react';
 
 import {
-  AccountTypeEnum,
-  UserPreferencePropertyEnum,
+  AccountType,
+  UserPreferenceProperty,
   useUserPreferencesFindOneQuery,
   useUserPreferencesUpdateMutation,
 } from '$api/generated/financerApi';
 
-const userPreferenceProperty = UserPreferencePropertyEnum.DashboardSettings;
+const userPreferenceProperty = UserPreferenceProperty.DashboardSettings;
 
 type UserDashboardSettings = {
-  accountTypes: AccountTypeEnum[];
+  accountTypes: AccountType[];
 };
 
 export const useUserDashboardSettings = () => {
@@ -23,7 +23,7 @@ export const useUserDashboardSettings = () => {
       data.data?.value
         ? (JSON.parse(data.data.value) as UserDashboardSettings)
         : undefined,
-    [data?.data?.value]
+    [data?.data?.value],
   );
 
   return {
@@ -34,7 +34,7 @@ export const useUserDashboardSettings = () => {
 
 export const useUpdateUserDashboardSettings = (): [
   (newValue: UserDashboardSettings) => Promise<void>,
-  ReturnType<typeof useUserPreferencesUpdateMutation>[1]
+  ReturnType<typeof useUserPreferencesUpdateMutation>[1],
 ] => {
   const [updateMutation, data] = useUserPreferencesUpdateMutation();
 
@@ -47,7 +47,7 @@ export const useUpdateUserDashboardSettings = (): [
         },
       }).unwrap();
     },
-    [updateMutation]
+    [updateMutation],
   );
 
   return [updateUserPreference, data];

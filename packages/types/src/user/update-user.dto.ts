@@ -25,7 +25,7 @@ export class UpdateUserDto {
   @IsEnum(Role, {
     each: true,
     message: `Role must be one of followings: ${Object.values(Role).join(
-      ', '
+      ', ',
     )}.`,
   })
   roles?: Role[];

@@ -81,7 +81,7 @@ export const DashboardStats = ({
     <section
       className={clsx(
         'lg:grid grid-cols-[1.5fr,2fr] lg:pb-6 lg:divide-x lg:divide-gray-dark',
-        className
+        className,
       )}
     >
       <BalanceDisplay amount={balance}>Balance</BalanceDisplay>

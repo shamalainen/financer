@@ -11,7 +11,7 @@ import { TransactionCategoryMappingDto } from '../transaction-category-mapping';
 
 export class TransferDto<
   ObjectIdType = string,
-  CategoriesType = TransactionCategoryMappingDto
+  CategoriesType = TransactionCategoryMappingDto,
 > {
   @IsMongoId()
   readonly _id: ObjectIdType;

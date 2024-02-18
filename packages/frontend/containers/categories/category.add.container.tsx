@@ -17,15 +17,14 @@ export const CategoryAddContainer = () => {
   const dispatch = useDispatch();
 
   const handleSubmit = async (
-    newTransactionCategoryData: CreateTransactionCategoryDto
+    newTransactionCategoryData: CreateTransactionCategoryDto,
   ) => {
     try {
       await addTransactionCategory({
         createTransactionCategoryDto: {
           ...newTransactionCategoryData,
           visibility: newTransactionCategoryData.visibility || [],
-          parent_category_id:
-            newTransactionCategoryData.parent_category_id || null,
+          parentCategoryId: newTransactionCategoryData.parentCategoryId || null,
         },
       }).unwrap();
 
@@ -38,9 +37,9 @@ export const CategoryAddContainer = () => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }

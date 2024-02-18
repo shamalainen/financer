@@ -56,17 +56,17 @@ export const BalanceGraph = ({}: BalanceGraphProps): JSX.Element | null => {
       return [];
 
     const groupedIncomesFormatted = incomeMonthSummaries.map(
-      ({ _id: { month, year }, totalAmount }) => ({
+      ({ id: { month, year }, totalAmount }) => ({
         date: generateDateFromYearAndMonth(year, month),
         amount: totalAmount,
-      })
+      }),
     );
 
     const groupedExpensesFormatted = expenseMonthSummaries.map(
-      ({ _id: { month, year }, totalAmount }) => ({
+      ({ id: { month, year }, totalAmount }) => ({
         date: generateDateFromYearAndMonth(year, month),
         amount: totalAmount * -1,
-      })
+      }),
     );
 
     const allIncomesAndExpenses = [
@@ -75,19 +75,19 @@ export const BalanceGraph = ({}: BalanceGraphProps): JSX.Element | null => {
         amount:
           amount +
           (groupedExpensesFormatted.find(
-            ({ date: expenseDate }) => expenseDate.getTime() === date.getTime()
+            ({ date: expenseDate }) => expenseDate.getTime() === date.getTime(),
           )?.amount || 0),
       })),
       ...groupedExpensesFormatted.filter(
         ({ date }) =>
           !groupedIncomesFormatted.some(
-            ({ date: incomeDate }) => incomeDate.getTime() === date.getTime()
-          )
+            ({ date: incomeDate }) => incomeDate.getTime() === date.getTime(),
+          ),
       ),
     ];
 
     const latestTransactionTimestamp = new Date(
-      latestTransaction?.date ?? new Date()
+      latestTransaction?.date ?? new Date(),
     );
 
     const newBalanceHistory = allIncomesAndExpenses
@@ -98,7 +98,7 @@ export const BalanceGraph = ({}: BalanceGraphProps): JSX.Element | null => {
           const currentBalance = { date, balance: latestBalance - amount };
           return [currentBalance, ...previousBalance];
         },
-        [{ date: latestTransactionTimestamp, balance: totalBalance }]
+        [{ date: latestTransactionTimestamp, balance: totalBalance }],
       );
 
     return newBalanceHistory.length > 12
@@ -170,7 +170,7 @@ export const BalanceGraph = ({}: BalanceGraphProps): JSX.Element | null => {
 
               const value = formatCurrency(
                 currentBalance - previousMonthBalance,
-                true
+                true,
               );
 
               return `${label} (${value})`;
@@ -197,8 +197,8 @@ export const BalanceGraph = ({}: BalanceGraphProps): JSX.Element | null => {
             tension: 0.25,
           },
         ],
-      } as ChartData),
-    [balanceHistory, labels]
+      }) as ChartData,
+    [balanceHistory, labels],
   );
 
   if (!balanceHistory?.length || balanceHistory.length === 1) {

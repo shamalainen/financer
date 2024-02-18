@@ -1,30 +1,30 @@
-import { TransactionType } from '@local/types';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import {
+  TransactionCategoryMapping,
+  TransactionType,
+  Prisma,
+} from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
+import { TransactionCategoryMappingRepo } from '../../database/repos/transaction-category-mapping.repo';
 import { CategoryMonthlySummaryDto } from '../transaction-categories/dto/transaction-month-summary.dto';
 
 import { CreateTransactionCategoryMappingDto } from './dto/create-transaction-category-mapping.dto';
-import { UpdateTransactionCategoryMappingDto } from './dto/update-transaction-category-mapping.dto';
-import {
-  TransactionCategoryMapping,
-  TransactionCategoryMappingDocument,
-} from './schemas/transaction-category-mapping.schema';
 
 @Injectable()
 export class TransactionCategoryMappingsService {
   constructor(
-    @InjectModel(TransactionCategoryMapping.name)
-    private transactionCategoryMappingModel: Model<TransactionCategoryMappingDocument>,
+    private readonly transactionCategoryMappingRepo: TransactionCategoryMappingRepo,
   ) {}
 
   async createMany(
+    userId: string,
     createTransactionCategoryMappingDto: CreateTransactionCategoryMappingDto[],
   ) {
-    return this.transactionCategoryMappingModel.insertMany(
-      createTransactionCategoryMappingDto,
+    return this.transactionCategoryMappingRepo.createMany(
+      createTransactionCategoryMappingDto.map((category) => ({
+        ...category,
+        userId,
+      })),
     );
   }
 
@@ -36,197 +36,190 @@ export class TransactionCategoryMappingsService {
     return `This action returns a #${id} transactionCategoryMapping`;
   }
 
-  async findAllByUser(
-    userId: ObjectId,
-  ): Promise<TransactionCategoryMappingDocument[]> {
-    return this.transactionCategoryMappingModel.find({ owner: userId }).exec();
+  async findAllByUser(userId: string): Promise<TransactionCategoryMapping[]> {
+    return this.transactionCategoryMappingRepo.findMany({ where: { userId } });
   }
 
   async findAllByUserAndCategoryIds(
-    userId: ObjectId,
-    categoryIds: ObjectId[],
-  ): Promise<TransactionCategoryMappingDocument[]> {
-    return this.transactionCategoryMappingModel
-      .find({
-        owner: userId,
-        category_id: { $in: categoryIds },
-      })
-      .exec();
+    userId: string,
+    categoryIds: string[],
+  ): Promise<TransactionCategoryMapping[]> {
+    return this.transactionCategoryMappingRepo.findMany({
+      where: {
+        userId,
+        categoryId: {
+          in: categoryIds,
+        },
+      },
+    });
   }
 
   async findAllByUserAndTransaction(
-    userId: ObjectId,
-    transactionId: ObjectId,
-  ): Promise<TransactionCategoryMappingDocument[]> {
-    return this.transactionCategoryMappingModel
-      .find({ owner: userId, transaction_id: transactionId })
-      .exec();
+    userId: string,
+    transactionId: string,
+  ): Promise<TransactionCategoryMapping[]> {
+    return this.transactionCategoryMappingRepo.findMany({
+      where: { userId, transactionId },
+    });
   }
 
   async findMonthlySummariesByUserAndId(
-    userId: ObjectId,
-    categoryIds: ObjectId[],
-    limit?: number,
+    userId: string,
+    categoryIds: string[],
     year?: number,
     month?: number,
   ): Promise<CategoryMonthlySummaryDto[]> {
-    return this.transactionCategoryMappingModel
-      .aggregate([
-        {
-          $match: {
-            owner: userId,
-            category_id: { $in: categoryIds },
-            ...this.getYearAndMonthFilter(year, month, 'laterThan'),
+    return this.transactionCategoryMappingRepo.aggregateRaw([
+      {
+        $match: {
+          owner: userId,
+          category_id: { $in: categoryIds },
+          ...this.filterRawMongoYearAndMonthFilter(year, month, 'laterThan'),
+        },
+      },
+      {
+        $lookup: {
+          from: 'transactions',
+          localField: 'transaction_id',
+          foreignField: '_id',
+          as: 'transaction',
+        },
+      },
+      {
+        $project: {
+          date: {
+            $arrayElemAt: ['$transaction.date', 0],
+          },
+          amount: '$amount',
+          transactionAmount: {
+            $arrayElemAt: ['$transaction.amount', 0],
+          },
+          fromAccount: {
+            $arrayElemAt: ['$transaction.fromAccount', 0],
+          },
+          toAccount: {
+            $arrayElemAt: ['$transaction.toAccount', 0],
           },
         },
-        {
-          $lookup: {
-            from: 'transactions',
-            localField: 'transaction_id',
-            foreignField: '_id',
-            as: 'transaction',
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$date' },
+            month: { $month: '$date' },
+          },
+          totalCount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(userId, 1, null),
+          },
+          incomeCount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              TransactionType.INCOME,
+            ),
+          },
+          expenseCount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              TransactionType.EXPENSE,
+            ),
+          },
+          transferCount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              1,
+              TransactionType.TRANSFER,
+            ),
+          },
+          totalAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              null,
+            ),
+          },
+          totalTransactionAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$transactionAmount',
+              null,
+            ),
+          },
+          incomeAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              TransactionType.INCOME,
+            ),
+          },
+          incomeTransactionAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$transactionAmount',
+              TransactionType.INCOME,
+            ),
+          },
+          expenseAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              TransactionType.EXPENSE,
+            ),
+          },
+          expenseTransactionAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$transactionAmount',
+              TransactionType.EXPENSE,
+            ),
+          },
+          transferAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$amount',
+              TransactionType.TRANSFER,
+            ),
+          },
+          transferTransactionAmount: {
+            $sum: this.filterRawMongoMonthlySummaryCondition(
+              userId,
+              '$transactionAmount',
+              TransactionType.TRANSFER,
+            ),
           },
         },
-        {
-          $project: {
-            date: {
-              $arrayElemAt: ['$transaction.date', 0],
-            },
-            amount: '$amount',
-            transactionAmount: {
-              $arrayElemAt: ['$transaction.amount', 0],
-            },
-            fromAccount: {
-              $arrayElemAt: ['$transaction.fromAccount', 0],
-            },
-            toAccount: {
-              $arrayElemAt: ['$transaction.toAccount', 0],
-            },
-          },
+      },
+      {
+        $sort: {
+          _id: -1,
         },
-        {
-          $group: {
-            _id: {
-              year: { $year: '$date' },
-              month: { $month: '$date' },
-            },
-            totalCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.ANY,
-              ),
-            },
-            incomeCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.INCOME,
-              ),
-            },
-            expenseCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.EXPENSE,
-              ),
-            },
-            transferCount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                1,
-                TransactionType.TRANSFER,
-              ),
-            },
-            totalAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.ANY,
-              ),
-            },
-            totalTransactionAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$transactionAmount',
-                TransactionType.ANY,
-              ),
-            },
-            incomeAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.INCOME,
-              ),
-            },
-            incomeTransactionAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$transactionAmount',
-                TransactionType.INCOME,
-              ),
-            },
-            expenseAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.EXPENSE,
-              ),
-            },
-            expenseTransactionAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$transactionAmount',
-                TransactionType.EXPENSE,
-              ),
-            },
-            transferAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$amount',
-                TransactionType.TRANSFER,
-              ),
-            },
-            transferTransactionAmount: {
-              $sum: await this.getMonthlySummaryCondition(
-                userId,
-                '$transactionAmount',
-                TransactionType.TRANSFER,
-              ),
-            },
-          },
+      },
+      {
+        $project: {
+          'total.count': '$totalCount',
+          'total.amount': '$totalAmount',
+          'total.transactionAmount': '$totalTransactionAmount',
+          'income.count': '$incomeCount',
+          'income.amount': '$incomeAmount',
+          'income.transactionAmount': '$incomeTransactionAmount',
+          'expense.count': '$expenseCount',
+          'expense.amount': '$expenseAmount',
+          'expense.transactionAmount': '$expenseTransactionAmount',
+          'transfer.count': '$transferCount',
+          'transfer.amount': '$transferAmount',
+          'transfer.transactionAmount': '$transferTransactionAmount',
         },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-        {
-          $project: {
-            'total.count': '$totalCount',
-            'total.amount': '$totalAmount',
-            'total.transactionAmount': '$totalTransactionAmount',
-            'income.count': '$incomeCount',
-            'income.amount': '$incomeAmount',
-            'income.transactionAmount': '$incomeTransactionAmount',
-            'expense.count': '$expenseCount',
-            'expense.amount': '$expenseAmount',
-            'expense.transactionAmount': '$expenseTransactionAmount',
-            'transfer.count': '$transferCount',
-            'transfer.amount': '$transferAmount',
-            'transfer.transactionAmount': '$transferTransactionAmount',
-          },
-        },
-      ])
-      .limit(limit || 1000)
-      .exec();
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ]) as any;
   }
 
-  private getYearAndMonthFilter(
+  private filterRawMongoYearAndMonthFilter(
     year?: number,
     month?: number,
     filterMode: 'targetMonth' | 'laterThan' = 'targetMonth',
-  ) {
+  ): Prisma.InputJsonObject {
     if (!year && month) {
       throw new BadRequestException('Year is required when month is provided');
     }
@@ -251,18 +244,15 @@ export class TransactionCategoryMappingsService {
     };
   }
 
-  private async getMonthlySummaryCondition(
-    userId: ObjectId,
+  private filterRawMongoMonthlySummaryCondition(
+    userId: string,
     operator: '$amount' | '$transactionAmount' | 1 | 0,
     transactionType: TransactionType,
-  ) {
+  ): Prisma.InputJsonValue {
     const selectedQuery =
-      this.getAggregationTransactionTypeFilter(transactionType);
+      this.filterRawMongoAggregationTransactionTypeFilter(transactionType);
 
-    if (
-      transactionType !== TransactionType.ANY ||
-      typeof operator !== 'string'
-    ) {
+    if (transactionType !== null || typeof operator !== 'string') {
       return { $cond: [{ $and: selectedQuery }, operator, 0] };
     }
 
@@ -281,11 +271,11 @@ export class TransactionCategoryMappingsService {
     };
   }
 
-  private getAggregationTransactionTypeFilter(
+  private filterRawMongoAggregationTransactionTypeFilter(
     transactionType: TransactionType,
-  ): { [key in string]: unknown }[] {
-    const isEmpty = (fieldName) => ({ $eq: [fieldName, undefined] });
-    const isNotEmpty = (fieldName) => ({ $ne: [fieldName, undefined] });
+  ): Prisma.InputJsonObject[] {
+    const isEmpty = (fieldName: string) => ({ $eq: [fieldName, undefined] });
+    const isNotEmpty = (fieldName: string) => ({ $ne: [fieldName, undefined] });
 
     switch (transactionType) {
       case TransactionType.INCOME:
@@ -294,7 +284,7 @@ export class TransactionCategoryMappingsService {
         return [isNotEmpty('$fromAccount'), isEmpty('$toAccount')];
       case TransactionType.TRANSFER:
         return [isNotEmpty('$fromAccount'), isNotEmpty('$toAccount')];
-      case TransactionType.ANY:
+      case null:
         return [];
       default:
         throw new Error(`Invalid transaction type: ${transactionType}`);
@@ -309,23 +299,16 @@ export class TransactionCategoryMappingsService {
     return `This action removes a #${id} transactionCategoryMapping`;
   }
 
-  async removeAllByUserAndTransaction(
-    userId: ObjectId,
-    transactionId: ObjectId,
-  ) {
-    await this.transactionCategoryMappingModel
-      .deleteMany({
-        owner: userId,
-        transaction_id: transactionId,
-      })
-      .exec();
+  async removeAllByUserAndTransaction(userId: string, transactionId: string) {
+    await this.transactionCategoryMappingRepo.deleteMany({
+      userId,
+      transactionId,
+    });
   }
 
-  async removeAllByUser(userId: ObjectId) {
-    await this.transactionCategoryMappingModel
-      .deleteMany({
-        owner: userId,
-      })
-      .exec();
+  async removeAllByUser(userId: string) {
+    await this.transactionCategoryMappingRepo.deleteMany({
+      userId,
+    });
   }
 }

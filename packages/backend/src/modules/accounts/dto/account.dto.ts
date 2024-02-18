@@ -1,4 +1,4 @@
-import { AccountType } from '@local/types';
+import { Account, AccountType } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
 import {
   IsBoolean,
@@ -9,10 +9,18 @@ import {
   IsString,
 } from 'class-validator';
 
-export class AccountDto<ObjectId = string> {
+export class AccountDto implements Account {
+  v: number;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly _id: ObjectId;
+  readonly id: string;
 
   @ApiProperty()
   @IsNotEmpty({ message: 'Name must not be empty.' })
@@ -36,9 +44,9 @@ export class AccountDto<ObjectId = string> {
 
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly owner: ObjectId;
+  readonly userId: string;
 
   @ApiProperty()
   @IsBoolean()
-  isDeleted?: boolean;
+  isDeleted: boolean;
 }

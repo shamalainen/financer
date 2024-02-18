@@ -1,10 +1,8 @@
-import { PartialType, OmitType, PickType } from '@silte/nestjs-swagger';
+import { PartialType, PickType } from '@silte/nestjs-swagger';
 
-import { UserDto } from './user.dto';
+import { CreateUserDto } from './create-user.dto';
 
-export class UpdateUserDto extends PartialType(
-  OmitType(UserDto, ['_id' as const]),
-) {}
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
 export class UpdateUserOwnUserDto extends PickType(UpdateUserDto, [
   'name',

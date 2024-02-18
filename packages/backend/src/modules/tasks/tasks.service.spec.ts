@@ -1,9 +1,6 @@
-import { TransactionType } from '@local/types';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { rootMongooseTestModule } from '../../../test/rootMongooseTest.module';
-import { getMongoConnection } from '../../config/memoryDatabaseServer';
-import { parseObjectId } from '../../types/objectId';
 import { SystemModule } from '../system/system.module';
 import { TransactionTemplateModule } from '../transaction-templates/transaction-templates.module';
 import { TransactionsModule } from '../transactions/transactions.module';
@@ -14,7 +11,7 @@ import { UserDataService } from '../user-data/user-data.service';
 import { TasksService } from './tasks.service';
 import { templateFixture } from './template-fixture';
 
-const dummyUserId = parseObjectId('61460d7354ea082ad0256749');
+const dummyUserId = '61460d7354ea082ad0256749';
 
 describe('TasksService', () => {
   let service: TasksService;
@@ -61,12 +58,13 @@ describe('TasksService', () => {
   });
 
   afterEach(async () => {
-    const connection = await getMongoConnection();
-    const collections = await connection.db.collections();
-    await Promise.all(
-      collections.map((collection) => collection.deleteMany({})),
-    );
-    await connection.close();
+    // @TODO: Clear database with prisma
+    // const connection = await getMongoConnection();
+    // const collections = await connection.db.collections();
+    // await Promise.all(
+    //   collections.map((collection) => collection.deleteMany({})),
+    // );
+    // await connection.close();
 
     global.Date = RealDate;
   });
@@ -83,7 +81,7 @@ describe('TasksService', () => {
 
     const transactionsBefore = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsBefore.data).toHaveLength(0);
@@ -92,7 +90,7 @@ describe('TasksService', () => {
 
     const transactionsAfter = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsAfter.data).toHaveLength(1);
@@ -106,7 +104,7 @@ describe('TasksService', () => {
 
     const transactionsBefore = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsBefore.data).toHaveLength(0);
@@ -116,7 +114,7 @@ describe('TasksService', () => {
 
     const transactionsAfter = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsAfter.data).toHaveLength(1);
@@ -132,7 +130,7 @@ describe('TasksService', () => {
 
     const transactionsBefore = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsBefore.data).toHaveLength(0);
@@ -141,7 +139,7 @@ describe('TasksService', () => {
 
     const transactionsAfter = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsAfter.data).toHaveLength(1);
@@ -164,7 +162,7 @@ describe('TasksService', () => {
 
     const transactionsBefore = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsBefore.data).toHaveLength(0);
@@ -173,7 +171,7 @@ describe('TasksService', () => {
 
     const transactionsAfter = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsAfter.data).toHaveLength(1);
@@ -196,7 +194,7 @@ describe('TasksService', () => {
 
     const transactionsBefore = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsBefore.data).toHaveLength(0);
@@ -205,7 +203,7 @@ describe('TasksService', () => {
 
     const transactionsAfter = await transactionsService.findAllByUser(
       dummyUserId,
-      TransactionType.ANY,
+      null,
     );
 
     expect(transactionsAfter.data).toHaveLength(1);

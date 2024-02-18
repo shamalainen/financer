@@ -1,12 +1,19 @@
+import { AccountBalanceChange } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
 import { IsDateString, IsMongoId, IsNumber } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
+export class AccountBalanceChangeDto implements AccountBalanceChange {
+  v: number;
 
-export class AccountBalanceChangeDto {
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
   @ApiProperty()
   @IsMongoId()
-  readonly _id: ObjectId;
+  readonly id: string;
 
   @ApiProperty()
   @IsDateString()
@@ -18,9 +25,9 @@ export class AccountBalanceChangeDto {
 
   @ApiProperty()
   @IsMongoId()
-  readonly userId: ObjectId;
+  readonly userId: string;
 
   @ApiProperty()
   @IsMongoId()
-  readonly accountId: ObjectId;
+  readonly accountId: string;
 }

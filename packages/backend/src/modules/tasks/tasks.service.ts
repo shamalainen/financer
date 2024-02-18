@@ -1,8 +1,7 @@
-import { TransactionTemplateType } from '@local/types';
 import { Injectable } from '@nestjs/common';
+import { SystemLogLevel, TransactionTemplateType } from '@prisma/client';
 
 import { getLastDayOfMonth } from '../../utils/date-utils';
-import { SystemLogLevel } from '../system/dto/system-log-level';
 import { SystemService } from '../system/system.service';
 import { TransactionTemplatesService } from '../transaction-templates/transaction-templates.service';
 import { TransactionsService } from '../transactions/transactions.service';
@@ -22,12 +21,12 @@ export class TasksService {
     const templates =
       await this.templateService.findAutomatedTemplatesWithCreationDateBefore(
         dayOfMonth,
-        dayOfMonth < getLastDayOfMonth() ? '$eq' : '$gte',
+        dayOfMonth < getLastDayOfMonth() ? 'eq' : 'gte',
       );
 
     const templateLogEntries =
       await this.templateService.findTemplateLogEntriesByTemplateIdsAndType(
-        templates.map((template) => template._id),
+        templates.map((template) => template.id),
         TransactionTemplateType.AUTO,
       );
 
@@ -37,7 +36,7 @@ export class TasksService {
 
         const hasAddedTransactionThisMonth = templateLogEntries.some(
           (entry) => {
-            if (!entry.templateId.equals(template._id)) return false;
+            if (entry.templateId !== template.id) return false;
 
             const entryDate = new Date(entry.executed);
             return (
@@ -59,8 +58,8 @@ export class TasksService {
         );
 
         await this.templateService.createTemplateLogEntry({
-          templateId: template._id,
-          transactionId: transaction._id,
+          templateId: template.id,
+          transactionId: transaction.id.toString(),
           executed: now,
           userId,
           eventType: TransactionTemplateType.AUTO,

@@ -11,7 +11,7 @@ export const financerBaseQuery = fetchBaseQuery({
         .map(([key, value]) => [
           key,
           Array.isArray(value) ? value.join(URL_PARAM_ARRAY_SEPARATOR) : value,
-        ])
+        ]),
     );
 
     return new URLSearchParams(formattedParams).toString();

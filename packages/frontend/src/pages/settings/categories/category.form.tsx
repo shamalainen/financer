@@ -3,7 +3,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { getAllChildCategoryIds } from '../../../services/TransactionCategoriesService';
 
-import { VisibilityType, VisibilityTypeEnum } from '$api/generated/financerApi';
+import { TransactionType, VisibilityType } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
 import { settingsPaths } from '$constants/settings-paths';
 import { Checkbox } from '$elements/checkbox/checkbox';
@@ -22,8 +22,8 @@ interface CategoryFormProps {
 
 export interface TransactionCategoryFormFields {
   name: string;
-  visibility: VisibilityType[];
-  parent_category_id: string | null;
+  visibility: TransactionType[];
+  parentCategoryId: string | null;
 }
 
 export const CategoryForm = ({
@@ -36,7 +36,7 @@ export const CategoryForm = ({
   const defaultValues = useMemo(() => {
     return {
       ...initialValues,
-      parent_category_id: initialValues?.parent_category_id ?? '',
+      parentCategoryId: initialValues?.parentCategoryId ?? '',
     };
   }, [initialValues]);
 
@@ -57,15 +57,15 @@ export const CategoryForm = ({
     const forbiddenIds = currentCategoryId
       ? getAllChildCategoryIds(
           currentCategoryId,
-          transactionCategoriesRaw
+          transactionCategoriesRaw,
         ).concat(currentCategoryId)
       : [];
 
     setTransactionCategories([
       ...transactionCategoriesRaw
-        .filter(({ _id }) => !forbiddenIds.includes(_id))
-        .map(({ _id, categoryTree: transactionCategoryName }) => ({
-          value: _id,
+        .filter(({ id }) => !forbiddenIds.includes(id))
+        .map(({ id, categoryTree: transactionCategoryName }) => ({
+          value: id,
           label: transactionCategoryName,
         })),
     ]);
@@ -99,23 +99,23 @@ export const CategoryForm = ({
             id="incomeVisible"
             name="visibility"
             label="Income"
-            value={VisibilityTypeEnum.Income}
+            value={VisibilityType.Income}
           />
           <Checkbox
             id="expenseVisible"
             name="visibility"
             label="Expense"
-            value={VisibilityTypeEnum.Expense}
+            value={VisibilityType.Expense}
           />
           <Checkbox
             id="transferVisible"
             name="visibility"
             label="Transfer"
-            value={VisibilityTypeEnum.Transfer}
+            value={VisibilityType.Transfer}
           />
         </CheckboxGroup>
         <Select
-          id="parent_category_id"
+          id="parentCategoryId"
           options={transactionCategories}
           placeholder="None"
         >

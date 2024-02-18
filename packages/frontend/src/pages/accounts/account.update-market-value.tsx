@@ -10,7 +10,7 @@ import { DateFormat, formatDate } from '$utils/formatDate';
 
 interface AccountUpdateMarketValueProps {
   onUpdate: (
-    closeDrawer: () => void
+    closeDrawer: () => void,
   ) => SubmitHandler<AccountUpdateMarketValueFormFields>;
   currentValue: number;
 }

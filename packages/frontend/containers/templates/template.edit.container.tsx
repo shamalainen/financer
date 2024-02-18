@@ -30,9 +30,9 @@ export const TemplateEditContainer = ({ id }: TemplateEditContainerProps) => {
   const dispatch = useDispatch();
 
   const handleSubmit = async (
-    newTransactionTemplateData: UpdateTransactionTemplateDtoWithCategory
+    newTransactionTemplateData: UpdateTransactionTemplateDtoWithCategory,
   ) => {
-    if (!template?._id) {
+    if (!template?.id) {
       console.error('transactionTemplate is not defined');
       return;
     }
@@ -40,13 +40,13 @@ export const TemplateEditContainer = ({ id }: TemplateEditContainerProps) => {
     const data = {
       ...newTransactionTemplateData,
       categories: newTransactionTemplateData.categories?.map(
-        ({ category_id }) => category_id
+        ({ categoryId }) => categoryId,
       ),
     };
 
     try {
       await editTransactionTemplate({
-        id: template._id,
+        id: template.id,
         updateTransactionTemplateDto: data,
       }).unwrap();
 
@@ -59,9 +59,9 @@ export const TemplateEditContainer = ({ id }: TemplateEditContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }

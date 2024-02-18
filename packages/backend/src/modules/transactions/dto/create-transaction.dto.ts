@@ -14,11 +14,14 @@ import { TransactionDto } from './transaction.dto';
 
 export class CreateTransactionDto extends IntersectionType(
   OmitType(TransactionDto, [
-    '_id',
-    'user',
+    'id',
+    'userId',
     'categories',
     'fromAccount',
     'toAccount',
+    'updatedAt',
+    'createdAt',
+    'v',
   ] as const),
   PartialType(PickType(TransactionDto, ['fromAccount', 'toAccount'] as const)),
 ) {

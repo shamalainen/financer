@@ -1,8 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
+import { User } from '@prisma/client';
 
-import { ObjectId } from '../../types/objectId';
-import { UserDocument, User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -11,12 +10,12 @@ export class AuthSerializer extends PassportSerializer {
     super();
   }
 
-  serializeUser(user: UserDocument, done: (err: Error, string) => void) {
-    done(null, user._id);
+  serializeUser(user: User, done: (err: Error, string) => void) {
+    done(null, user.id);
   }
 
   async deserializeUser(
-    userId: ObjectId,
+    userId: string,
     done: (err: Error, user: User) => void,
   ) {
     const user = await this.userService.findOne(userId);

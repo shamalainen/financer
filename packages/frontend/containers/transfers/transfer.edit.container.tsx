@@ -41,7 +41,7 @@ export const TransferEditContainer = ({ id }: TransferEditContainerProps) => {
         id,
       }).unwrap();
 
-      push(`/statistics/transfers/${transfer?._id}`);
+      push(`/statistics/transfers/${transfer?.id}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === 400 || error.status === 404) {
@@ -50,9 +50,9 @@ export const TransferEditContainer = ({ id }: TransferEditContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -84,7 +84,7 @@ export const TransferEditContainer = ({ id }: TransferEditContainerProps) => {
       <DataHandler {...transferData} />
       <UpdatePageInfo
         title={`Edit ${transfer?.description}`}
-        backLink={`/statistics/transfer/${transfer?._id}`}
+        backLink={`/statistics/transfer/${transfer?.id}`}
         headerAction={<TransactionDelete onDelete={handleDelete} />}
       />
       {transfer && (

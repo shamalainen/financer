@@ -74,7 +74,7 @@ export const TransactionListingWithMonthlyPager = ({
           ...baseFilterOptions,
           ...parseYearMonthFromString(initialDate),
           page: selectedPage,
-        }
+        },
   );
   const { data: transaction } = useGetFirstTransaction();
 
@@ -91,7 +91,7 @@ export const TransactionListingWithMonthlyPager = ({
     window.history.replaceState(
       {},
       '',
-      `${window.location.pathname}?${params}`
+      `${window.location.pathname}?${params}`,
     );
 
     setInitialPage(1);
@@ -104,7 +104,7 @@ export const TransactionListingWithMonthlyPager = ({
       const selectedMonth = new Date(`${year}-${monthWithTwoDigits}-01`);
 
       selectedMonth.setMonth(
-        selectedMonth.getMonth() + (direction === 'next' ? 1 : -1)
+        selectedMonth.getMonth() + (direction === 'next' ? 1 : -1),
       );
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,7 +114,7 @@ export const TransactionListingWithMonthlyPager = ({
         year: selectedMonth.getFullYear(),
       }));
     },
-    [filterOptions]
+    [filterOptions],
   );
 
   const pagerOptions = useMemo(() => {

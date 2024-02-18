@@ -12,7 +12,7 @@ import { CreateTransactionCategoryMappingDto } from '../transaction-category-map
 
 export class UpdateIncomeDto<
   ObjectIdType = string,
-  CategoriesType = CreateTransactionCategoryMappingDto
+  CategoriesType = CreateTransactionCategoryMappingDto,
 > {
   @IsMongoId()
   readonly toAccount?: ObjectIdType;

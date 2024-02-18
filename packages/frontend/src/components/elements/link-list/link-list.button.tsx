@@ -18,7 +18,7 @@ export const LinkListButton = ({
   return (
     <button
       className={clsx(
-        'relative flex w-full gap-4 items-center focus-within:bg-gray-dark hover:bg-gray-dark overflow-hidden pl-4 lg:rounded-md'
+        'relative flex w-full gap-4 items-center focus-within:bg-gray-dark hover:bg-gray-dark overflow-hidden pl-4 lg:rounded-md',
       )}
       onClick={handleClick}
       data-testid={testId}

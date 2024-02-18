@@ -1,18 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { SystemLog } from '@prisma/client';
+
+import { SystemLogRepo } from '../../database/repos/system-log.repo';
 
 import { CreateSystemLogDto } from './dto/create-system-log.dto';
-import { SystemLog, SystemLogDocument } from './schemas/system-log.schema';
 
 @Injectable()
 export class SystemService {
-  constructor(
-    @InjectModel(SystemLog.name)
-    private systemLogModel: Model<SystemLogDocument>,
-  ) {}
+  constructor(private readonly systemLogRepo: SystemLogRepo) {}
 
-  async getLogs(startDate: Date, endDate: Date): Promise<SystemLogDocument[]> {
+  async getLogs(startDate: Date, endDate: Date): Promise<SystemLog[]> {
     const start =
       startDate.toString() !== 'Invalid Date'
         ? startDate
@@ -20,19 +17,15 @@ export class SystemService {
 
     const end = endDate.toString() !== 'Invalid Date' ? endDate : new Date();
 
-    return this.systemLogModel
-      .find({
-        createdAt: {
-          $gte: start,
-          $lte: end,
-        },
-      })
-      .sort({ createdAt: -1 })
-      .exec();
+    return this.systemLogRepo.findMany({
+      where: {
+        createdAt: { gte: start, lte: end },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async createSystemLogEntry(logEntry: CreateSystemLogDto) {
-    const systemLogEntry = new this.systemLogModel(logEntry);
-    return systemLogEntry.save();
+    return this.systemLogRepo.create(logEntry);
   }
 }

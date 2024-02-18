@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 
-import { isValidObjectId, parseObjectId } from '../types/objectId';
+import { isValidObjectId } from '../types/objectId';
 
 @Injectable()
 export class ValidateEntityId implements PipeTransform<string> {
@@ -10,6 +10,7 @@ export class ValidateEntityId implements PipeTransform<string> {
     if (!isValid) {
       throw new BadRequestException('Invalid entity ID provided!');
     }
-    return parseObjectId(value);
+
+    return value;
   }
 }

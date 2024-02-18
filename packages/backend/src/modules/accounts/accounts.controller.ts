@@ -1,4 +1,3 @@
-import { AccountType } from '@local/types';
 import {
   Controller,
   Get,
@@ -10,6 +9,7 @@ import {
   Query,
   ParseArrayPipe,
 } from '@nestjs/common';
+import { AccountType } from '@prisma/client';
 import {
   ApiBody,
   ApiExtraModels,
@@ -19,7 +19,6 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
@@ -42,7 +41,7 @@ export class AccountsController {
   @ApiBody({ type: CreateAccountDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   async create(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() createAccountDto: CreateAccountDto,
   ) {
     return this.accountsService.create(userId, createAccountDto);
@@ -63,7 +62,7 @@ export class AccountsController {
     required: false,
   })
   async findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Query('limit') limit?: number,
     @Query('page') page?: number,
     @Query(
@@ -90,8 +89,8 @@ export class AccountsController {
     type: String,
   })
   async findOneById(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
   ) {
     return this.accountsService.findOne(userId, id);
   }
@@ -104,8 +103,8 @@ export class AccountsController {
     type: String,
   })
   async update(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateAccountDto: UpdateAccountDto,
   ) {
     return this.accountsService.update(userId, id, updateAccountDto);
@@ -116,7 +115,7 @@ export class AccountsController {
     name: 'id',
     type: String,
   })
-  remove(@UserId() userId: ObjectId, @Param('id') id: ObjectId) {
+  remove(@UserId() userId: string, @Param('id') id: string) {
     return this.accountsService.remove(id, userId);
   }
 
@@ -131,8 +130,8 @@ export class AccountsController {
     type: String,
   })
   async getAccountBalanceHistory(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
   ) {
     return this.accountsService.getAccountBalanceHistory(userId, id);
   }

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import {
   useAccountsFindAllByUserQuery,
-  AccountTypeEnum,
+  AccountType,
 } from '$api/generated/financerApi';
 import {
   AccountListing,
@@ -26,30 +26,29 @@ export const AccountListingContainer = () => {
     }
 
     const formattedAccounts = accountsRaw.data.map(
-      ({ _id, balance, name, type }) => ({
+      ({ id, balance, name, type }) => ({
         label: name,
-        link: `/accounts/${_id}`,
+        link: `/accounts/${id}`,
         balanceAmount: formatCurrency(balance),
-        type: type as AccountTypeEnum,
+        type: type as AccountType,
         accountType: type.charAt(0).toUpperCase() + type.slice(1),
-        id: _id,
-      })
+        id,
+      }),
     ) as AccountListingItem[];
 
     const savings = formattedAccounts.filter(
       ({ type }) =>
-        type !== AccountTypeEnum.Loan &&
-        type !== AccountTypeEnum.Investment &&
-        type !== AccountTypeEnum.Credit
+        type !== AccountType.Loan &&
+        type !== AccountType.Investment &&
+        type !== AccountType.Credit,
     );
 
     const investments = formattedAccounts.filter(
-      ({ type }) => type === AccountTypeEnum.Investment
+      ({ type }) => type === AccountType.Investment,
     );
 
     const loans = formattedAccounts.filter(
-      ({ type }) =>
-        type === AccountTypeEnum.Loan || type === AccountTypeEnum.Credit
+      ({ type }) => type === AccountType.Loan || type === AccountType.Credit,
     );
 
     return {

@@ -1,0 +1,265 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEST_USER
+}
+
+enum AccountType {
+  CASH
+  SAVINGS
+  INVESTMENT
+  CREDIT
+  LOAN
+  LONG_TERM_SAVINGS
+  PRE_ASSIGNED_CASH
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum TransactionTemplateType {
+  MANUAL
+  AUTO
+}
+
+enum UserPreferenceProperty {
+  DEFAULT_INCOME_ACCOUNT
+  DEFAULT_EXPENSE_ACCOUNT
+  DEFAULT_TRANSFER_SOURCE_ACCOUNT
+  DEFAULT_TRANSFER_TARGET_ACCOUNT
+  TRANSACTION_LIST_CHUNK_SIZE
+  UPDATE_INVESTMENT_MARKET_VALUE
+  DASHBOARD_SETTINGS
+  STATISTICS_SETTINGS
+}
+
+enum SystemLogLevel {
+  ERROR
+  INFO
+  DEBUG
+}
+
+model AccountBalanceChange {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int?     @map("__v")
+  accountId String   @db.ObjectId
+  amount    Float
+  createdAt DateTime @default(now()) @db.Date
+  date      DateTime @db.Date
+  updatedAt DateTime @updatedAt @db.Date
+  userId    String   @db.ObjectId
+
+  Account Account? @relation(fields: [accountId], references: [id])
+  User    User?    @relation(fields: [userId], references: [id])
+
+  @@map("account-balance-changes")
+}
+
+model Account {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int?        @map("__v")
+  balance   Float
+  createdAt DateTime    @default(now()) @db.Date
+  isDeleted Boolean     @default(false)
+  name      String
+  userId    String      @map("owner") @db.ObjectId
+  type      AccountType
+  updatedAt DateTime    @updatedAt @db.Date
+
+  User                 User                   @relation(fields: [userId], references: [id])
+  AccountBalanceChange AccountBalanceChange[]
+  FromTransactions     Transaction[]          @relation("FromAccountTransaction")
+  ToTransactions       Transaction[]          @relation("ToAccountTransaction")
+  FromTemplates        TransactionTemplate[]  @relation("FromAccountTemplate")
+  ToTemplates          TransactionTemplate[]  @relation("ToAccountTemplate")
+
+  @@index([type], map: "type_1")
+  @@index([userId], map: "owner_1")
+  @@index([isDeleted], map: "isDeleted_1")
+  @@map("accounts")
+}
+
+model sessions {
+  id           String   @id @map("_id")
+  expires      DateTime @db.Date
+  lastModified DateTime @db.Date
+  session      String
+}
+
+model SystemLog {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  module    String
+  service   String
+  message   String
+  level     SystemLogLevel
+  createdAt DateTime       @default(now()) @db.Date
+  updatedAt DateTime       @updatedAt @db.Date
+
+  @@map("systemlogs")
+}
+
+model TransactionCategory {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  v                Int?              @map("__v")
+  createdAt        DateTime          @default(now()) @db.Date
+  deleted          Boolean           @default(false)
+  name             String
+  userId           String            @map("owner") @db.ObjectId
+  parentCategoryId String?           @map("parent_category_id") @db.ObjectId
+  updatedAt        DateTime          @updatedAt @db.Date
+  visibility       TransactionType[]
+
+  User                       User                         @relation(fields: [userId], references: [id])
+  // category TransactionCategory @relation((fields: [parentCategoryId], references: [id]))
+  TransactionCategoryMapping TransactionCategoryMapping[]
+
+  @@index([userId], map: "owner_1")
+  @@index([visibility], map: "visibility_1")
+  @@index([deleted], map: "deleted_1")
+  @@map("transaction-categories")
+}
+
+model TransactionCategoryMapping {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  v             Int?     @map("__v")
+  amount        Float
+  categoryId    String   @map("category_id") @db.ObjectId
+  createdAt     DateTime @default(now()) @db.Date
+  description   String?
+  userId        String   @map("owner") @db.ObjectId
+  transactionId String   @map("transaction_id") @db.ObjectId
+  updatedAt     DateTime @updatedAt @db.Date
+
+  User        User                @relation(fields: [userId], references: [id])
+  Category    TransactionCategory @relation(fields: [categoryId], references: [id])
+  Transaction Transaction         @relation(fields: [transactionId], references: [id])
+
+  @@index([userId], map: "owner_1")
+  @@index([transactionId], map: "transaction_id_1")
+  @@map("transaction-category-mappings")
+}
+
+model TransactionTemplateLog {
+  id            String                  @id @default(auto()) @map("_id") @db.ObjectId
+  eventType     TransactionTemplateType
+  executed      DateTime                @db.Date
+  templateId    String                  @db.ObjectId
+  transactionId String                  @db.ObjectId
+  userId        String                  @db.ObjectId
+
+  User        User                @relation(fields: [userId], references: [id])
+  Transaction Transaction         @relation(fields: [transactionId], references: [id])
+  Template    TransactionTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([userId], map: "userId_1")
+  @@index([eventType], map: "eventType_1")
+  @@index([transactionId], map: "transactionId_1")
+  @@index([templateId], map: "templateId_1")
+  @@index([executed], map: "executed_1")
+  @@map("transaction-template-logs")
+}
+
+model TransactionTemplate {
+  id                 String                    @id @default(auto()) @map("_id") @db.ObjectId
+  v                  Int?                      @map("__v")
+  amount             Float?
+  categories         String[]                  @default([])
+  createdAt          DateTime                  @default(now()) @db.Date
+  dayOfMonth         Int?
+  dayOfMonthToCreate Int?
+  description        String
+  fromAccount        String?                   @db.ObjectId
+  templateName       String
+  templateType       TransactionTemplateType[]
+  templateVisibility TransactionType?
+  toAccount          String?                   @db.ObjectId
+  updatedAt          DateTime                  @updatedAt @db.Date
+  userId             String                    @db.ObjectId
+
+  User                   User                     @relation(fields: [userId], references: [id])
+  From                   Account?                 @relation("FromAccountTemplate", fields: [fromAccount], references: [id])
+  To                     Account?                 @relation("ToAccountTemplate", fields: [toAccount], references: [id])
+  TransactionTemplateLog TransactionTemplateLog[]
+
+  @@index([userId], map: "userId_1")
+  @@index([templateType], map: "templateType_1")
+  @@index([templateVisibility], map: "templateVisibility_1")
+  @@index([dayOfMonthToCreate], map: "dayOfMonthToCreate_1")
+  @@map("transaction-templates")
+}
+
+model Transaction {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  v           Int?     @map("__v")
+  amount      Float
+  createdAt   DateTime @default(now()) @db.Date
+  date        DateTime @db.Date
+  description String
+  fromAccount String?  @db.ObjectId
+  toAccount   String?  @db.ObjectId
+  updatedAt   DateTime @updatedAt @db.Date
+  userId      String   @map("user") @db.ObjectId
+
+  User                   User                         @relation(fields: [userId], references: [id])
+  From                   Account?                     @relation("FromAccountTransaction", fields: [fromAccount], references: [id])
+  To                     Account?                     @relation("ToAccountTransaction", fields: [toAccount], references: [id])
+  categories             TransactionCategoryMapping[]
+  TransactionTemplateLog TransactionTemplateLog[]
+
+  @@index([fromAccount], map: "fromAccount_1")
+  @@index([toAccount], map: "toAccount_1")
+  @@index([date], map: "date_1")
+  @@index([userId], map: "user_1")
+  @@map("transactions")
+}
+
+model UserPreferences {
+  id        String                 @id @default(auto()) @map("_id") @db.ObjectId
+  v         Int?                   @map("__v")
+  createdAt DateTime               @default(now()) @db.Date
+  key       UserPreferenceProperty
+  updatedAt DateTime               @updatedAt @db.Date
+  userId    String                 @db.ObjectId
+  value     String
+
+  User User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, key], name: "userId_key")
+  @@index([userId], map: "userId_1")
+  @@map("userpreferences")
+}
+
+model User {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  v               Int?     @map("__v")
+  auth0Id         String?  @unique
+  createdAt       DateTime @default(now()) @db.Date
+  githubId        String?  @unique
+  name            String
+  nickname        String
+  profileImageUrl String
+  roles           Role[]   @default([])
+  updatedAt       DateTime @updatedAt @db.Date
+
+  AccountBalanceChange       AccountBalanceChange[]
+  Account                    Account[]
+  TransactionCategory        TransactionCategory[]
+  TransactionCategoryMapping TransactionCategoryMapping[]
+  TransactionTemplateLog     TransactionTemplateLog[]
+  TransactionTemplate        TransactionTemplate[]
+  Transaction                Transaction[]
+  UserPreferences            UserPreferences[]
+
+  @@map("users")
+}

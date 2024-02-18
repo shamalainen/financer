@@ -24,7 +24,7 @@ export const HeaderMobile = (): JSX.Element => {
           ['bg-white']: !toolbarColor || toolbarColor === 'white',
           ['bg-neutral-900']: toolbarColor === 'black',
           ['z-[101]']: isHeaderActionActive,
-        }
+        },
       )}
     >
       {backLink && (

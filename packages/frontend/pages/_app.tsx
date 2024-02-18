@@ -1,5 +1,5 @@
 import type { AppProps } from 'next/app';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Provider, useDispatch } from 'react-redux';
 
 import { useAuthGetAuthenticationStatusQuery } from '$api/generated/financerApi';
@@ -29,8 +29,11 @@ const App = ({ Component, pageProps }: AppProps) => {
     useAuthGetAuthenticationStatusQuery();
   const { push, pathname } = useViewTransitionRouter();
   const dispatch = useDispatch();
+  const [hasBeenRedirected, setHasBeenRedirected] = useState(false);
 
   useEffect(() => {
+    if (hasBeenRedirected) return;
+
     if (
       !authenticationStatus?.authenticated ||
       authenticationStatus?.hasAccounts
@@ -38,6 +41,8 @@ const App = ({ Component, pageProps }: AppProps) => {
       dispatch(removeToastMessage('welcomeToFinancer'));
       return;
     }
+
+    setHasBeenRedirected(true);
 
     push('/accounts/add');
     dispatch(
@@ -47,9 +52,9 @@ const App = ({ Component, pageProps }: AppProps) => {
         message: 'Welcome to Financer!',
         additionalInformation:
           'You must add your first account before you start tracking finances with Financer',
-      })
+      }),
     );
-  }, [push, authenticationStatus, dispatch]);
+  }, [push, authenticationStatus, dispatch, hasBeenRedirected]);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -64,7 +69,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         type: ToastMessageTypes.ERROR,
         message: 'Something went wrong!',
         additionalInformation: errors,
-      })
+      }),
     );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

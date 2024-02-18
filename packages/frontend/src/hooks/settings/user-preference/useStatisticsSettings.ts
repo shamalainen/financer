@@ -1,17 +1,17 @@
 import { useCallback, useMemo } from 'react';
 
 import {
-  AccountTypeEnum,
-  UserPreferencePropertyEnum,
+  AccountType,
+  UserPreferenceProperty,
   useUserPreferencesFindOneQuery,
   useUserPreferencesUpdateMutation,
 } from '$api/generated/financerApi';
 
 type UserStatisticsSettings = {
-  accountTypes: AccountTypeEnum[];
+  accountTypes: AccountType[];
 };
 
-const userPreferenceProperty = UserPreferencePropertyEnum.StatisticsSettings;
+const userPreferenceProperty = UserPreferenceProperty.StatisticsSettings;
 
 export const useUserStatisticsSettings = () => {
   const data = useUserPreferencesFindOneQuery({
@@ -23,7 +23,7 @@ export const useUserStatisticsSettings = () => {
       data.data?.value
         ? (JSON.parse(data.data.value) as UserStatisticsSettings)
         : undefined,
-    [data?.data?.value]
+    [data?.data?.value],
   );
 
   return {
@@ -34,7 +34,7 @@ export const useUserStatisticsSettings = () => {
 
 export const useUpdateUserStatisticsSettings = (): [
   (newValue: UserStatisticsSettings) => Promise<void>,
-  ReturnType<typeof useUserPreferencesUpdateMutation>[1]
+  ReturnType<typeof useUserPreferencesUpdateMutation>[1],
 ] => {
   const [updateMutation, data] = useUserPreferencesUpdateMutation();
 
@@ -47,7 +47,7 @@ export const useUpdateUserStatisticsSettings = (): [
         },
       }).unwrap();
     },
-    [updateMutation]
+    [updateMutation],
   );
 
   return [updateUserPreference, data];

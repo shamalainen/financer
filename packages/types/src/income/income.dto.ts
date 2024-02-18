@@ -11,7 +11,7 @@ import { TransactionCategoryMappingDto } from '../transaction-category-mapping/t
 
 export class IncomeDto<
   ObjectIdType = string,
-  CategoriesType = TransactionCategoryMappingDto
+  CategoriesType = TransactionCategoryMappingDto,
 > {
   @IsMongoId()
   readonly _id: ObjectIdType;

@@ -1,25 +1,24 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Module } from '@nestjs/common';
 
-import { AccountsModule } from '../accounts/accounts.module';
-import { TransactionCategoriesModule } from '../transaction-categories/transaction-categories.module';
-import { TransactionCategoryMappingsModule } from '../transaction-category-mappings/transaction-category-mappings.module';
+import { DatabaseModule } from '../../database/database.module';
+import { AccountBalanceChangesService } from '../account-balance-changes/account-balance-changes.service';
+import { AccountsService } from '../accounts/accounts.service';
+import { TransactionCategoriesService } from '../transaction-categories/transaction-categories.service';
+import { TransactionCategoryMappingsService } from '../transaction-category-mappings/transaction-category-mappings.service';
 
-import { Transaction, TransactionSchema } from './schemas/transaction.schema';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Transaction.name, schema: TransactionSchema },
-    ]),
-    forwardRef(() => AccountsModule),
-    TransactionCategoriesModule,
-    TransactionCategoryMappingsModule,
-  ],
+  imports: [DatabaseModule],
   controllers: [TransactionsController],
-  providers: [TransactionsService],
+  providers: [
+    TransactionsService,
+    AccountsService,
+    TransactionCategoriesService,
+    TransactionCategoryMappingsService,
+    AccountBalanceChangesService,
+  ],
   exports: [TransactionsService],
 })
 export class TransactionsModule {}

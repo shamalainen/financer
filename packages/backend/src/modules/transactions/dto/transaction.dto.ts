@@ -1,5 +1,6 @@
+import { Transaction } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsMongoId,
@@ -9,15 +10,20 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
-import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
-import { objectIdTransformer } from '../../../utils/object-id-transformer';
 import { CreateTransactionCategoryMappingWithoutTransactionDto } from '../../transaction-category-mappings/dto/create-transaction-category-mapping.dto';
 
-export class TransactionDto {
+export class TransactionDto implements Transaction {
+  v: number;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly _id: ObjectId;
+  readonly id: string;
 
   @ApiProperty()
   @Min(0.01, { message: 'Amount must be a positive number.' })
@@ -34,17 +40,15 @@ export class TransactionDto {
 
   @ApiProperty({ type: String })
   @IsMongoId()
-  readonly user: ObjectId;
+  readonly userId: string;
 
   @ApiProperty({ type: String })
-  @IsInstanceOfObjectId({ message: 'fromAccount must not be empty.' })
-  @Transform(objectIdTransformer)
-  readonly fromAccount: ObjectId;
+  @IsMongoId({ message: 'fromAccount must not be empty.' })
+  readonly fromAccount: string;
 
   @ApiProperty({ type: String })
-  @IsInstanceOfObjectId({ message: 'toAccount must not be empty.' })
-  @Transform(objectIdTransformer)
-  readonly toAccount: ObjectId;
+  @IsMongoId({ message: 'toAccount must not be empty.' })
+  readonly toAccount: string;
 
   @ApiProperty({
     type: CreateTransactionCategoryMappingWithoutTransactionDto,

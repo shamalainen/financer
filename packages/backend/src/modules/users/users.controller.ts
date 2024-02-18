@@ -1,4 +1,3 @@
-import { Role } from '@local/types';
 import {
   Controller,
   Get,
@@ -10,6 +9,7 @@ import {
   forwardRef,
   Inject,
 } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import {
   ApiBody,
   ApiOkResponse,
@@ -18,7 +18,6 @@ import {
 } from '@silte/nestjs-swagger';
 import { Response } from 'express';
 
-import { ObjectId } from '../../types/objectId';
 import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { Auth } from '../auth/decorators/auht.decorator';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
@@ -46,22 +45,22 @@ export class UsersController {
 
   @Get('my-user')
   @ApiOkResponse({ type: UserDto })
-  findOwnUser(@UserId() userId: ObjectId) {
+  async findOwnUser(@UserId() userId: string) {
     return this.usersService.findOne(userId);
   }
 
   @Get('my-user/my-data')
   @ApiOkResponse({ type: UserDataExportDto })
-  getAllOwnUserData(@UserId() userId: ObjectId, @Res() res: Response) {
+  getAllOwnUserData(@UserId() userId: string, @Res() res: Response) {
     this.getAllOneUserData(userId, res);
   }
 
   @Post('my-user/my-data')
-  @Auth(Role.testUser)
+  @Auth(Role.TEST_USER)
   @ApiBody({ type: UserDataImportDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   overrideAllOwnUserData(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() userData: ImportUserDataDto,
   ) {
     return this.userDataService.overrideUserData(userId, userData);
@@ -71,33 +70,33 @@ export class UsersController {
   @ApiBody({ type: UpdateUserOwnUserDto })
   @ApiOkResponse({ type: UserDto })
   updateOwnUser(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() updateUserDto: UpdateUserOwnUserDto,
   ) {
     return this.usersService.update(userId, updateUserDto);
   }
 
   @Get()
-  @Auth(Role.admin)
+  @Auth(Role.ADMIN)
   @ApiOkResponse({ type: [UserDto] })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Auth(Role.admin)
+  @Auth(Role.ADMIN)
   @ApiOkResponse({ type: UserDto })
   @ApiParam({
     name: 'id',
     type: String,
     description: 'Entity id from users collection.',
   })
-  findOne(@Param('id', ValidateEntityId) id: ObjectId) {
+  findOne(@Param('id', ValidateEntityId) id: string) {
     return this.usersService.findOne(id);
   }
 
   @Get(':id/my-data')
-  @Auth(Role.admin)
+  @Auth(Role.ADMIN)
   @ApiOkResponse({ type: UserDataExportDto })
   @ApiParam({
     name: 'id',
@@ -105,12 +104,11 @@ export class UsersController {
     description: 'Entity id from users collection.',
   })
   async getAllOneUserData(
-    @Param('id', ValidateEntityId) userId: ObjectId,
+    @Param('id', ValidateEntityId) userId: string,
     @Res() res: Response,
   ) {
-    const { filename, data } = await this.userDataService.findAllOneUserData(
-      userId,
-    );
+    const { filename, data } =
+      await this.userDataService.findAllOneUserData(userId);
 
     res.setHeader('Content-disposition', `attachment; filename= ${filename}`);
     res.setHeader('Content-type', 'application/json');
@@ -130,7 +128,7 @@ export class UsersController {
     description: 'Entity id from users collection.',
   })
   update(
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);

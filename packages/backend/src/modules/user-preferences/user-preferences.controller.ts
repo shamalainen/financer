@@ -1,5 +1,5 @@
-import { UserPreferenceProperty } from '@local/types';
 import { Controller, Get, Body, Patch, Param } from '@nestjs/common';
+import { UserPreferenceProperty } from '@prisma/client';
 import {
   ApiBody,
   ApiOkResponse,
@@ -7,7 +7,6 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId } from '../../types/objectId';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { UserId } from '../users/users.decorators';
 
@@ -25,7 +24,7 @@ export class UserPreferencesController {
 
   @Get()
   @ApiOkResponse({ type: [UserPreferenceDto] })
-  async findAll(@UserId() userId: ObjectId) {
+  async findAll(@UserId() userId: string) {
     return this.userPreferencesService.findAll(userId);
   }
 
@@ -39,7 +38,7 @@ export class UserPreferencesController {
   async findOne(
     @Param('userPreferenceProperty')
     userPreferenceProperty: UserPreferenceProperty,
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
   ) {
     return (
       (await this.userPreferencesService.findOneByUserAndProperty(
@@ -57,7 +56,7 @@ export class UserPreferencesController {
   @ApiOkResponse({ type: UserPreferenceDto })
   @ApiBody({ type: UpdateUserPreferenceDto })
   async update(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() updateUserPreferenceDto: UpdateUserPreferenceDto,
   ) {
     return this.userPreferencesService.update(userId, updateUserPreferenceDto);

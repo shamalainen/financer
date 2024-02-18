@@ -1,13 +1,19 @@
-import { Role } from '@local/types';
+import { Role, User } from '@prisma/client';
 import { ApiProperty } from '@silte/nestjs-swagger';
 import { IsMongoId, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
-
-export class UserDto {
+export class UserDto implements User {
   @IsMongoId()
   @ApiProperty({ type: 'string' })
-  _id: ObjectId;
+  id: string;
+
+  v: number;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 
   @IsNotEmpty()
   @ApiProperty()

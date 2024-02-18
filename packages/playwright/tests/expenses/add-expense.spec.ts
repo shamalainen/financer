@@ -70,7 +70,7 @@ test.describe('Add expense', () => {
     await page.getByTestId('edit-expense-button').waitFor();
 
     const accountAfter = await getAccount(targetAccountId);
-    
+
     const expensesAfter = await getAllExpenses();
 
     await verifyAccountBalanceChange(

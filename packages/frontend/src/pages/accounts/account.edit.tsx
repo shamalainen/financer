@@ -17,8 +17,8 @@ export const AccountEdit = ({
     <>
       <UpdatePageInfo
         title={`Edit ${account.name}`}
-        backLink={`/accounts/${account._id}`}
-        headerAction={<DeleteAccountContainer id={account._id} />}
+        backLink={`/accounts/${account.id}`}
+        headerAction={<DeleteAccountContainer id={account.id} />}
       />
       <AccountForm
         onSubmit={onSave}

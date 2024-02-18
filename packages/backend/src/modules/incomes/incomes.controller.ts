@@ -1,4 +1,3 @@
-import { AccountType } from '@local/types';
 import {
   Body,
   Controller,
@@ -10,6 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { AccountType } from '@prisma/client';
 import {
   ApiBody,
   ApiOkResponse,
@@ -18,7 +18,6 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId, parseObjectId } from '../../types/objectId';
 import { ApiPaginatedDto } from '../../utils/pagination.decorator';
 import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
@@ -59,7 +58,7 @@ export class IncomesController {
     required: false,
   })
   async findAllByUser(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Query('month') month: number,
     @Query('year') year: number,
     @Query('page') page: number,
@@ -94,10 +93,6 @@ export class IncomesController {
     required: false,
   })
   @ApiQuery({
-    name: 'limit',
-    required: false,
-  })
-  @ApiQuery({
     name: 'accountTypes',
     required: false,
   })
@@ -111,10 +106,9 @@ export class IncomesController {
     type: String,
   })
   async findMonthlySummariesByuser(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Query('month') month?: number,
     @Query('year') year?: number,
-    @Query('limit') limit?: number,
     @Query(
       'accountTypes',
       new ParseArrayPipe({ separator: '|', optional: true }),
@@ -129,15 +123,14 @@ export class IncomesController {
     )
     transactionCategories?: string[],
     @Query('parentTransactionCategory', ValidateEntityId)
-    parentTransactionCategory?: ObjectId,
+    parentTransactionCategory?: string,
   ) {
     return this.incomesService.findMonthlySummariesByUser(
       userId,
-      limit,
       year,
       month,
       accountTypes,
-      transactionCategories?.map((id) => parseObjectId(id)),
+      transactionCategories,
       parentTransactionCategory,
     );
   }
@@ -152,8 +145,8 @@ export class IncomesController {
     type: String,
   })
   async findOne(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
   ) {
     return this.incomesService.findOne(userId, id);
   }
@@ -162,7 +155,7 @@ export class IncomesController {
   @ApiBody({ type: CreateIncomeDto })
   @ApiOkResponse({ type: IncomeDto })
   async create(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() createIncome: CreateIncomeDto,
   ) {
     return this.incomesService.create(userId, createIncome);
@@ -176,8 +169,8 @@ export class IncomesController {
     type: String,
   })
   update(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateTransactionDto: UpdateIncomeDto,
   ) {
     return this.incomesService.update(userId, id, updateTransactionDto);
@@ -188,10 +181,7 @@ export class IncomesController {
     name: 'id',
     type: String,
   })
-  remove(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
-  ) {
+  remove(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.incomesService.remove(userId, id);
   }
 }

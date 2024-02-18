@@ -69,7 +69,7 @@ export const Toast = ({
         {
           [className]: true,
           [toastStyles]: true,
-        }
+        },
       )}
       role="status"
       data-testid="toast-item"

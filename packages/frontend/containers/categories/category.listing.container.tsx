@@ -12,7 +12,7 @@ const generateCategoryGroupChild = (
   childName: CategoryItem['label'],
   childId: CategoryItem['id'],
   tree: CategoryItem['tree'],
-  showTree = true
+  showTree = true,
 ) => ({
   id: childId,
   label: childName,
@@ -40,23 +40,23 @@ export const CategoryListingContainer = () => {
     if (!categories) return [];
 
     const allParentIds = categories.map(
-      ({ parent_category_id }) => parent_category_id
+      ({ parentCategoryId }) => parentCategoryId,
     );
 
     const categoriesWithChildren = categories
       .filter(
-        ({ _id, parent_category_id }) =>
-          allParentIds.includes(_id) || !!parent_category_id
+        ({ id, parentCategoryId }) =>
+          allParentIds.includes(id) || !!parentCategoryId,
       )
-      .reduce((prev, { name, _id, parent_category_id, categoryTree }) => {
-        if (!parent_category_id) {
+      .reduce((prev, { name, id, parentCategoryId, categoryTree }) => {
+        if (!parentCategoryId) {
           prev.push({
-            ...generateCategoryGroupChild(name, _id, categoryTree, false),
+            ...generateCategoryGroupChild(name, id, categoryTree, false),
             items: [],
           });
         } else {
           prev[prev.length - 1].items.push(
-            generateCategoryGroupChild(name, _id, categoryTree)
+            generateCategoryGroupChild(name, id, categoryTree),
           );
         }
 
@@ -67,11 +67,11 @@ export const CategoryListingContainer = () => {
       label: 'General',
       items: categories
         .filter(
-          ({ _id, parent_category_id }) =>
-            !allParentIds.includes(_id) && !parent_category_id
+          ({ id, parentCategoryId }) =>
+            !allParentIds.includes(id) && !parentCategoryId,
         )
-        .map(({ _id, name, categoryTree }) =>
-          generateCategoryGroupChild(name, _id, categoryTree, false)
+        .map(({ id, name, categoryTree }) =>
+          generateCategoryGroupChild(name, id, categoryTree, false),
         ),
     };
 

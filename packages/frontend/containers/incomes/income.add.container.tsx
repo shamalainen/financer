@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import {
   CreateIncomeDto,
-  TransactionTypeEnum,
+  TransactionType,
   useIncomesCreateMutation,
   useTransactionTemplatesFindOneQuery,
 } from '$api/generated/financerApi';
@@ -31,14 +31,14 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
 
   const templateData = useTransactionTemplatesFindOneQuery(
     { id: templateId as string },
-    { skip: !templateId }
+    { skip: !templateId },
   );
 
   const { data: transactionTemplate } = templateData;
 
   const handleSubmit = async (createIncomeDto: CreateIncomeDto) => {
     try {
-      const { _id: id } = await addIncome({ createIncomeDto }).unwrap();
+      const { id } = await addIncome({ createIncomeDto }).unwrap();
 
       push(`/statistics/incomes/${id}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,9 +49,9 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
             type: ToastMessageTypes.ERROR,
             message: 'Submission failed',
             additionalInformation: parseErrorMessagesToArray(
-              error?.data?.message
+              error?.data?.message,
             ),
-          })
+          }),
         );
         return;
       }
@@ -66,7 +66,7 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
       return { toAccount: defaultIncomeAccount };
     }
     const categories = transactionTemplate?.categories?.map((categoryId) => ({
-      category_id: categoryId,
+      categoryId: categoryId,
       amount: NaN,
     }));
 
@@ -84,7 +84,7 @@ export const IncomeAddContainer = ({ templateId }: IncomeAddContainerProps) => {
         headerAction={
           <TransactionTemplateSwitcher
             selectedTemplate={templateId}
-            templateType={TransactionTypeEnum.Income}
+            templateType={TransactionType.Income}
           />
         }
       />

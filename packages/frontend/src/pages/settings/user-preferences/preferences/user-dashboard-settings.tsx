@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { AccountTypeEnum } from '$api/generated/financerApi';
+import { AccountType } from '$api/generated/financerApi';
 import { Form } from '$blocks/form/form';
+import { accountTypeLabelMapping } from '$constants/account/accountTypeMapping';
 import { settingsPaths } from '$constants/settings-paths';
 import { Checkbox } from '$elements/checkbox/checkbox';
 import { CheckboxGroup } from '$elements/checkbox/checkbox.group';
@@ -11,10 +12,10 @@ import { Paragraph } from '$elements/paragraph/paragraph';
 import { UpdatePageInfo } from '$renderers/seo/updatePageInfo';
 import { capitalize } from '$utils/capitalize';
 
-const allAccountTypes = Object.values(AccountTypeEnum);
+const allAccountTypes = Object.values(AccountType);
 
 export interface UserDashboardSettingsFormFields {
-  accountTypes: AccountTypeEnum[];
+  accountTypes: AccountType[];
 }
 
 interface UserDashboardSettingsProps {
@@ -57,7 +58,7 @@ export const UserDashboardSettings = ({
               key={type}
               id={type}
               value={type}
-              label={capitalize(type)}
+              label={capitalize(accountTypeLabelMapping[type])}
               name={'accountTypes'}
             />
           ))}

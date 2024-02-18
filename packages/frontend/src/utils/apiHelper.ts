@@ -1,5 +1,5 @@
 export const parseErrorMessagesToArray = (
-  error?: string | string[]
+  error?: string | string[],
 ): string[] => {
   if (typeof error === 'undefined') return ['Unknown error.'];
 

@@ -1,34 +1,38 @@
+import { TransactionCategoryMapping } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@silte/nestjs-swagger';
-import { Transform } from 'class-transformer';
 import { IsMongoId, IsOptional, IsString, Min } from 'class-validator';
 
-import { ObjectId } from '../../../types/objectId';
-import { IsInstanceOfObjectId } from '../../../utils/is-instance-of-object-id.decorator';
-import { objectIdTransformer } from '../../../utils/object-id-transformer';
+export class TransactionCategoryMappingDto
+  implements TransactionCategoryMapping
+{
+  v: number;
 
-export class TransactionCategoryMappingDto {
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
   @ApiProperty({ type: String })
   @IsMongoId()
-  _id: ObjectId;
+  id: string;
 
   @ApiProperty({ type: String })
   @IsMongoId()
-  owner: ObjectId;
+  userId: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString({ message: 'Description must not be empty.' })
-  description?: string;
+  @IsString()
+  description: string = null;
 
   @ApiProperty({ type: String })
-  @IsInstanceOfObjectId({ message: 'category_id must not be empty.' })
-  @Transform(objectIdTransformer)
-  category_id: ObjectId;
+  @IsMongoId({ message: 'categoryId must not be empty.' })
+  categoryId: string;
 
   @ApiProperty({ type: String })
-  @IsInstanceOfObjectId({ message: 'transaction_id must not be empty.' })
-  @Transform(objectIdTransformer)
-  transaction_id: ObjectId;
+  @IsMongoId({ message: 'transactionId must not be empty.' })
+  transactionId: string;
 
   @ApiProperty()
   @Min(0.01, { message: 'Amount must be a positive number.' })

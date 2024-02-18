@@ -20,17 +20,17 @@ export const TemplateListing = ({
       {
         label: 'Manual',
         items: templates.filter(
-          ({ templateType }) => templateType[0] === 'manual'
+          ({ templateType }) => templateType[0] === 'manual',
         ),
       },
       {
         label: 'Automatic',
         items: templates.filter(
-          ({ templateType }) => templateType[0] === 'auto'
+          ({ templateType }) => templateType[0] === 'auto',
         ),
       },
     ],
-    [templates]
+    [templates],
   );
 
   return (
@@ -51,7 +51,7 @@ export const TemplateListing = ({
       <section className="grid gap-8">
         {filteredTemplates.map(({ label, items }) => (
           <LinkList label={label} key={label}>
-            {items.map(({ templateName, _id: id }) => (
+            {items.map(({ templateName, id }) => (
               <LinkListLink
                 icon={IconName.lightningBolt}
                 key={id}

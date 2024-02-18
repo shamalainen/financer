@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export const useLocalStorage = <ValueType = never>(
   key: string,
-  initialValue: ValueType
+  initialValue: ValueType,
 ): [ValueType, (value: ValueType) => void] => {
   const [storedValue, setStoredValue] = useState(() => {
     if (typeof window === 'undefined' || key === null) {

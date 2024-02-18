@@ -1,4 +1,3 @@
-import { VisibilityType } from '@local/types';
 import {
   Controller,
   Get,
@@ -9,6 +8,7 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
+import { TransactionType } from '@prisma/client';
 import {
   ApiBody,
   ApiExtraModels,
@@ -18,7 +18,6 @@ import {
   ApiTags,
 } from '@silte/nestjs-swagger';
 
-import { ObjectId } from '../../types/objectId';
 import { ValidateEntityId } from '../../utils/validate-entity-id.pipe';
 import { LoggedIn } from '../auth/decorators/loggedIn.decorators';
 import { UserId } from '../users/users.decorators';
@@ -42,7 +41,7 @@ export class TransactionCategoriesController {
   @ApiBody({ type: CreateTransactionCategoryDto })
   @ApiOkResponse({ schema: { properties: { payload: { type: 'string' } } } })
   async create(
-    @UserId() userId: ObjectId,
+    @UserId() userId: string,
     @Body() createTransactionCategoryDto: CreateTransactionCategoryDto,
   ) {
     return this.transactionCategoriesService.create(
@@ -59,12 +58,12 @@ export class TransactionCategoriesController {
   @ApiQuery({
     name: 'visibilityType',
     required: false,
-    enum: VisibilityType,
+    enum: TransactionType,
     enumName: 'visibilityType',
   })
   findAllByUser(
-    @UserId() userId: ObjectId,
-    @Query('visibilityType') visibilityType?: VisibilityType,
+    @UserId() userId: string,
+    @Query('visibilityType') visibilityType?: TransactionType,
   ) {
     return this.transactionCategoriesService.findAllByUser(
       userId,
@@ -80,10 +79,7 @@ export class TransactionCategoriesController {
     name: 'id',
     type: String,
   })
-  findOne(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
-  ) {
+  findOne(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.transactionCategoriesService.findOne(userId, id);
   }
 
@@ -96,8 +92,8 @@ export class TransactionCategoriesController {
     type: String,
   })
   getCategorySummary(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
   ) {
     return this.transactionCategoriesService.findMonthlySummariesByUserAndId(
       userId,
@@ -113,8 +109,8 @@ export class TransactionCategoriesController {
     type: String,
   })
   update(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
+    @UserId() userId: string,
+    @Param('id', ValidateEntityId) id: string,
     @Body() updateTransactionCategoryDto: UpdateTransactionCategoryDto,
   ) {
     return this.transactionCategoriesService.update(
@@ -129,10 +125,7 @@ export class TransactionCategoriesController {
     name: 'id',
     type: String,
   })
-  remove(
-    @UserId() userId: ObjectId,
-    @Param('id', ValidateEntityId) id: ObjectId,
-  ) {
+  remove(@UserId() userId: string, @Param('id', ValidateEntityId) id: string) {
     return this.transactionCategoriesService.remove(userId, id);
   }
 }

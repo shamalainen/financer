@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { RoleEnum } from '$api/generated/financerApi';
+import { Role } from '$api/generated/financerApi';
 import { settingsPaths } from '$constants/settings-paths';
 import { Button } from '$elements/button/button';
 import { IconName } from '$elements/icon/icon';
@@ -9,7 +9,7 @@ import { LinkListLink } from '$elements/link-list/link-list.link';
 import { UpdatePageInfo } from '$renderers/seo/updatePageInfo';
 
 interface SettingsProps {
-  roles?: RoleEnum[];
+  roles?: Role[];
 }
 
 export const Settings = ({ roles }: SettingsProps): JSX.Element => {
@@ -43,7 +43,7 @@ export const Settings = ({ roles }: SettingsProps): JSX.Element => {
             link: settingsPaths.categories,
             icon: IconName.tag,
           },
-          ...(roles?.includes(RoleEnum.TestUser)
+          ...(roles?.includes(Role.TestUser)
             ? [
                 {
                   children: 'Overrite data',
@@ -55,7 +55,7 @@ export const Settings = ({ roles }: SettingsProps): JSX.Element => {
         ],
       },
     ],
-    [roles]
+    [roles],
   );
 
   return (
